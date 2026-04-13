@@ -315,8 +315,27 @@ button {
   background: linear-gradient(135deg, rgba(139, 111, 71, 0.09), rgba(255, 255, 255, 0.72));
 }
 
+.preset-section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+}
+
 .preset-section .field-help {
   margin: 6px 0 2px;
+}
+
+.details-toggle {
+  flex: 0 0 auto;
+  min-height: 30px;
+  padding: 5px 10px;
+  border: 1px solid rgba(139, 111, 71, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .preset-grid {
@@ -328,8 +347,8 @@ button {
 .preset-button {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  min-height: 82px;
+  gap: 6px;
+  min-height: 58px;
   padding: 15px 16px;
   text-align: left;
   border-radius: 18px;
@@ -355,13 +374,17 @@ button {
 }
 
 .preset-summary {
-  display: flex;
+  display: none;
   flex-wrap: wrap;
   column-gap: 0.35em;
   color: var(--muted);
   font-size: 0.8rem;
   line-height: 1.4;
   overflow-wrap: anywhere;
+}
+
+.show-preset-details .preset-summary {
+  display: flex;
 }
 
 .preset-context,
@@ -1028,6 +1051,7 @@ button {
   }
 
   .strategy-context,
+  .preset-section-head,
   .logic-summary summary {
     align-items: flex-start;
     flex-direction: column;

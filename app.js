@@ -39,6 +39,8 @@ const uiText = {
     noAutoLogic: "No automatic overrides are currently active.",
     presetContext: "Current strategy",
     customStrategy: "Custom setup",
+    details: "Details",
+    hideDetails: "Hide details",
     versionLabel: "Version",
     updatedLabel: "Updated",
     language: "Language",
@@ -123,6 +125,8 @@ const uiText = {
     noAutoLogic: "Aktuell sind keine automatischen Anpassungen aktiv.",
     presetContext: "Aktuelle Strategie",
     customStrategy: "Individuelles Setup",
+    details: "Details",
+    hideDetails: "Details ausblenden",
     versionLabel: "Version",
     updatedLabel: "Aktualisiert",
     language: "Sprache",
@@ -228,6 +232,7 @@ let lastDefensiveAssetAlertKey = "";
 let lastEquityAssetAlertKey = "";
 let lastAdditionalLogicAlertKey = "";
 let activeStatusInfoKey = "";
+let showPresetDetails = false;
 
 document.addEventListener("DOMContentLoaded", () => {
   render();
@@ -833,12 +838,16 @@ function render() {
               </label>
             </div>
 
-            <div class="field-group preset-section">
-              <div>
-                <span class="field-label">${escapeHtml(t.presets)}</span>
-                <p class="field-help">${escapeHtml(t.presetCopy)}</p>
+            <div class="field-group preset-section ${showPresetDetails ? "show-preset-details" : ""}">
+              <div class="preset-section-head">
+                <div>
+                  <span class="field-label">${escapeHtml(t.presets)}</span>
+                  <p class="field-help">${escapeHtml(t.presetCopy)}</p>
+                </div>
+                <button class="details-toggle" type="button" data-action="toggle-preset-details" aria-expanded="${showPresetDetails ? "true" : "false"}">${escapeHtml(showPresetDetails ? t.hideDetails : t.details)}</button>
               </div>
               <div class="preset-grid">${portfolioPresets.map(renderPresetButton).join("")}</div>
+              <div class="strategy-context"><span>${escapeHtml(t.presetContext)}</span><strong>${escapeHtml(getPresetContextText())}</strong></div>
             </div>
 
             <div class="dual-grid triple-grid-mobile">
@@ -945,7 +954,6 @@ function render() {
             <strong>${escapeHtml(riskCheck.ok ? t.riskCheckOk : t.riskCheckWarning)}</strong>
             <span>${escapeHtml(riskCheck.message)}</span>
           </div>
-          <div class="strategy-context"><span>${escapeHtml(t.presetContext)}</span><strong>${escapeHtml(getPresetContextText())}</strong></div>
           ${renderAutoLogicSummary()}
           <div class="action-row">
             <button class="button" type="button" data-action="copy">${escapeHtml(t.copyPrompt)}</button>
@@ -1224,6 +1232,12 @@ function handleClick(event) {
   if (action === "toggle-status-info") {
     const infoKey = event.target.getAttribute("data-info-key");
     activeStatusInfoKey = activeStatusInfoKey === infoKey ? "" : infoKey;
+    render();
+    return;
+  }
+  if (action === "toggle-preset-details") {
+    showPresetDetails = !showPresetDetails;
+    activeStatusInfoKey = "";
     render();
     return;
   }

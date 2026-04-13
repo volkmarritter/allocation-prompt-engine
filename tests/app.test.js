@@ -740,6 +740,10 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /Auto logic/);
   assert.match(html, /Current strategy/);
   assert.match(html, /strategy-context/);
+  assert.match(html, /data-action="toggle-preset-details"/);
+  assert.doesNotMatch(html, /show-preset-details/);
+  assert.equal(html.indexOf("preset-grid") < html.indexOf("strategy-context"), true);
+  assert.equal(html.indexOf("strategy-context") < html.indexOf("riskAppetite"), true);
   assert.match(html, /Jump to prompt/);
   assert.equal(html.indexOf("asset-section") < html.indexOf("mobile-jump"), true);
   assert.equal(html.indexOf("mobile-jump") < html.indexOf("output-section"), true);

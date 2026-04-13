@@ -35,6 +35,9 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".quality-card")).toHaveCount(0);
     await expect(page.locator(".logic-summary")).toContainText("Auto logic");
     await expect(page.locator(".strategy-context")).toContainText("Growth");
+    await expect(page.locator(".preset-section .preset-summary").first()).toBeHidden();
+    await page.locator('button[data-action="toggle-preset-details"]').click();
+    await expect(page.locator(".preset-section .preset-summary").first()).toBeVisible();
     await expect(page.locator(".mobile-jump")).toHaveAttribute("href", "#prompt-output");
     await expect(page.locator(".asset-section").locator("xpath=following-sibling::*[1]")).toHaveClass(/mobile-jump/);
     await expect(page.locator(".app-disclaimer")).toContainText("Disclaimer");
