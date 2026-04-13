@@ -220,6 +220,7 @@ button {
 .strategy-context strong {
   text-align: right;
   font-size: 0.86rem;
+  font-weight: 500;
   line-height: 1.35;
 }
 
