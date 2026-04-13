@@ -7,6 +7,8 @@ const projectRoot = path.resolve(__dirname, "..");
 const appCode = fs.readFileSync(path.join(projectRoot, "app.js"), "utf8");
 const html = fs.readFileSync(path.join(projectRoot, "index.html"), "utf8");
 const css = fs.readFileSync(path.join(projectRoot, "styles.css"), "utf8");
+const packageJson = fs.readFileSync(path.join(projectRoot, "package.json"), "utf8");
+const workflow = fs.readFileSync(path.join(projectRoot, ".github", "workflows", "tests.yml"), "utf8");
 
 function createContext() {
   const context = {
@@ -735,8 +737,44 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /asset-class-pill/);
   assert.match(html, /asset-pie/);
   assert.match(html, /conic-gradient/);
+  assert.match(html, /Prompt quality/);
+  assert.match(html, /Asset classes selected/);
+  assert.match(html, /Auto logic/);
+  assert.match(html, /Current strategy/);
+  assert.match(html, /strategy-context/);
+  assert.match(html, /Jump to prompt/);
+  assert.match(html, /Version 0\.7/);
   assert.match(html, /How to use the generated prompt/);
   assert.match(html, /Structured portfolio prompts for faster investment research/);
+});
+
+test("quality checks and auto logic reflect current state", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      const defaultChecks = getQualityChecks().map((item) => [item.label, item.ok]);
+      state.assetClasses.equities = false;
+      applyAutomaticEquityRangeFromAssetClasses("asset:equities");
+      const noEquityChecks = getQualityChecks().map((item) => [item.label, item.ok]);
+      const logic = getAutoLogicItems();
+      [defaultChecks, noEquityChecks, logic];
+    `
+  );
+
+  assert.equal(result[0].every((item) => item[1]), true);
+  assert.equal(result[1].every((item) => item[1]), true);
+  assert.match(result[2].join(" "), /Equities disabled/);
+});
+
+test("GitHub Actions test workflow is configured", () => {
+  assert.match(packageJson, /"test": "npm run test:unit && npm run test:e2e"/);
+  assert.match(workflow, /actions\/checkout@v4/);
+  assert.match(workflow, /actions\/setup-node@v4/);
+  assert.match(workflow, /npm ci/);
+  assert.match(workflow, /npm test/);
 });
 
 test("asset class pie badge follows selected asset classes", () => {

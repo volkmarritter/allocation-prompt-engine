@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "npm.cmd run test:unit && npm.cmd run test:e2e",
+    "test": "npm run test:unit && npm run test:e2e",
     "test:unit": "node tests/app.test.js",
     "test:e2e": "playwright test"
   },

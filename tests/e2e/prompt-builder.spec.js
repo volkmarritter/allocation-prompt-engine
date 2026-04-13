@@ -32,6 +32,13 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".asset-pie")).toHaveAttribute("style", /conic-gradient/);
     await expect(page.locator(".equity-region-pill")).toContainText("5 equity regions");
     await expect(page.locator(".equity-region-pill .region-sparkline i")).toHaveCount(5);
+    await expect(page.locator(".quality-card")).toContainText("Prompt quality");
+    await expect(page.locator(".quality-card .quality-ok")).toHaveCount(5);
+    await expect(page.locator(".logic-summary")).toContainText("Auto logic");
+    await expect(page.locator(".strategy-context")).toContainText("Growth");
+    await expect(page.locator(".mobile-jump")).toHaveAttribute("href", "#prompt-output");
+    await expect(page.locator(".app-disclaimer")).toContainText("Disclaimer");
+    await expect(page.locator(".version-note")).toContainText("Version 0.7");
     await page.locator('select[name="baseCurrency"]').selectOption("EUR");
     await expect(page.locator(".equity-region-pill")).toContainText("4 equity regions");
     await expect(page.locator(".equity-region-pill .region-sparkline i")).toHaveCount(4);

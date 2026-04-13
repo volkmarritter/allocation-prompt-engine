@@ -17,6 +17,9 @@ const outputSections = [
   { id: "g" },
 ];
 
+const appVersion = "0.7";
+const appUpdated = "April 2026";
+
 const uiText = {
   English: {
     eyebrow: "Portfolio Prompt Builder",
@@ -30,6 +33,22 @@ const uiText = {
     setupCopy: "Choose the values that should flow into the generated prompt, then copy the result directly into your workflow.",
     assetClasses: "asset classes",
     equityRegions: "equity regions",
+    jumpToPrompt: "Jump to prompt",
+    promptQuality: "Prompt quality",
+    checks: {
+      assetClasses: "Asset classes selected",
+      outputSections: "Output sections selected",
+      riskHorizon: "Risk/horizon plausible",
+      etfCount: "ETF count valid",
+      equityRange: "Equity range valid",
+    },
+    autoLogic: "Auto logic",
+    autoLogicCopy: "What the builder adjusted from your inputs.",
+    noAutoLogic: "No automatic overrides are currently active.",
+    presetContext: "Current strategy",
+    customStrategy: "Custom setup",
+    versionLabel: "Version",
+    updatedLabel: "Updated",
     language: "Language",
     riskAppetite: "Risk appetite",
     investmentHorizon: "Investment horizon",
@@ -106,6 +125,22 @@ const uiText = {
     setupCopy: "Wähle die Werte, die in den generierten Prompt einfliessen sollen, und kopiere das Ergebnis direkt in deinen Workflow.",
     assetClasses: "Anlageklassen",
     equityRegions: "Aktienregionen",
+    jumpToPrompt: "Zum Prompt",
+    promptQuality: "Prompt-Qualität",
+    checks: {
+      assetClasses: "Anlageklassen gewählt",
+      outputSections: "Ausgabeabschnitte gewählt",
+      riskHorizon: "Risiko/Horizont plausibel",
+      etfCount: "ETF-Anzahl gültig",
+      equityRange: "Aktienquote gültig",
+    },
+    autoLogic: "Auto-Logik",
+    autoLogicCopy: "Was der Builder aus deinen Eingaben abgeleitet hat.",
+    noAutoLogic: "Aktuell sind keine automatischen Anpassungen aktiv.",
+    presetContext: "Aktuelle Strategie",
+    customStrategy: "Individuelles Setup",
+    versionLabel: "Version",
+    updatedLabel: "Aktualisiert",
     language: "Sprache",
     riskAppetite: "Risikoappetit",
     investmentHorizon: "Anlagehorizont",
@@ -250,6 +285,77 @@ function getPromptStats(prompt) {
     sections: getSelectedSections().length,
     words: prompt.trim().split(/\s+/).filter(Boolean).length,
   };
+}
+
+function getQualityChecks(riskCheck = getRiskHorizonCheck()) {
+  const t = uiText[state.outputLanguage];
+  const minEtfs = Math.min(state.minEtfs, state.maxEtfs);
+  const maxEtfs = Math.max(state.minEtfs, state.maxEtfs);
+  const minEquity = Math.min(state.equityMin, state.equityMax);
+  const maxEquity = Math.max(state.equityMin, state.equityMax);
+  return [
+    { label: t.checks.assetClasses, ok: getSelectedAssetClasses().length > 0 },
+    { label: t.checks.outputSections, ok: getSelectedSections().length > 0 },
+    { label: t.checks.riskHorizon, ok: riskCheck.ok },
+    { label: t.checks.etfCount, ok: minEtfs >= 1 && maxEtfs >= minEtfs },
+    { label: t.checks.equityRange, ok: state.assetClasses.equities ? maxEquity >= minEquity : minEquity === 0 && maxEquity === 0 },
+  ];
+}
+
+function getActivePreset() {
+  return portfolioPresets.find((preset) => {
+    const minEtfs = Number.isInteger(preset.minEtfs) ? preset.minEtfs : defaults.minEtfs;
+    const maxEtfs = Number.isInteger(preset.maxEtfs) ? preset.maxEtfs : defaults.maxEtfs;
+    return preset.riskAppetite === state.riskAppetite
+      && preset.investmentHorizon === state.investmentHorizon
+      && preset.equityMin === state.equityMin
+      && preset.equityMax === state.equityMax
+      && minEtfs === state.minEtfs
+      && maxEtfs === state.maxEtfs;
+  });
+}
+
+function getPresetContextText() {
+  const german = isGerman();
+  const t = uiText[state.outputLanguage];
+  const preset = getActivePreset();
+  const label = preset ? (german ? preset.deLabel : preset.label) : t.customStrategy;
+  const equitySuffix = german ? "Aktien" : "equity";
+  const etfText = german ? "ETFs" : "ETFs";
+  return `${label}: ${state.equityMin}-${state.equityMax}% ${equitySuffix}, ${state.minEtfs}-${state.maxEtfs} ${etfText}, ${state.exchange}`;
+}
+
+function getAutoLogicItems() {
+  const german = isGerman();
+  const items = [];
+
+  items.push(state.exchangeManuallyAdjusted
+    ? german ? "Börsenfokus manuell festgelegt." : "Exchange focus manually set."
+    : german ? `Börsenfokus automatisch aus ${state.baseCurrency} abgeleitet.` : `Exchange focus automatically derived from ${state.baseCurrency}.`);
+
+  if (!state.assetClasses.equities) {
+    items.push(german ? "Aktien deaktiviert: Aktienquote automatisch auf 0-0% gesetzt." : "Equities disabled: equity range automatically set to 0-0%.");
+  } else {
+    items.push(state.equityRangeManuallyAdjusted
+      ? german ? "Aktienquote manuell angepasst." : "Equity range manually adjusted."
+      : german ? `Aktienquote automatisch aus Risikoappetit ${translateRisk(state.riskAppetite, true)} abgeleitet.` : `Equity range automatically derived from ${state.riskAppetite} risk appetite.`);
+  }
+
+  const disabledAssetClasses = assetClassOptions.filter((option) => !state.assetClasses[option.id]);
+  if (state.etfCountManuallyAdjusted) {
+    items.push(german ? "ETF-Zielanzahl manuell angepasst." : "Target ETF count manually adjusted.");
+  } else if (disabledAssetClasses.length) {
+    const labels = disabledAssetClasses.map((option) => german ? option.deLabel : option.label).join(", ");
+    items.push(german ? `ETF-Zielanzahl automatisch reduziert wegen: ${labels}.` : `Target ETF count automatically reduced because these asset classes are disabled: ${labels}.`);
+  } else {
+    items.push(german ? "ETF-Zielanzahl folgt dem Standardbereich." : "Target ETF count follows the default range.");
+  }
+
+  if (state.baseCurrency === "USD") {
+    items.push(german ? "Home-Bias-Hinweis wird bei USD automatisch ausgeblendet." : "Home-bias guidance is automatically hidden for USD.");
+  }
+
+  return items;
 }
 
 function getHorizonYears() {
@@ -764,6 +870,7 @@ function render() {
                 <p class="field-help">${escapeHtml(t.presetCopy)}</p>
               </div>
               <div class="preset-grid">${portfolioPresets.map(renderPresetButton).join("")}</div>
+              <div class="strategy-context"><span>${escapeHtml(t.presetContext)}</span><strong>${escapeHtml(getPresetContextText())}</strong></div>
             </div>
 
             <div class="dual-grid triple-grid-mobile">
@@ -853,10 +960,11 @@ function render() {
               ${renderCheckboxCard("includeLookThrough", state.includeLookThrough, t.includeLookThrough, t.includeLookThroughDescription)}
               ${renderCheckboxCard("includeSyntheticEtfs", state.includeSyntheticEtfs, t.includeSyntheticEtfs, t.includeSyntheticEtfsDescription)}
             </div></div>
+            <a class="mobile-jump" href="#prompt-output">${escapeHtml(t.jumpToPrompt)}</a>
           </div>
         </section>
 
-        <section class="panel output-panel">
+        <section class="panel output-panel" id="prompt-output">
           <div class="panel-header">
             <div class="panel-title">
               <div class="panel-label">${escapeHtml(t.generatedPrompt)}</div>
@@ -869,6 +977,8 @@ function render() {
             <strong>${escapeHtml(riskCheck.ok ? t.riskCheckOk : t.riskCheckWarning)}</strong>
             <span>${escapeHtml(riskCheck.message)}</span>
           </div>
+          ${renderQualityChecklist(riskCheck)}
+          ${renderAutoLogicSummary()}
           <div class="action-row">
             <button class="button" type="button" data-action="copy">${escapeHtml(t.copyPrompt)}</button>
             <button class="button-ghost" type="button" data-action="export-txt">${escapeHtml(t.exportTxt)}</button>
@@ -882,7 +992,7 @@ function render() {
             <div class="summary-item"><strong>${Math.min(state.minEtfs, state.maxEtfs)}-${Math.max(state.minEtfs, state.maxEtfs)}</strong><span>${escapeHtml(t.targetEtfPositions)}</span></div>
             <div class="summary-item"><strong>${escapeHtml(state.baseCurrency)}</strong><span>${escapeHtml(t.portfolioBaseCurrency)}</span></div>
           </div>
-          <div class="app-disclaimer"><strong>${escapeHtml(t.disclaimerTitle)}</strong><span>${escapeHtml(t.disclaimerText)}</span></div>
+          <div class="app-disclaimer"><span class="disclaimer-mark">i</span><div><strong>${escapeHtml(t.disclaimerTitle)}</strong><span>${escapeHtml(t.disclaimerText)}</span></div></div>
 
         </section>
       </section>
@@ -898,6 +1008,7 @@ function render() {
           <ul>${t.marketingBullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("")}</ul>
         </article>
       </section>
+      <div class="version-note">${escapeHtml(t.versionLabel)} ${escapeHtml(appVersion)} · ${escapeHtml(t.updatedLabel)} ${escapeHtml(appUpdated)}</div>
     </main>
   `;
 }
@@ -1003,6 +1114,35 @@ function renderEquityRegionBadge(stats) {
         ${regions.map((region) => `<i title="${escapeAttribute(region)}"></i>`).join("")}
       </span>
     </span>
+  `;
+}
+
+function renderQualityChecklist(riskCheck) {
+  const t = uiText[state.outputLanguage];
+  const checks = getQualityChecks(riskCheck);
+  return `
+    <section class="quality-card" aria-label="${escapeAttribute(t.promptQuality)}">
+      <div class="quality-heading">${escapeHtml(t.promptQuality)}</div>
+      <div class="quality-grid">
+        ${checks.map((check) => `
+          <span class="quality-chip ${check.ok ? "quality-ok" : "quality-warning"}">
+            <b>${check.ok ? "✓" : "!"}</b>
+            ${escapeHtml(check.label)}
+          </span>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderAutoLogicSummary() {
+  const t = uiText[state.outputLanguage];
+  const items = getAutoLogicItems();
+  return `
+    <details class="logic-summary">
+      <summary><span>${escapeHtml(t.autoLogic)}</span><small>${escapeHtml(t.autoLogicCopy)}</small></summary>
+      <ul>${(items.length ? items : [t.noAutoLogic]).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+    </details>
   `;
 }
 
