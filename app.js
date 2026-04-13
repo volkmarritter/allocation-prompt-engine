@@ -241,7 +241,23 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function createDefaultState() {
-  return JSON.parse(JSON.stringify(defaults));
+  const next = JSON.parse(JSON.stringify(defaults));
+  const defaultPreset = portfolioPresets.find((preset) => preset.id === "growth");
+  if (defaultPreset) {
+    Object.assign(next, {
+      riskAppetite: defaultPreset.riskAppetite,
+      investmentHorizon: defaultPreset.investmentHorizon,
+      equityMin: defaultPreset.equityMin,
+      equityMax: defaultPreset.equityMax,
+    });
+    if (defaultPreset.assetClasses) {
+      Object.assign(next.assetClasses, defaultPreset.assetClasses);
+    }
+    const [minEtfs, maxEtfs] = getAutomaticEtfCount(next.assetClasses);
+    next.minEtfs = minEtfs;
+    next.maxEtfs = maxEtfs;
+  }
+  return next;
 }
 
 function isGerman() {
@@ -1376,12 +1392,19 @@ function getNextEtfCount(key, value) {
 function applyAutomaticEtfCountFromAssetClasses() {
   if (state.etfCountManuallyAdjusted) return;
 
+  const [minEtfs, maxEtfs] = getAutomaticEtfCount(state.assetClasses);
+  state.minEtfs = minEtfs;
+  state.maxEtfs = maxEtfs;
+}
+
+function getAutomaticEtfCount(assetClasses) {
   const reduction = assetClassOptions.reduce((total, option) => {
-    if (state.assetClasses[option.id]) return total;
+    if (assetClasses[option.id]) return total;
     return total + (option.id === "equities" ? 5 : 1);
   }, 0);
-  state.minEtfs = Math.max(1, defaults.minEtfs - reduction);
-  state.maxEtfs = Math.max(state.minEtfs, defaults.maxEtfs - reduction);
+  const minEtfs = Math.max(1, defaults.minEtfs - reduction);
+  const maxEtfs = Math.max(minEtfs, defaults.maxEtfs - reduction);
+  return [minEtfs, maxEtfs];
 }
 
 function applyAutomaticEquityRangeFromAssetClasses(changedName = "") {

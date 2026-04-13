@@ -27,7 +27,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".etf-count-group").locator(".status-pill")).toHaveText("Auto");
     await page.locator(".range-group").first().locator(".status-info").click();
     await expect(page.locator(".status-info-wrap.is-open .status-tooltip")).toContainText("Automatically derived");
-    await expect(page.locator(".asset-class-pill")).toContainText("6 asset classes");
+    await expect(page.locator(".asset-class-pill")).toContainText("5 asset classes");
     await expect(page.locator(".asset-pie")).toBeVisible();
     await expect(page.locator(".asset-pie")).toHaveAttribute("style", /conic-gradient/);
     await expect(page.locator(".equity-region-pill")).toContainText("5 equity regions");
@@ -36,7 +36,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".logic-summary")).toContainText("Auto logic");
     await expect(page.locator(".strategy-context")).toContainText("Growth");
     await expect(page.locator(".strategy-context .strategy-segment")).toHaveCount(4);
-    await expect(page.locator(".strategy-context .strategy-segment").nth(2)).toHaveText("8-12 ETFs,");
+    await expect(page.locator(".strategy-context .strategy-segment").nth(2)).toHaveText("7-11 ETFs,");
     await expect(page.locator(".preset-section .preset-summary").first()).toBeHidden();
     await expect(page.locator(".preset-section .preset-icon")).toHaveCount(4);
     await page.locator('button[data-action="toggle-preset-details"]').click();
@@ -249,45 +249,45 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
       await page.locator('button[data-step-target="maxEtfs"][data-step-direction="-1"]').click();
     }
 
-    await expect(page.locator(".etf-count-group")).toContainText("8 to 8");
-    await expect(page.locator(".output-box")).toContainText("Target exactly 8 positions");
+    await expect(page.locator(".etf-count-group")).toContainText("7 to 7");
+    await expect(page.locator(".output-box")).toContainText("Target exactly 7 positions");
 
     await page.locator('button[data-step-target="minEtfs"][data-step-direction="1"]').click();
-    await expect(page.locator(".etf-count-group")).toContainText("8 to 8");
+    await expect(page.locator(".etf-count-group")).toContainText("7 to 7");
   });
 
   test("ETF count auto-reduces with deselected asset classes until manual override", async ({ page }) => {
     await openApp(page);
 
     await page.locator('input[name="asset:cash"]').click();
-    await expect(page.locator(".etf-count-group")).toContainText("7 to 11");
-    await expect(page.locator(".output-box")).toContainText("Target 7-11 positions");
-
-    await page.locator('input[name="asset:bonds"]').click();
     await expect(page.locator(".etf-count-group")).toContainText("6 to 10");
     await expect(page.locator(".output-box")).toContainText("Target 6-10 positions");
 
+    await page.locator('input[name="asset:bonds"]').click();
+    await expect(page.locator(".etf-count-group")).toContainText("5 to 9");
+    await expect(page.locator(".output-box")).toContainText("Target 5-9 positions");
+
     await page.locator('input[name="asset:equities"]').click();
-    await expect(page.locator(".etf-count-group")).toContainText("1 to 5");
-    await expect(page.locator(".output-box")).toContainText("Target 1-5 positions");
+    await expect(page.locator(".etf-count-group")).toContainText("1 to 4");
+    await expect(page.locator(".output-box")).toContainText("Target 1-4 positions");
 
     await page.locator('button[data-step-target="minEtfs"][data-step-direction="1"]').click();
-    await expect(page.locator(".etf-count-group")).toContainText("2 to 5");
+    await expect(page.locator(".etf-count-group")).toContainText("2 to 4");
     await expect(page.locator(".etf-count-group").locator(".status-pill")).toHaveText("Manual");
 
     await page.locator('input[name="asset:crypto"]').click();
-    await expect(page.locator(".etf-count-group")).toContainText("2 to 5");
+    await expect(page.locator(".etf-count-group")).toContainText("2 to 4");
 
     await page.locator('button[data-action="restore-etf-auto"]').click();
-    await expect(page.locator(".etf-count-group")).toContainText("1 to 4");
+    await expect(page.locator(".etf-count-group")).toContainText("1 to 3");
     await expect(page.locator(".etf-count-group").locator(".status-pill")).toHaveText("Auto");
 
     await page.locator('button[data-action="reset"]').click();
-    await expect(page.locator(".etf-count-group")).toContainText("8 to 12");
+    await expect(page.locator(".etf-count-group")).toContainText("7 to 11");
     await expect(page.locator(".etf-count-group").locator(".status-pill")).toHaveText("Auto");
 
     await page.locator('input[name="asset:cash"]').click();
-    await expect(page.locator(".etf-count-group")).toContainText("7 to 11");
+    await expect(page.locator(".etf-count-group")).toContainText("6 to 10");
   });
 
   test("uses exact wording when equity min and max are equal", async ({ page }) => {

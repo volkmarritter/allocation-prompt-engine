@@ -9,9 +9,9 @@ Diese Datei dokumentiert die fachliche Logik der App in Bezug auf gewählte Stra
 - `Investment horizon`: `>=10 years`
 - `Equity allocation range`: `75% bis 95%`
 - `Preferred exchange`: `SIX Swiss Exchange`
-- `Target ETF positions`: `8 bis 12`
+- `Target ETF positions`: `7 bis 11`
 - `Language`: `English`
-- Alle Anlageklassen sind standardmässig ausgewählt.
+- Alle Anlageklassen ausser `Listed Real Estate` sind standardmässig ausgewählt, entsprechend dem `Growth`-Preset.
 - Alle Ausgabeabschnitte `A` bis `G` sind standardmässig ausgewählt.
 - Prompt-Instruktionen für Home Bias, Hedging, Look-through und synthetische ETFs sind standardmässig aktiv.
 
@@ -58,9 +58,13 @@ Wenn der Nutzer die Aktienquote über Plus-/Minus-Buttons manuell ändert:
 
 ## ETF-Zielanzahl
 
-Default:
+Basiswert für die Auto-Berechnung:
 
 - `8 bis 12` ETF-Positionen.
+
+Da der Default-Zustand dem `Growth`-Preset entspricht und `Listed Real Estate` abgewählt ist, startet die App effektiv mit:
+
+- `7 bis 11` ETF-Positionen.
 
 Solange der Nutzer die ETF-Zielanzahl nicht manuell geändert hat:
 

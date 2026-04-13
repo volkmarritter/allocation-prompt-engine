@@ -564,11 +564,11 @@ test("ETF count follows deselected asset classes until manually changed", () => 
     `
   );
 
-  assert.deepEqual(Array.from(result[0]), [7, 11]);
-  assert.deepEqual(Array.from(result[1]), [6, 10]);
-  assert.deepEqual(Array.from(result[2]), [1, 5]);
-  assert.deepEqual(Array.from(result[3]), [1, 5]);
-  assert.deepEqual(Array.from(result[4]), [7, 11, false]);
+  assert.deepEqual(Array.from(result[0]), [6, 10]);
+  assert.deepEqual(Array.from(result[1]), [5, 9]);
+  assert.deepEqual(Array.from(result[2]), [1, 4]);
+  assert.deepEqual(Array.from(result[3]), [1, 4]);
+  assert.deepEqual(Array.from(result[4]), [6, 10, false]);
 });
 
 test("min and max equity weights are bounded against each other", () => {
@@ -721,6 +721,32 @@ test("portfolio presets set profile and default asset class exclusions", () => {
   assert.deepEqual(Array.from(result[3]), ["Very high", ">=10 years", 90, 100, 7, 11, false, false, false, true, true]);
 });
 
+test("default state is the Growth CHF preset with its asset exclusions", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      [
+        state.baseCurrency,
+        state.riskAppetite,
+        state.investmentHorizon,
+        state.equityMin,
+        state.equityMax,
+        state.minEtfs,
+        state.maxEtfs,
+        state.assetClasses.bonds,
+        state.assetClasses.realEstate,
+        state.assetClasses.crypto,
+        getSelectedAssetClasses().length,
+      ];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), ["CHF", "High", ">=10 years", 75, 95, 7, 11, true, false, true, 5]);
+});
+
 test("current strategy follows explicit preset state instead of matching values", () => {
   const context = createContext();
   reset(context);
@@ -773,7 +799,7 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /Current strategy/);
   assert.match(html, /strategy-context/);
   assert.match(html, /strategy-segment/);
-  assert.match(html, /8-12 ETFs/);
+  assert.match(html, /7-11 ETFs/);
   assert.match(html, /data-action="toggle-preset-details"/);
   assert.match(html, /preset-icon-conservative/);
   assert.match(html, /preset-icon-balanced/);
@@ -827,21 +853,28 @@ test("asset class pie badge follows selected asset classes", () => {
       const root = { innerHTML: "" };
       document.getElementById = () => root;
       render();
+      const defaultHtml = root.innerHTML;
+      Object.keys(state.assetClasses).forEach((key) => {
+        state.assetClasses[key] = true;
+      });
+      render();
       const allSelectedHtml = root.innerHTML;
       Object.keys(state.assetClasses).forEach((key) => {
         state.assetClasses[key] = false;
       });
       render();
       const noneSelectedHtml = root.innerHTML;
-      [allSelectedHtml, noneSelectedHtml];
+      [defaultHtml, allSelectedHtml, noneSelectedHtml];
     `
   );
 
-  assert.match(result[0], /6 asset classes/);
-  assert.match(result[0], /#6f5d8f 83\.33% 100\.00%/);
-  assert.match(result[1], /0 asset classes/);
-  assert.match(result[1], /rgba\(24, 24, 24, 0\.14\) 0 100%/);
-  assert.doesNotMatch(result[1], /equity-region-pill/);
+  assert.match(result[0], /5 asset classes/);
+  assert.match(result[0], /#a65f4e 80\.00% 100\.00%/);
+  assert.match(result[1], /6 asset classes/);
+  assert.match(result[1], /#6f5d8f 83\.33% 100\.00%/);
+  assert.match(result[2], /0 asset classes/);
+  assert.match(result[2], /rgba\(24, 24, 24, 0\.14\) 0 100%/);
+  assert.doesNotMatch(result[2], /equity-region-pill/);
 });
 
 test("prompt export helpers create stable filenames and mime types", () => {

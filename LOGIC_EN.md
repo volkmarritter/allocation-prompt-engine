@@ -9,9 +9,9 @@ This file documents the app's business logic for strategy presets, selected para
 - `Investment horizon`: `>=10 years`
 - `Equity allocation range`: `75% to 95%`
 - `Preferred exchange`: `SIX Swiss Exchange`
-- `Target ETF positions`: `8 to 12`
+- `Target ETF positions`: `7 to 11`
 - `Language`: `English`
-- All asset classes are selected by default.
+- All asset classes except `Listed Real Estate` are selected by default, in line with the `Growth` preset.
 - All output sections `A` to `G` are selected by default.
 - Prompt instructions for home bias, hedging, look-through, and synthetic ETFs are enabled by default.
 
@@ -58,9 +58,13 @@ If the user changes the equity allocation range with the plus/minus controls:
 
 ## ETF Target Count
 
-Default:
+Base value for the Auto calculation:
 
 - `8 to 12` ETF positions.
+
+Because the default state follows the `Growth` preset and `Listed Real Estate` is deselected, the app effectively starts with:
+
+- `7 to 11` ETF positions.
 
 As long as the user has not manually changed the ETF target count:
 
