@@ -988,10 +988,13 @@ test("asset class pie badge follows selected asset classes", () => {
   );
 
   assert.match(result[0], /5 asset classes/);
+  assert.match(result[0], /Cash \/ Money Market, Bonds/);
   assert.match(result[0], /#a65f4e 80\.00% 100\.00%/);
   assert.match(result[1], /6 asset classes/);
+  assert.match(result[1], /Listed Real Estate/);
   assert.match(result[1], /#6f5d8f 83\.33% 100\.00%/);
   assert.match(result[2], /0 asset classes/);
+  assert.match(result[2], /No asset classes selected/);
   assert.match(result[2], /rgba\(24, 24, 24, 0\.14\) 0 100%/);
   assert.doesNotMatch(result[2], /equity-region-pill/);
 });

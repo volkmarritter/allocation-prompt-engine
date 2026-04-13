@@ -1147,7 +1147,10 @@ function renderAssetClassBadge(stats) {
   return `
     <span class="pill asset-class-pill" title="${escapeAttribute(title)}" aria-label="${escapeAttribute(`${stats.assetClasses} ${t.assetClasses}: ${title}`)}">
       <span class="asset-pie" style="${escapeAttribute(style)}" aria-hidden="true"></span>
-      <span>${stats.assetClasses} ${escapeHtml(t.assetClasses)}</span>
+      <span class="badge-copy">
+        <span class="badge-title">${stats.assetClasses} ${escapeHtml(t.assetClasses)}</span>
+        <span class="badge-list">${escapeHtml(title)}</span>
+      </span>
     </span>
   `;
 }
@@ -1176,7 +1179,10 @@ function renderEquityRegionBadge(stats) {
   const regionList = regions.join(", ");
   return `
     <span class="pill equity-region-pill" title="${escapeAttribute(regionList)}" aria-label="${escapeAttribute(`${stats.equityRegions} ${t.equityRegions}: ${regionList}`)}">
-      <span>${stats.equityRegions} ${escapeHtml(t.equityRegions)}</span>
+      <span class="badge-copy">
+        <span class="badge-title">${stats.equityRegions} ${escapeHtml(t.equityRegions)}</span>
+        <span class="badge-list">${escapeHtml(regionList)}</span>
+      </span>
       <span class="region-sparkline" aria-hidden="true">
         ${regions.map((region) => `<i title="${escapeAttribute(region)}"></i>`).join("")}
       </span>
