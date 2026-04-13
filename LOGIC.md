@@ -36,6 +36,8 @@ Die Preset-Beschreibung zeigt die Aktienbandbreite explizit als `XX-XX% equity` 
 `config.js` enthält die fachlich editierbaren Werte:
 
 - `presets`: Strategieprofile inklusive Risikoappetit, Anlagehorizont, Aktienbandbreite, ETF-Zielanzahl-Overrides und Anlageklassen.
+- `label` und `deLabel`: sichtbare Strategienamen; `id` kann ebenfalls angepasst werden, wenn `defaultPresetId` und Referenzen auf die neue ID zeigen.
+- `icon`: Icon-Stil des Presets (`conservative`, `balanced`, `growth`, `aggressive`).
 - `exchanges`: die im Feld `Preferred exchange` auswählbaren Börsenplätze.
 - `defaultExchangeByCurrency`: Default-Börsenplatz pro Basiswährung.
 - `defaultPresetId`: Preset für Initialzustand und Reset.

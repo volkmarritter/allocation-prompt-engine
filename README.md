@@ -45,6 +45,8 @@ The browser tests use Playwright Chromium.
 Edit `config.js` to adjust:
 
 - investment strategy presets, including risk appetite, investment horizon, equity range, ETF count overrides, and selected asset classes
+- strategy names via `label` and `deLabel`; `id` may also be changed if `defaultPresetId` and any references use the new id
+- preset icon style via `icon`, using one of `conservative`, `balanced`, `growth`, or `aggressive`
 - available exchanges shown in the preferred exchange selector
 - default exchange per base currency
 - default preset used for reset and initial load

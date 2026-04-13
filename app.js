@@ -1191,18 +1191,19 @@ function renderPresetButton(preset) {
   const equityBand = german
     ? `${preset.equityMin}-${preset.equityMax}% Aktien`
     : `${preset.equityMin}-${preset.equityMax}% equity`;
-  return `<button class="preset-button" type="button" data-preset="${escapeAttribute(preset.id)}">${renderPresetIcon(preset.id)}<span class="preset-title">${escapeHtml(label)}</span> <span class="preset-summary"><span class="preset-context">${escapeHtml(summaryContext)}</span><span class="preset-equity">${escapeHtml(equityBand)}</span></span></button>`;
+  return `<button class="preset-button" type="button" data-preset="${escapeAttribute(preset.id)}">${renderPresetIcon(preset)}<span class="preset-title">${escapeHtml(label)}</span> <span class="preset-summary"><span class="preset-context">${escapeHtml(summaryContext)}</span><span class="preset-equity">${escapeHtml(equityBand)}</span></span></button>`;
 }
 
-function renderPresetIcon(id) {
+function renderPresetIcon(preset) {
   const icons = {
     conservative: `<svg viewBox="0 0 80 80" aria-hidden="true"><rect x="12" y="12" width="56" height="56" rx="14"></rect><path class="soft" d="M26 40h28"></path><path class="soft muted-line" d="M40 26v28"></path></svg>`,
     balanced: `<svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="30"></circle><path class="soft" d="M17 40h46"></path><circle class="dot" cx="40" cy="40" r="4"></circle></svg>`,
     growth: `<svg viewBox="0 0 80 80" aria-hidden="true"><path class="soft no-fill" d="M18 58C34 51 45 39 60 24"></path><circle class="dot" cx="18" cy="58" r="5.5"></circle><circle class="dot faded" cx="40" cy="43" r="5.5"></circle><circle class="dot faint" cx="62" cy="24" r="5.5"></circle></svg>`,
     aggressive: `<svg viewBox="0 0 80 80" aria-hidden="true"><path d="M16 58L44 24l28 34"></path><path class="soft muted-line" d="M44 24v42"></path><circle class="dot" cx="44" cy="24" r="4"></circle></svg>`,
   };
+  const iconKey = preset.icon || preset.id || "growth";
 
-  return `<span class="preset-icon preset-icon-${escapeAttribute(id)}">${icons[id] || icons.growth}</span>`;
+  return `<span class="preset-icon preset-icon-${escapeAttribute(iconKey)}">${icons[iconKey] || icons.growth}</span>`;
 }
 
 function renderSectionToggle(section) {

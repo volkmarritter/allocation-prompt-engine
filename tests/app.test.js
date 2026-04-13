@@ -115,7 +115,7 @@ test("portfolio strategy and exchange defaults are loaded from config", () => {
   assert.deepEqual(Array.from(result), [
     4,
     true,
-    "SIX Swiss Exchange|XETRA Deutsche Börse|LSE London Stock Exchange|NYSE New York Stock Exchange",
+    "SIX Swiss Exchange|XETRA Deutsche Börse|NYSE American Stock Exchange|LSE London Stock Exchange",
     "XETRA Deutsche Börse",
     "growth",
   ]);
@@ -531,7 +531,7 @@ test("base currency sets the preferred exchange for every currency change", () =
     `
   );
 
-  assert.deepEqual(Array.from(result), ["XETRA Deutsche Börse", "LSE London Stock Exchange", "SIX Swiss Exchange", "NYSE New York Stock Exchange"]);
+  assert.deepEqual(Array.from(result), ["XETRA Deutsche Börse", "LSE London Stock Exchange", "SIX Swiss Exchange", "NYSE American Stock Exchange"]);
 });
 
 test("preferred exchange stays fixed while manual and restores to currency default", () => {
@@ -884,6 +884,23 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /Version 0\.7/);
   assert.match(html, /How to use the generated prompt/);
   assert.match(html, /Structured portfolio prompts for faster investment research/);
+});
+
+test("preset ids can differ from their configured icon style", () => {
+  const context = createContext();
+  reset(context);
+
+  const html = run(
+    context,
+    `
+      const preset = { ...portfolioPresets[2], id: "long-term-growth", icon: "growth", label: "Long-Term Growth", deLabel: "Langfristiges Wachstum" };
+      renderPresetButton(preset);
+    `
+  );
+
+  assert.match(html, /data-preset="long-term-growth"/);
+  assert.match(html, /preset-icon-growth/);
+  assert.match(html, /Long-Term Growth/);
 });
 
 test("auto logic reflects current state", () => {

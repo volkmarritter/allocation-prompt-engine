@@ -3,19 +3,20 @@ window.PROMPT_BUILDER_CONFIG = {
   exchanges: [
     "SIX Swiss Exchange",
     "XETRA Deutsche Börse",
+    "NYSE American Stock Exchange",
     "LSE London Stock Exchange",
-    "NYSE New York Stock Exchange",
   ],
   defaultExchangeByCurrency: {
     CHF: "SIX Swiss Exchange",
     EUR: "XETRA Deutsche Börse",
-    USD: "NYSE New York Stock Exchange",
+    USD: "NYSE American Stock Exchange",
     GBP: "LSE London Stock Exchange",
   },
   defaultPresetId: "growth",
   presets: [
     {
       id: "conservative",
+      icon: "conservative",
       label: "Conservative",
       deLabel: "Konservativ",
       riskAppetite: "Low",
@@ -35,6 +36,7 @@ window.PROMPT_BUILDER_CONFIG = {
     },
     {
       id: "balanced",
+      icon: "balanced",
       label: "Balanced",
       deLabel: "Ausgewogen",
       riskAppetite: "Balanced",
@@ -52,6 +54,7 @@ window.PROMPT_BUILDER_CONFIG = {
     },
     {
       id: "growth",
+      icon: "growth",
       label: "Growth",
       deLabel: "Wachstum",
       riskAppetite: "High",
@@ -69,6 +72,7 @@ window.PROMPT_BUILDER_CONFIG = {
     },
     {
       id: "aggressive",
+      icon: "aggressive",
       label: "Aggressive",
       deLabel: "Aggressiv",
       riskAppetite: "Very high",
