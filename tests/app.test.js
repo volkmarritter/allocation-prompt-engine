@@ -893,6 +893,7 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /class="status-info"/);
   assert.match(html, /Automatically derived from the selected parameters\./);
   assert.match(html, /asset-class-pill/);
+  assert.match(html, /parameter-badges/);
   assert.match(html, /asset-pie/);
   assert.match(html, /conic-gradient/);
   assert.match(html, /Auto logic/);
@@ -907,7 +908,8 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /preset-icon-aggressive/);
   assert.doesNotMatch(html, /show-preset-details/);
   assert.equal(html.indexOf("preset-grid") < html.indexOf("strategy-context"), true);
-  assert.equal(html.indexOf("strategy-context") < html.indexOf("riskAppetite"), true);
+  assert.equal(html.indexOf("strategy-context") < html.indexOf("parameter-badges"), true);
+  assert.equal(html.indexOf("parameter-badges") < html.indexOf("riskAppetite"), true);
   assert.match(html, /Jump to prompt/);
   assert.equal(html.indexOf("asset-section") < html.indexOf("mobile-jump"), true);
   assert.equal(html.indexOf("mobile-jump") < html.indexOf("output-section"), true);

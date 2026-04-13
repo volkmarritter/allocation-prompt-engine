@@ -903,10 +903,6 @@ function render() {
               <h2>${escapeHtml(t.investorSetup)}</h2>
               <p>${escapeHtml(t.setupCopy)}</p>
             </div>
-            <div class="panel-badges">
-              ${renderAssetClassBadge(stats)}
-              ${renderEquityRegionBadge(stats)}
-            </div>
           </div>
 
           <div class="form-grid">
@@ -931,6 +927,11 @@ function render() {
               </div>
               <div class="preset-grid">${portfolioPresets.map(renderPresetButton).join("")}</div>
               <div class="strategy-context"><span>${escapeHtml(t.presetContext)}</span><strong>${renderStrategyContextValue()}</strong></div>
+            </div>
+
+            <div class="parameter-badges">
+              ${renderAssetClassBadge(stats)}
+              ${renderEquityRegionBadge(stats)}
             </div>
 
             <div class="dual-grid triple-grid-mobile">
