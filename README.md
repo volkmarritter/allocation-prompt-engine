@@ -7,6 +7,7 @@ A lightweight static prompt builder that turns configurable investor parameters 
 ## Files
 
 - `index.html` - page shell
+- `config.js` - editable business configuration for strategy presets, exchange list, and default exchange per base currency
 - `styles.css` - layout and visual styling
 - `app.js` - app logic and prompt generation
 - `tests/app.test.js` - Node-based regression tests
@@ -38,6 +39,17 @@ npm.cmd run test:e2e
 ```
 
 The browser tests use Playwright Chromium.
+
+## Configure strategies and exchanges
+
+Edit `config.js` to adjust:
+
+- investment strategy presets, including risk appetite, investment horizon, equity range, ETF count overrides, and selected asset classes
+- available exchanges shown in the preferred exchange selector
+- default exchange per base currency
+- default preset used for reset and initial load
+
+When publishing the app to WordPress/Plesk, upload `config.js` together with `index.html`, `styles.css`, and `app.js`.
 
 ## What it does
 

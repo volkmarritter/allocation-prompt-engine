@@ -4,6 +4,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 
 const projectRoot = path.resolve(__dirname, "..");
+const configCode = fs.readFileSync(path.join(projectRoot, "config.js"), "utf8");
 const appCode = fs.readFileSync(path.join(projectRoot, "app.js"), "utf8");
 const html = fs.readFileSync(path.join(projectRoot, "index.html"), "utf8");
 const css = fs.readFileSync(path.join(projectRoot, "styles.css"), "utf8");
@@ -40,6 +41,7 @@ function createContext() {
   };
 
   vm.createContext(context);
+  vm.runInContext(configCode, context, { filename: "config.js" });
   vm.runInContext(appCode, context, { filename: "app.js" });
   return context;
 }
@@ -59,7 +61,7 @@ function reset(context) {
       lastDefensiveAssetAlertKey = "";
       lastEquityAssetAlertKey = "";
       lastAdditionalLogicAlertKey = "";
-      activePresetId = "growth";
+      activePresetId = defaultPresetId;
       window.__alerts = [];
     `
   );
@@ -74,10 +76,12 @@ function test(name, fn) {
 test("static entry points are wired", () => {
   assert.match(html, /<div id="root"><\/div>/);
   assert.match(html, /href="\.\/styles\.css"/);
+  assert.match(html, /src="\.\/config\.js"[\s\S]*src="\.\/app\.js"/);
   assert.match(html, /src="\.\/app\.js"/);
 });
 
 test("source files have no replacement characters", () => {
+  assert.equal(configCode.includes("\uFFFD"), false);
   assert.equal(appCode.includes("\uFFFD"), false);
   assert.equal(css.includes("\uFFFD"), false);
   assert.equal(html.includes("\uFFFD"), false);
@@ -85,9 +89,36 @@ test("source files have no replacement characters", () => {
 
 test("source files have no mojibake markers", () => {
   const mojibakePattern = /Ã.|Â.|â[€™€œ€“€”]/;
+  assert.equal(mojibakePattern.test(configCode), false);
   assert.equal(mojibakePattern.test(appCode), false);
   assert.equal(mojibakePattern.test(css), false);
   assert.equal(mojibakePattern.test(html), false);
+});
+
+test("portfolio strategy and exchange defaults are loaded from config", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      [
+        window.PROMPT_BUILDER_CONFIG.presets.length,
+        portfolioPresets === window.PROMPT_BUILDER_CONFIG.presets,
+        exchangeOptions.join("|"),
+        defaultExchangeByCurrency.EUR,
+        defaultPresetId,
+      ];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [
+    4,
+    true,
+    "SIX Swiss Exchange|XETRA Deutsche Börse|LSE London Stock Exchange",
+    "XETRA Deutsche Börse",
+    "growth",
+  ]);
 });
 
 test("English prompt includes current Table 2 and instruction requirements", () => {

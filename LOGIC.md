@@ -20,6 +20,7 @@ Der Reset-Button ist entsprechend beschriftet als `Reset defaults: Growth CHF` b
 ## Investment Strategy Presets
 
 Die Presets setzen Risikoappetit, Anlagehorizont, Aktienbandbreite und teilweise Anlageklassen/ETF-Zielanzahl.
+Diese Werte werden in `config.js` gepflegt, damit sie ohne Eingriff in die App-Logik angepasst werden können.
 
 | Preset | Risikoappetit | Anlagehorizont | Aktienbandbreite | Besondere Logik |
 | --- | --- | --- | --- | --- |
@@ -29,6 +30,17 @@ Die Presets setzen Risikoappetit, Anlagehorizont, Aktienbandbreite und teilweise
 | Aggressive / Aggressiv | `Very high` | `>=10 years` | `90% bis 100%` | `Bonds` werden abgewählt, `Listed Real Estate` und `Crypto Assets` bleiben aktiviert; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
 
 Die Preset-Beschreibung zeigt die Aktienbandbreite explizit als `XX-XX% equity` bzw. `XX-XX% Aktien`.
+
+## Konfiguration in `config.js`
+
+`config.js` enthält die fachlich editierbaren Werte:
+
+- `presets`: Strategieprofile inklusive Risikoappetit, Anlagehorizont, Aktienbandbreite, ETF-Zielanzahl-Overrides und Anlageklassen.
+- `exchanges`: die im Feld `Preferred exchange` auswählbaren Börsenplätze.
+- `defaultExchangeByCurrency`: Default-Börsenplatz pro Basiswährung.
+- `defaultPresetId`: Preset für Initialzustand und Reset.
+
+Wenn die App auf WordPress/Plesk veröffentlicht wird, muss `config.js` zusammen mit `index.html`, `styles.css` und `app.js` hochgeladen werden.
 
 ## Risk Appetite und Aktienbandbreite
 

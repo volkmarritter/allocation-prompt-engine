@@ -20,6 +20,7 @@ The reset button is labelled `Reset defaults: Growth CHF` or, in German, `Zurüc
 ## Investment Strategy Presets
 
 The presets set risk appetite, investment horizon, equity allocation range, and in some cases asset classes / ETF target count.
+These values are maintained in `config.js` so they can be adjusted without editing the core app logic.
 
 | Preset | Risk appetite | Investment horizon | Equity allocation range | Special logic |
 | --- | --- | --- | --- | --- |
@@ -29,6 +30,17 @@ The presets set risk appetite, investment horizon, equity allocation range, and 
 | Aggressive / Aggressiv | `Very high` | `>=10 years` | `90% to 100%` | `Bonds` are deselected while `Listed Real Estate` and `Crypto Assets` remain enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
 
 The preset description explicitly shows the equity allocation range as `XX-XX% equity` or `XX-XX% Aktien`.
+
+## Configuration in `config.js`
+
+`config.js` contains the editable business configuration:
+
+- `presets`: strategy profiles including risk appetite, investment horizon, equity allocation range, ETF target count overrides, and asset classes.
+- `exchanges`: exchanges available in the `Preferred exchange` selector.
+- `defaultExchangeByCurrency`: default exchange per base currency.
+- `defaultPresetId`: preset used for initial load and reset.
+
+When publishing the app to WordPress/Plesk, upload `config.js` together with `index.html`, `styles.css`, and `app.js`.
 
 ## Risk Appetite and Equity Allocation Range
 

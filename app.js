@@ -19,6 +19,25 @@ const outputSections = [
 
 const appVersion = "0.7";
 const appUpdated = "April 2026";
+const promptBuilderConfig = typeof window !== "undefined" && window.PROMPT_BUILDER_CONFIG
+  ? window.PROMPT_BUILDER_CONFIG
+  : {};
+const fallbackBaseCurrencyOptions = ["CHF", "EUR", "USD", "GBP"];
+const baseCurrencyOptions = Array.isArray(promptBuilderConfig.baseCurrencies) && promptBuilderConfig.baseCurrencies.length
+  ? promptBuilderConfig.baseCurrencies
+  : fallbackBaseCurrencyOptions;
+const fallbackExchangeOptions = ["SIX Swiss Exchange", "XETRA Deutsche Börse", "LSE London Stock Exchange"];
+const exchangeOptions = Array.isArray(promptBuilderConfig.exchanges) && promptBuilderConfig.exchanges.length
+  ? promptBuilderConfig.exchanges
+  : fallbackExchangeOptions;
+const defaultExchangeByCurrency = {
+  CHF: "SIX Swiss Exchange",
+  EUR: "XETRA Deutsche Börse",
+  USD: "SIX Swiss Exchange",
+  GBP: "LSE London Stock Exchange",
+  ...(promptBuilderConfig.defaultExchangeByCurrency || {}),
+};
+const defaultPresetId = promptBuilderConfig.defaultPresetId || "growth";
 
 const uiText = {
   English: {
@@ -202,7 +221,7 @@ const defaults = {
   equityMin: 75,
   equityMax: 95,
   equityRangeManuallyAdjusted: false,
-  exchange: "SIX Swiss Exchange",
+  exchange: defaultExchangeByCurrency.CHF || exchangeOptions[0] || "SIX Swiss Exchange",
   exchangeManuallyAdjusted: false,
   minEtfs: 8,
   maxEtfs: 12,
@@ -216,12 +235,15 @@ const defaults = {
   sections: Object.fromEntries(outputSections.map((section) => [section.id, true])),
 };
 
-const portfolioPresets = [
+const fallbackPortfolioPresets = [
   { id: "conservative", label: "Conservative", deLabel: "Konservativ", riskAppetite: "Low", investmentHorizon: ">=3 years", equityMin: 25, equityMax: 45, minEtfs: 6, maxEtfs: 10, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
   { id: "balanced", label: "Balanced", deLabel: "Ausgewogen", riskAppetite: "Balanced", investmentHorizon: ">=5 years", equityMin: 55, equityMax: 75, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
   { id: "growth", label: "Growth", deLabel: "Wachstum", riskAppetite: "High", investmentHorizon: ">=10 years", equityMin: 75, equityMax: 95, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: true } },
   { id: "aggressive", label: "Aggressive", deLabel: "Aggressiv", riskAppetite: "Very high", investmentHorizon: ">=10 years", equityMin: 90, equityMax: 100, assetClasses: { cash: true, bonds: false, equities: true, commodities: true, realEstate: true, crypto: true } },
 ];
+const portfolioPresets = Array.isArray(promptBuilderConfig.presets) && promptBuilderConfig.presets.length
+  ? promptBuilderConfig.presets
+  : fallbackPortfolioPresets;
 
 let state = createDefaultState();
 let copyResetTimer = null;
@@ -233,7 +255,7 @@ let lastEquityAssetAlertKey = "";
 let lastAdditionalLogicAlertKey = "";
 let activeStatusInfoKey = "";
 let showPresetDetails = false;
-let activePresetId = "growth";
+let activePresetId = defaultPresetId;
 
 document.addEventListener("DOMContentLoaded", () => {
   render();
@@ -242,7 +264,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function createDefaultState() {
   const next = JSON.parse(JSON.stringify(defaults));
-  const defaultPreset = portfolioPresets.find((preset) => preset.id === "growth");
+  const defaultPreset = portfolioPresets.find((preset) => preset.id === defaultPresetId);
   if (defaultPreset) {
     Object.assign(next, {
       riskAppetite: defaultPreset.riskAppetite,
@@ -883,7 +905,7 @@ function render() {
               </label>
               <label class="field-group">
                 <span class="field-label">${escapeHtml(t.baseCurrency)}</span>
-                <select class="select" name="baseCurrency">${renderOptions(["CHF", "EUR", "USD", "GBP"], state.baseCurrency)}</select>
+                <select class="select" name="baseCurrency">${renderOptions(baseCurrencyOptions, state.baseCurrency)}</select>
               </label>
             </div>
 
@@ -918,7 +940,7 @@ function render() {
                     ${renderAdjustmentStatus(state.exchangeManuallyAdjusted, "restore-exchange-auto")}
                   </div>
                 </div>
-                <select class="select" name="exchange">${renderOptions(["SIX Swiss Exchange", "XETRA Deutsche Börse", "LSE London Stock Exchange"], state.exchange)}</select>
+                <select class="select" name="exchange">${renderOptions(exchangeOptions, state.exchange)}</select>
               </div>
             </div>
 
@@ -1339,7 +1361,7 @@ function handleClick(event) {
   }
   if (action === "reset") {
     activeStatusInfoKey = "";
-    activePresetId = "growth";
+    activePresetId = defaultPresetId;
     state = createDefaultState();
     render();
   }
@@ -1400,15 +1422,7 @@ function applyExchangeForBaseCurrency(baseCurrency) {
 }
 
 function getDefaultExchangeForBaseCurrency(baseCurrency) {
-  if (baseCurrency === "CHF" || baseCurrency === "USD") {
-    return "SIX Swiss Exchange";
-  }
-  if (baseCurrency === "EUR") {
-    return "XETRA Deutsche Börse";
-  }
-  if (baseCurrency === "GBP") {
-    return "LSE London Stock Exchange";
-  }
+  if (defaultExchangeByCurrency[baseCurrency]) return defaultExchangeByCurrency[baseCurrency];
   return defaults.exchange;
 }
 
