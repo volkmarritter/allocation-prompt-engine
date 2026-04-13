@@ -1,0 +1,802 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const vm = require("node:vm");
+
+const projectRoot = path.resolve(__dirname, "..");
+const appCode = fs.readFileSync(path.join(projectRoot, "app.js"), "utf8");
+const html = fs.readFileSync(path.join(projectRoot, "index.html"), "utf8");
+const css = fs.readFileSync(path.join(projectRoot, "styles.css"), "utf8");
+
+function createContext() {
+  const context = {
+    console,
+    setTimeout,
+    clearTimeout,
+    document: {
+      addEventListener() {},
+      getElementById() {
+        return { innerHTML: "" };
+      },
+      querySelector() {
+        return null;
+      },
+    },
+    navigator: {
+      clipboard: {
+        writeText: async () => {},
+      },
+    },
+    window: {
+      __alerts: [],
+      alert(message) {
+        this.__alerts.push(String(message));
+      },
+      clearTimeout,
+      setTimeout,
+    },
+  };
+
+  vm.createContext(context);
+  vm.runInContext(appCode, context, { filename: "app.js" });
+  return context;
+}
+
+function run(context, code) {
+  return vm.runInContext(code, context);
+}
+
+function reset(context) {
+  run(
+    context,
+    `
+      state = createDefaultState();
+      lastRiskHorizonAlertKey = "";
+      lastSelectionAlertKey = "";
+      lastEquityRiskAlertKey = "";
+      lastDefensiveAssetAlertKey = "";
+      lastEquityAssetAlertKey = "";
+      lastAdditionalLogicAlertKey = "";
+      window.__alerts = [];
+    `
+  );
+}
+
+const tests = [];
+
+function test(name, fn) {
+  tests.push({ name, fn });
+}
+
+test("static entry points are wired", () => {
+  assert.match(html, /<div id="root"><\/div>/);
+  assert.match(html, /href="\.\/styles\.css"/);
+  assert.match(html, /src="\.\/app\.js"/);
+});
+
+test("source files have no replacement characters", () => {
+  assert.equal(appCode.includes("\uFFFD"), false);
+  assert.equal(css.includes("\uFFFD"), false);
+  assert.equal(html.includes("\uFFFD"), false);
+});
+
+test("source files have no mojibake markers", () => {
+  const mojibakePattern = /Ã.|Â.|â[€™€œ€“€”]/;
+  assert.equal(mojibakePattern.test(appCode), false);
+  assert.equal(mojibakePattern.test(css), false);
+  assert.equal(mojibakePattern.test(html), false);
+});
+
+test("English prompt includes current Table 2 and instruction requirements", () => {
+  const context = createContext();
+  reset(context);
+
+  const prompt = run(context, "buildPrompt()");
+
+  assert.match(prompt, /Columns: Asset class \| Target weight \| ETF name \| ISIN/);
+  assert.match(prompt, /Where relevant, perform a look-through/);
+  assert.match(prompt, /If relevant, include a look-through asset allocation overview after Table 1/);
+  assert.match(prompt, /12\. Include synthetic ETFs where they provide structural advantages/);
+  assert.match(prompt, /US equity exposure/);
+  assert.match(prompt, /13\. Write the full answer in clear English\./);
+});
+
+test("German prompt includes current Table 2 and instruction requirements", () => {
+  const context = createContext();
+  reset(context);
+
+  const prompt = run(
+    context,
+    `
+      state.outputLanguage = "German";
+      buildPrompt();
+    `
+  );
+
+  assert.match(prompt, /Spalten: Anlageklasse \| Zielgewicht \| ETF-Name \| ISIN/);
+  assert.match(prompt, /12\. Beziehe synthetische ETFs ein/);
+  assert.match(prompt, /US-Aktienexposure/);
+  assert.match(prompt, /13\. Schreibe die vollständige Antwort in klarem Deutsch\./);
+});
+
+test("prompt instruction checkbox copy is user-facing and neutral", () => {
+  assert.equal(appCode.includes("Adds a numbered requirement"), false);
+  assert.equal(appCode.includes("Fügt eine nummerierte Anforderung"), false);
+  assert.match(appCode, /US tax withholding efficiency/);
+  assert.match(appCode, /US-Steuereffizienz/);
+});
+
+test("equity allocation range follows risk appetite", () => {
+  const context = createContext();
+  reset(context);
+
+  const expectedRanges = {
+    Low: [25, 45],
+    Moderate: [40, 60],
+    Balanced: [55, 75],
+    High: [75, 95],
+    "Very high": [90, 100],
+  };
+
+  for (const [risk, expected] of Object.entries(expectedRanges)) {
+    const actual = run(
+      context,
+      `
+        applyEquityRangeForRisk(${JSON.stringify(risk)});
+        [state.equityMin, state.equityMax];
+      `
+    );
+    assert.deepEqual(Array.from(actual), expected);
+  }
+});
+
+test("maximum equity warning appears once per risk appetite", () => {
+  const context = createContext();
+  reset(context);
+
+  assert.equal(
+    run(
+      context,
+      `
+        state.riskAppetite = "Low";
+        state.equityMax = 50;
+        maybeShowEquityRiskAlert();
+        window.__alerts.length;
+      `
+    ),
+    1
+  );
+
+  assert.equal(
+    run(
+      context,
+      `
+        state.equityMax = 55;
+        maybeShowEquityRiskAlert();
+        window.__alerts.length;
+      `
+    ),
+    1
+  );
+
+  assert.equal(
+    run(
+      context,
+      `
+        state.riskAppetite = "Moderate";
+        lastEquityRiskAlertKey = "";
+        state.equityMax = 65;
+        maybeShowEquityRiskAlert();
+        window.__alerts.length;
+      `
+    ),
+    2
+  );
+});
+
+test("empty selection warnings are shown", () => {
+  const context = createContext();
+  reset(context);
+
+  const assetAlert = run(
+    context,
+    `
+      for (const option of assetClassOptions) {
+        state.assetClasses[option.id] = false;
+      }
+      maybeShowSelectionAlert("asset:cash");
+      window.__alerts.at(-1);
+    `
+  );
+  assert.match(assetAlert, /No asset classes selected/);
+
+  const sectionAlert = run(
+    context,
+    `
+      for (const section of outputSections) {
+        state.sections[section.id] = false;
+      }
+      maybeShowSelectionAlert("section:a");
+      window.__alerts.at(-1);
+    `
+  );
+  assert.match(sectionAlert, /No output sections selected/);
+});
+
+test("low and moderate risk profiles warn when cash or bonds are deselected", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.riskAppetite = "Low";
+      state.assetClasses.cash = false;
+      maybeShowDefensiveAssetAlert("asset:cash");
+      const lowCashAlert = window.__alerts.at(-1);
+      maybeShowDefensiveAssetAlert("asset:cash");
+      const afterDuplicateAttempt = window.__alerts.length;
+      state.assetClasses.cash = true;
+      maybeShowDefensiveAssetAlert("asset:cash");
+      const afterCashAddedBack = window.__alerts.length;
+      state.assetClasses.cash = false;
+      state.assetClasses.bonds = false;
+      maybeShowDefensiveAssetAlert("asset:bonds");
+      const lowCashBondAlert = window.__alerts.at(-1);
+      state.riskAppetite = "Moderate";
+      state.assetClasses.cash = true;
+      state.assetClasses.bonds = false;
+      maybeShowDefensiveAssetAlert("riskAppetite");
+      const moderateBondAlert = window.__alerts.at(-1);
+      state.riskAppetite = "High";
+      maybeShowDefensiveAssetAlert("riskAppetite");
+      const afterHighRisk = window.__alerts.length;
+      [lowCashAlert, afterDuplicateAttempt, afterCashAddedBack, lowCashBondAlert, moderateBondAlert, afterHighRisk];
+    `
+  );
+
+  assert.match(result[0], /Cash \/ Money Market/);
+  assert.equal(result[1], 1);
+  assert.equal(result[2], 1);
+  assert.match(result[3], /Cash \/ Money Market and Bonds/);
+  assert.match(result[4], /Bonds/);
+  assert.equal(result[5], 3);
+});
+
+test("balanced and higher risk profiles warn when equities are deselected", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.riskAppetite = "Balanced";
+      state.assetClasses.equities = false;
+      maybeShowEquityAssetAlert("asset:equities");
+      const balancedAlert = window.__alerts.at(-1);
+      maybeShowEquityAssetAlert("asset:equities");
+      const afterDuplicateAttempt = window.__alerts.length;
+      state.assetClasses.equities = true;
+      maybeShowEquityAssetAlert("asset:equities");
+      const afterEquitiesAddedBack = window.__alerts.length;
+      state.riskAppetite = "Low";
+      state.assetClasses.equities = false;
+      maybeShowEquityAssetAlert("asset:equities");
+      const afterLowRisk = window.__alerts.length;
+      state.riskAppetite = "High";
+      maybeShowEquityAssetAlert("riskAppetite");
+      const highAlert = window.__alerts.at(-1);
+      [balancedAlert, afterDuplicateAttempt, afterEquitiesAddedBack, afterLowRisk, highAlert, window.__alerts.length];
+    `
+  );
+
+  assert.match(result[0], /fully excluding equities/);
+  assert.equal(result[1], 1);
+  assert.equal(result[2], 1);
+  assert.equal(result[3], 1);
+  assert.match(result[4], /high risk appetite/);
+  assert.equal(result[5], 2);
+});
+
+test("additional logic checks warn for crypto, bond, look-through, synthetic ETF, and real estate conflicts", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.riskAppetite = "Low";
+      state.assetClasses.crypto = true;
+      let alerts = getAdditionalLogicAlerts("riskAppetite").map((alert) => alert.key);
+      const cryptoDefensive = alerts.includes("crypto-defensive-Low");
+
+      state.sections.f = false;
+      alerts = getAdditionalLogicAlerts("section:f").map((alert) => alert.key);
+      const cryptoNoRebalancing = alerts.includes("crypto-without-rebalancing");
+
+      state.assetClasses.bonds = false;
+      state.investmentHorizon = ">=3 years";
+      alerts = getAdditionalLogicAlerts("asset:bonds").map((alert) => alert.key);
+      const noBondsShortHorizon = alerts.includes("no-bonds-short-horizon");
+
+      state.sections.e = true;
+      state.includeLookThrough = false;
+      alerts = getAdditionalLogicAlerts("includeLookThrough").map((alert) => alert.key);
+      const lookThroughMismatch = alerts.includes("look-through-section-without-instruction");
+
+      state.includeSyntheticEtfs = true;
+      state.assetClasses.equities = false;
+      alerts = getAdditionalLogicAlerts("asset:equities").map((alert) => alert.key);
+      const syntheticWithoutEquities = alerts.includes("synthetic-etfs-without-equities");
+
+      state.assetClasses.realEstate = true;
+      state.minEtfs = 4;
+      state.maxEtfs = 5;
+      alerts = getAdditionalLogicAlerts("minEtfs").map((alert) => alert.key);
+      const realEstateLowEtfCount = alerts.includes("real-estate-low-etf-count-4");
+
+      [cryptoDefensive, cryptoNoRebalancing, noBondsShortHorizon, lookThroughMismatch, syntheticWithoutEquities, realEstateLowEtfCount];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [true, true, true, true, true, true]);
+});
+
+test("risk and horizon warning is shown", () => {
+  const context = createContext();
+  reset(context);
+
+  const alert = run(
+    context,
+    `
+      state.riskAppetite = "Very high";
+      state.investmentHorizon = ">=5 years";
+      maybeShowRiskHorizonAlert();
+      window.__alerts[0];
+    `
+  );
+
+  assert.match(alert, /Very high risk appetite/);
+});
+
+test("ETF count frame and section color hooks are present", () => {
+  assert.match(appCode, /field-group range-group etf-count-group/);
+  assert.match(appCode, /Math\.min\(state\.minEtfs, state\.maxEtfs\).*Math\.max\(state\.minEtfs, state\.maxEtfs\)/s);
+  assert.match(css, /\.asset-section/);
+  assert.match(css, /\.output-section/);
+  assert.match(css, /\.instruction-section/);
+});
+
+test("base currency controls home-bias and equity region logic", () => {
+  const context = createContext();
+  reset(context);
+
+  const cases = {
+    CHF: {
+      include: "Address Swiss home bias",
+      equity: "Europe ex-CH, Switzerland (CH)",
+    },
+    EUR: {
+      include: "Address European home bias",
+      equity: "Europe incl. Switzerland",
+    },
+    GBP: {
+      include: "Address British home bias",
+      equity: "Europe incl. Switzerland",
+    },
+    USD: {
+      exclude: "home bias",
+      equity: "Europe incl. Switzerland",
+    },
+  };
+
+  for (const [currency, expected] of Object.entries(cases)) {
+    const prompt = run(
+      context,
+      `
+        state = createDefaultState();
+        state.baseCurrency = ${JSON.stringify(currency)};
+        buildPrompt();
+      `
+    );
+
+    assert.match(prompt, new RegExp(`- Base currency: ${currency}`));
+    assert.match(prompt, new RegExp(expected.equity.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+
+    if (expected.include) {
+      assert.match(prompt, new RegExp(expected.include));
+    } else {
+      assert.doesNotMatch(prompt, /Address .* home bias/);
+    }
+  }
+});
+
+test("base currency sets the preferred exchange for every currency change", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.exchange = "SIX Swiss Exchange";
+      applyExchangeForBaseCurrency("EUR");
+      const eurExchange = state.exchange;
+      applyExchangeForBaseCurrency("GBP");
+      const gbpExchange = state.exchange;
+      applyExchangeForBaseCurrency("CHF");
+      const afterChfExchange = state.exchange;
+      state.exchange = "LSE London Stock Exchange";
+      applyExchangeForBaseCurrency("USD");
+      const usdExchange = state.exchange;
+      [eurExchange, gbpExchange, afterChfExchange, usdExchange];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), ["XETRA Deutsche Börse", "LSE London Stock Exchange", "SIX Swiss Exchange", "SIX Swiss Exchange"]);
+});
+
+test("preferred exchange stays fixed while manual and restores to currency default", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      handleInputChange({ target: { name: "exchange", type: "select-one", value: "LSE London Stock Exchange" } });
+      const afterManualExchange = [state.exchange, state.exchangeManuallyAdjusted];
+      handleInputChange({ target: { name: "baseCurrency", type: "select-one", value: "EUR" } });
+      const afterManualCurrencyChange = [state.exchange, state.exchangeManuallyAdjusted];
+      state.exchangeManuallyAdjusted = false;
+      applyExchangeForBaseCurrency(state.baseCurrency);
+      const afterRestoreAuto = [state.exchange, state.exchangeManuallyAdjusted];
+      [afterManualExchange, afterManualCurrencyChange, afterRestoreAuto];
+    `
+  );
+
+  assert.deepEqual(Array.from(result[0]), ["LSE London Stock Exchange", true]);
+  assert.deepEqual(Array.from(result[1]), ["LSE London Stock Exchange", true]);
+  assert.deepEqual(Array.from(result[2]), ["XETRA Deutsche Börse", false]);
+});
+
+test("selected output sections are re-lettered alphabetically", () => {
+  const context = createContext();
+  reset(context);
+
+  const prompt = run(
+    context,
+    `
+      state.sections.b = false;
+      state.sections.d = false;
+      state.sections.f = false;
+      buildPrompt();
+    `
+  );
+
+  assert.match(prompt, /A\) Table 1: Target allocation/);
+  assert.match(prompt, /B\) Brief summary/);
+  assert.match(prompt, /C\) The ten largest equity holdings/);
+  assert.match(prompt, /D\) Rough cost estimate/);
+  assert.doesNotMatch(prompt, /ETF implementation/);
+  assert.doesNotMatch(prompt, /Consolidated currency overview/);
+  assert.doesNotMatch(prompt, /Rebalancing concept/);
+});
+
+test("min and max ETF counts are bounded against each other", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.minEtfs = 8;
+      state.maxEtfs = 12;
+      const minCannotExceedMax = getNextEtfCount("minEtfs", 20);
+      const maxCannotGoBelowMin = getNextEtfCount("maxEtfs", 3);
+      const minimumFloor = getNextEtfCount("minEtfs", -4);
+      [minCannotExceedMax, maxCannotGoBelowMin, minimumFloor];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [12, 8, 1]);
+});
+
+test("ETF count follows deselected asset classes until manually changed", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.assetClasses.cash = false;
+      applyAutomaticEtfCountFromAssetClasses();
+      const afterOneDeselected = [state.minEtfs, state.maxEtfs];
+
+      state.assetClasses.bonds = false;
+      applyAutomaticEtfCountFromAssetClasses();
+      const afterTwoDeselected = [state.minEtfs, state.maxEtfs];
+
+      state.assetClasses.equities = false;
+      applyAutomaticEtfCountFromAssetClasses();
+      const afterTwoPlusEquitiesDeselected = [state.minEtfs, state.maxEtfs];
+
+      state.etfCountManuallyAdjusted = true;
+      state.assetClasses.crypto = false;
+      applyAutomaticEtfCountFromAssetClasses();
+      const afterManualOverride = [state.minEtfs, state.maxEtfs];
+
+      state = createDefaultState();
+      state.assetClasses.cash = false;
+      applyAutomaticEtfCountFromAssetClasses();
+      const afterResetAndDeselected = [state.minEtfs, state.maxEtfs, state.etfCountManuallyAdjusted];
+
+      [afterOneDeselected, afterTwoDeselected, afterTwoPlusEquitiesDeselected, afterManualOverride, afterResetAndDeselected];
+    `
+  );
+
+  assert.deepEqual(Array.from(result[0]), [7, 11]);
+  assert.deepEqual(Array.from(result[1]), [6, 10]);
+  assert.deepEqual(Array.from(result[2]), [1, 5]);
+  assert.deepEqual(Array.from(result[3]), [1, 5]);
+  assert.deepEqual(Array.from(result[4]), [7, 11, false]);
+});
+
+test("min and max equity weights are bounded against each other", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.equityMin = 75;
+      state.equityMax = 95;
+      const minCannotExceedMax = getNextEquityWeight("equityMin", 30);
+      const maxCannotGoBelowMin = getNextEquityWeight("equityMax", -30);
+      state.equityMin = 0;
+      state.equityMax = 100;
+      const minFloor = getNextEquityWeight("equityMin", -10);
+      const maxCeiling = getNextEquityWeight("equityMax", 10);
+      [minCannotExceedMax, maxCannotGoBelowMin, minFloor, maxCeiling];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [95, 75, 0, 100]);
+});
+
+test("equity allocation range is zero while equities are deselected", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.equityMin = 75;
+      state.equityMax = 95;
+      state.assetClasses.equities = false;
+      applyAutomaticEquityRangeFromAssetClasses("asset:equities");
+      const afterDeselected = [state.equityMin, state.equityMax, state.equityRangeManuallyAdjusted];
+      state.riskAppetite = "Very high";
+      applyEquityRangeForRisk(state.riskAppetite);
+      const afterRiskChangeWhileDeselected = [state.equityMin, state.equityMax];
+      state.equityMax = getNextEquityWeight("equityMax", 5);
+      const afterStepperWhileDeselected = [state.equityMin, state.equityMax];
+      state.assetClasses.equities = true;
+      applyAutomaticEquityRangeFromAssetClasses("asset:equities");
+      const afterReselected = [state.equityMin, state.equityMax];
+      [afterDeselected, afterRiskChangeWhileDeselected, afterStepperWhileDeselected, afterReselected];
+    `
+  );
+
+  assert.deepEqual(Array.from(result[0]), [0, 0, false]);
+  assert.deepEqual(Array.from(result[1]), [0, 0]);
+  assert.deepEqual(Array.from(result[2]), [0, 0]);
+  assert.deepEqual(Array.from(result[3]), [90, 100]);
+});
+
+test("equal equity and ETF targets use exact wording in prompts", () => {
+  const context = createContext();
+  reset(context);
+
+  const englishPrompt = run(
+    context,
+    `
+      state.equityMin = 75;
+      state.equityMax = 75;
+      state.minEtfs = 8;
+      state.maxEtfs = 8;
+      buildPrompt();
+    `
+  );
+
+  assert.match(englishPrompt, /- Equity allocation: 75%/);
+  assert.doesNotMatch(englishPrompt, /Equity allocation between 75% and 75%/);
+  assert.match(englishPrompt, /Target exactly 8 positions in total/);
+  assert.doesNotMatch(englishPrompt, /Target 8-8 positions/);
+
+  const germanPrompt = run(
+    context,
+    `
+      state.outputLanguage = "German";
+      buildPrompt();
+    `
+  );
+
+  assert.match(germanPrompt, /- Aktienquote: 75%/);
+  assert.doesNotMatch(germanPrompt, /Aktienquote zwischen 75% und 75%/);
+  assert.match(germanPrompt, /Ziel: genau 8 Positionen insgesamt/);
+  assert.doesNotMatch(germanPrompt, /Ziel: 8-8 Positionen/);
+});
+
+test("prompt preview splits prompts into top-level sections", () => {
+  const context = createContext();
+  reset(context);
+
+  const englishSections = run(
+    context,
+    `
+      getPromptPreviewSections(buildPrompt()).map((section) => section.heading);
+    `
+  );
+
+  assert.deepEqual(Array.from(englishSections), [
+    "Role",
+    "Objective",
+    "Eligible asset classes",
+    "Requirements and constraints",
+    "Output format",
+  ]);
+
+  const germanSections = run(
+    context,
+    `
+      state.outputLanguage = "German";
+      getPromptPreviewSections(buildPrompt()).map((section) => section.heading);
+    `
+  );
+
+  assert.deepEqual(Array.from(germanSections), [
+    "Rolle",
+    "Ziel",
+    "Zulässige Anlageklassen",
+    "Vorgaben und Restriktionen",
+    "Ausgabeformat",
+  ]);
+});
+
+test("portfolio presets set profile while only conservative updates ETF target for deselected assets", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.minEtfs = 6;
+      state.maxEtfs = 9;
+      state.etfCountManuallyAdjusted = true;
+      applyPreset("conservative");
+      const conservative = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.realEstate, state.assetClasses.crypto];
+      applyPreset("growth");
+      const growth = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.realEstate, state.assetClasses.crypto];
+      [conservative, growth];
+    `
+  );
+
+  assert.deepEqual(Array.from(result[0]), ["Low", ">=3 years", 25, 45, 6, 10, false, false, false, false]);
+  assert.deepEqual(Array.from(result[1]), ["High", ">=10 years", 75, 95, 8, 12, false, false, true, true]);
+});
+
+test("render includes presets, demo, and marketing sections", () => {
+  const context = createContext();
+  reset(context);
+
+  const html = run(
+    context,
+    `
+      const root = { innerHTML: "" };
+      document.getElementById = () => root;
+      render();
+      root.innerHTML;
+    `
+  );
+
+  assert.match(html, /data-preset="conservative"/);
+  assert.doesNotMatch(html, /Auto \/ Manual logic/);
+  assert.match(html, /data-action="export-txt"/);
+  assert.match(html, /data-action="export-md"/);
+  assert.match(html, /class="status-info"/);
+  assert.match(html, /Automatically derived from the selected parameters\./);
+  assert.match(html, /How to use the generated prompt/);
+  assert.match(html, /Structured portfolio prompts for faster investment research/);
+});
+
+test("prompt export helpers create stable filenames and mime types", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.baseCurrency = "EUR";
+      state.riskAppetite = "Very high";
+      [
+        getPromptExportFilename("txt"),
+        getPromptExportFilename("md"),
+        getPromptExportMimeType("txt"),
+        getPromptExportMimeType("md"),
+      ];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [
+    "portfolio-prompt-eur-very-high.txt",
+    "portfolio-prompt-eur-very-high.md",
+    "text/plain;charset=utf-8",
+    "text/markdown;charset=utf-8",
+  ]);
+});
+
+test("UI range labels use localized separators", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      const englishEquity = formatUiRange(55, 75, "%");
+      const englishEtfs = formatUiRange(8, 12);
+      state.outputLanguage = "German";
+      const germanEquity = formatUiRange(55, 75, "%");
+      const germanEtfs = formatUiRange(8, 12);
+      [englishEquity, englishEtfs, germanEquity, germanEtfs];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), ["55% to 75%", "8 to 12", "55% bis 75%", "8 bis 12"]);
+});
+
+test("risk and horizon warning matrix is enforced", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      const checks = [];
+      state.riskAppetite = "Very high";
+      state.investmentHorizon = ">=5 years";
+      checks.push(getRiskHorizonCheck().ok);
+      state.investmentHorizon = ">=10 years";
+      checks.push(getRiskHorizonCheck().ok);
+      state.riskAppetite = "High";
+      state.investmentHorizon = ">=3 years";
+      checks.push(getRiskHorizonCheck().ok);
+      state.investmentHorizon = ">=5 years";
+      checks.push(getRiskHorizonCheck().ok);
+      state.riskAppetite = "Balanced";
+      state.investmentHorizon = ">=3 years";
+      checks.push(getRiskHorizonCheck().ok);
+      checks;
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [false, true, false, true, true]);
+});
+
+let failed = 0;
+
+for (const { name, fn } of tests) {
+  try {
+    fn();
+    console.log(`PASS ${name}`);
+  } catch (error) {
+    failed += 1;
+    console.error(`FAIL ${name}`);
+    console.error(error);
+  }
+}
+
+if (failed > 0) {
+  console.error(`\n${failed}/${tests.length} tests failed`);
+  process.exit(1);
+}
+
+console.log(`\n${tests.length}/${tests.length} tests passed`);

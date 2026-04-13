@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "test": "npm.cmd run test:unit && npm.cmd run test:e2e",
+    "test:unit": "node tests/app.test.js",
+    "test:e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1"
+  }
+}

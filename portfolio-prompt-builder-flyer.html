@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portfolio Prompt Builder Flyer</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    :root {
+      --ink: #181715;
+      --muted: #68635b;
+      --paper: #f3efe6;
+      --paper-deep: #e7dfd0;
+      --line: rgba(24, 23, 21, 0.14);
+      --accent: #8b6f47;
+      --accent-dark: #4f3f2b;
+      --green: #4f6d55;
+      --blue: #445f7b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      width: 210mm;
+      min-height: 297mm;
+      color: var(--ink);
+      font-family: "Aptos", "Segoe UI", Arial, sans-serif;
+      background: var(--paper);
+    }
+
+    .page {
+      position: relative;
+      overflow: hidden;
+      width: 210mm;
+      height: 297mm;
+      padding: 18mm 17mm 14mm;
+      background:
+        radial-gradient(circle at 77% 9%, rgba(139, 111, 71, 0.22), transparent 22%),
+        radial-gradient(circle at 9% 74%, rgba(79, 109, 85, 0.13), transparent 24%),
+        linear-gradient(135deg, #f8f5ed 0%, #ece3d2 100%);
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(24, 23, 21, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(24, 23, 21, 0.035) 1px, transparent 1px);
+      background-size: 8mm 8mm;
+      mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 70%);
+      pointer-events: none;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 999px;
+      filter: blur(0.2px);
+      opacity: 0.9;
+    }
+
+    .orb.one {
+      width: 94mm;
+      height: 94mm;
+      right: -20mm;
+      top: -19mm;
+      background:
+        radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.85), transparent 22%),
+        radial-gradient(circle, rgba(139, 111, 71, 0.3), rgba(139, 111, 71, 0.04) 68%, transparent 70%);
+    }
+
+    .orb.two {
+      width: 72mm;
+      height: 72mm;
+      left: -27mm;
+      bottom: 42mm;
+      background: radial-gradient(circle, rgba(79, 109, 85, 0.2), rgba(79, 109, 85, 0.02) 70%, transparent 72%);
+    }
+
+    header {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14mm;
+      padding-bottom: 10mm;
+    }
+
+    .brand {
+      display: grid;
+      gap: 2mm;
+    }
+
+    .kicker,
+    .section-label,
+    .micro {
+      font-family: "Cascadia Mono", Consolas, "Courier New", monospace;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+    }
+
+    .kicker {
+      color: var(--accent-dark);
+      font-size: 8.5pt;
+      font-weight: 700;
+    }
+
+    .url {
+      color: var(--muted);
+      font-size: 8.5pt;
+    }
+
+    .seal {
+      display: grid;
+      place-items: center;
+      width: 30mm;
+      height: 30mm;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.48);
+      color: var(--accent-dark);
+      font-size: 7.5pt;
+      text-align: center;
+      line-height: 1.25;
+      box-shadow: 0 18px 40px rgba(38, 31, 20, 0.08);
+    }
+
+    .hero {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 11mm;
+      align-items: center;
+      min-height: 88mm;
+    }
+
+    h1 {
+      margin: 0 0 5mm;
+      max-width: 106mm;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 36pt;
+      line-height: 0.94;
+      letter-spacing: -0.045em;
+      font-weight: 500;
+    }
+
+    .lead {
+      margin: 0;
+      max-width: 94mm;
+      color: var(--muted);
+      font-size: 11.2pt;
+      line-height: 1.55;
+    }
+
+    .hero-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 7mm;
+      padding: 3.6mm 6.4mm;
+      border-radius: 999px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 9.2pt;
+      font-weight: 700;
+      box-shadow: 0 16px 36px rgba(35, 29, 18, 0.14);
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .hero-panel {
+      position: relative;
+      min-height: 86mm;
+      border: 1px solid var(--line);
+      border-radius: 8mm;
+      background: rgba(255, 255, 255, 0.58);
+      box-shadow: 0 22px 55px rgba(35, 29, 18, 0.1);
+      overflow: hidden;
+    }
+
+    .hero-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(115deg, rgba(255,255,255,0.74), transparent 42%),
+        radial-gradient(circle at 85% 18%, rgba(68, 95, 123, 0.16), transparent 28%);
+      z-index: 2;
+    }
+
+    .app-shot {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 28% 0%;
+      transform: scale(1.06);
+      filter: saturate(0.88) contrast(0.98);
+    }
+
+    .screen-label {
+      position: absolute;
+      z-index: 3;
+      left: 7mm;
+      top: 7mm;
+      display: inline-flex;
+      align-items: center;
+      gap: 2.4mm;
+      padding: 2.6mm 3.4mm;
+      border-radius: 999px;
+      background: rgba(24, 23, 21, 0.92);
+      color: #fff;
+      font-size: 7.2pt;
+      font-weight: 700;
+      box-shadow: 0 10px 28px rgba(24, 23, 21, 0.18);
+    }
+
+    .screen-label::before {
+      content: "";
+      width: 2.2mm;
+      height: 2.2mm;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .screen-card {
+      position: absolute;
+      z-index: 3;
+      right: 7mm;
+      bottom: 7mm;
+      width: 41mm;
+      padding: 4mm;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 5mm;
+      background: rgba(255, 255, 255, 0.76);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 16px 40px rgba(35, 29, 18, 0.16);
+    }
+
+    .screen-card strong {
+      display: block;
+      margin-bottom: 1.2mm;
+      font-size: 8.4pt;
+    }
+
+    .screen-card span {
+      color: var(--muted);
+      font-size: 7.3pt;
+      line-height: 1.35;
+    }
+
+    .flow {
+      position: absolute;
+      inset: 9mm 7mm;
+      display: grid;
+      grid-template-rows: repeat(4, 1fr);
+      gap: 5mm;
+      display: none;
+    }
+
+    .flow-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: 28mm 1fr 15mm;
+      align-items: center;
+      gap: 4mm;
+    }
+
+    .flow-row:not(:last-child)::after {
+      content: "";
+      position: absolute;
+      left: 13.5mm;
+      top: 15mm;
+      width: 1px;
+      height: 15mm;
+      background: rgba(79, 63, 43, 0.22);
+    }
+
+    .node {
+      display: grid;
+      place-items: center;
+      width: 27mm;
+      height: 11mm;
+      border-radius: 999px;
+      background: rgba(24, 23, 21, 0.9);
+      color: #fff;
+      font-size: 7.2pt;
+      font-weight: 700;
+    }
+
+    .bar {
+      height: 8mm;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(139, 111, 71, 0.22), rgba(79, 109, 85, 0.2));
+      border: 1px solid rgba(24, 23, 21, 0.08);
+    }
+
+    .dot {
+      width: 8mm;
+      height: 8mm;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4mm rgba(139, 111, 71, 0.08);
+    }
+
+    .caption {
+      position: absolute;
+      left: 8mm;
+      right: 8mm;
+      bottom: 7mm;
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 7.6pt;
+      display: none;
+    }
+
+    .strip {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4mm;
+      margin: 12mm 0 10mm;
+      padding: 5mm 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .metric strong {
+      display: block;
+      margin-bottom: 1mm;
+      font-size: 12pt;
+    }
+
+    .metric span {
+      color: var(--muted);
+      font-size: 8.2pt;
+      line-height: 1.35;
+    }
+
+    .grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 9mm;
+    }
+
+    .section-label {
+      margin-bottom: 3mm;
+      color: var(--accent-dark);
+      font-size: 7.8pt;
+      font-weight: 700;
+    }
+
+    h2 {
+      margin: 0 0 3mm;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 16.5pt;
+      line-height: 1.05;
+      letter-spacing: -0.025em;
+      font-weight: 500;
+    }
+
+    .copy {
+      margin: 0 0 4mm;
+      color: var(--muted);
+      font-size: 9pt;
+      line-height: 1.45;
+    }
+
+    ul {
+      display: grid;
+      gap: 2.1mm;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      position: relative;
+      padding-left: 5.5mm;
+      color: #2d2a25;
+      font-size: 8.4pt;
+      line-height: 1.34;
+    }
+
+    li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 2.2mm;
+      width: 2.2mm;
+      height: 2.2mm;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .logic-card {
+      padding: 6mm;
+      border: 1px solid var(--line);
+      border-radius: 7mm;
+      background: rgba(255, 255, 255, 0.54);
+      box-shadow: 0 18px 45px rgba(35, 29, 18, 0.08);
+    }
+
+    .logic-list {
+      grid-template-columns: 1fr 1fr;
+      column-gap: 5mm;
+    }
+
+    .logic-list li {
+      font-size: 8pt;
+    }
+
+    .disclaimer {
+      position: absolute;
+      left: 17mm;
+      right: 17mm;
+      bottom: 5.2mm;
+      color: rgba(24, 23, 21, 0.62);
+      font-size: 6.7pt;
+      line-height: 1.25;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="orb one"></div>
+    <div class="orb two"></div>
+
+    <header>
+      <div class="brand">
+        <div class="kicker">Bicon.li · AI Wealth Workflow</div>
+        <div class="url">bicon.li/prompt-builder</div>
+      </div>
+      <div class="seal">STATIC APP<br />NO BACKEND<br />NO LOGIN</div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <h1>Portfolio Prompt Builder</h1>
+        <p class="lead">Ein interaktives Tool, das Anlegerparameter, ETF-Restriktionen und gewünschte Ausgabeformate in einen professionell strukturierten Prompt für strategische Portfolioanalysen übersetzt.</p>
+        <a class="hero-link" href="https://bicon.li/prompt-builder/">bicon.li/prompt-builder/</a>
+      </div>
+      <div class="hero-panel" aria-label="Portfolio Prompt Builder App Screenshot">
+        <img class="app-shot" src="portfolio-prompt-builder-app-screenshot.png" alt="Screenshot der Portfolio Prompt Builder App" />
+        <div class="screen-label">Live App Preview</div>
+        <div class="screen-card">
+          <strong>Parameter rein. Prompt raus.</strong>
+          <span>Strategie, Währung, Börse, Checks und Export in einer kompakten Oberfläche.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="strip">
+      <div class="metric"><strong>4</strong><span>Investment Strategy Presets</span></div>
+      <div class="metric"><strong>2</strong><span>Sprachen: Deutsch und Englisch</span></div>
+      <div class="metric"><strong>Auto</strong><span>Währung, Börse, Aktienquote, ETF-Zielanzahl</span></div>
+      <div class="metric"><strong>3</strong><span>Copy, TXT-Export und Markdown-Export</span></div>
+    </section>
+
+    <section class="grid">
+      <div>
+        <div class="section-label">WARUM ES NÜTZLICH IST</div>
+        <h2>Vom Parameter zur professionellen KI-Anfrage in Sekunden.</h2>
+        <p class="copy">Der Builder ersetzt nicht nur Platzhalter. Er reagiert auf Währung, Risikoappetit, Anlagehorizont, Anlageklassen und Ausgabeformat mit zusätzlicher Logik.</p>
+        <ul>
+          <li>Strukturierte Prompts für ETF-basierte strategische Asset Allocation.</li>
+          <li>Home-Bias-, Hedging-, Look-through- und Synthetic-ETF-Anweisungen.</li>
+          <li>Automatische Anpassung von Börse, Aktienquote und ETF-Zielanzahl.</li>
+        </ul>
+      </div>
+
+      <div class="logic-card">
+        <div class="section-label">INTEGRIERTE PLAUSIBILITÄT</div>
+        <h2>Checks, bevor der Prompt kopiert wird.</h2>
+        <ul class="logic-list">
+          <li>Warnung bei Risiko-/Horizont-Konflikten.</li>
+          <li>Defensive Profile ohne Cash oder Bonds werden markiert.</li>
+          <li>Balanced und höher ohne Equities wird hinterfragt.</li>
+          <li>Crypto bei Low/Moderate oder ohne Rebalancing wird geprüft.</li>
+          <li>Look-through-Sektion ohne Look-through-Instruktion wird erkannt.</li>
+          <li>Synthetic-ETF-Assessment ohne Equities wird markiert.</li>
+          <li>Listed Real Estate bei sehr wenigen ETF-Positionen wird geprüft.</li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="disclaimer">Hinweis: Dies stellt keine Anlageberatung, Anlageempfehlung oder Aufforderung zum Kauf oder Verkauf von Finanzinstrumenten dar.</div>
+  </main>
+</body>
+</html>
