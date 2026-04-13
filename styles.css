@@ -209,7 +209,7 @@ button {
   background: rgba(255, 255, 255, 0.58);
 }
 
-.strategy-context span {
+.strategy-context > span {
   color: var(--muted);
   font-family: Consolas, "Courier New", monospace;
   font-size: 0.72rem;
@@ -218,10 +218,18 @@ button {
 }
 
 .strategy-context strong {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0 0.38em;
   text-align: right;
   font-size: 0.86rem;
   font-weight: 500;
   line-height: 1.35;
+}
+
+.strategy-segment {
+  white-space: nowrap;
 }
 
 .output-panel .strategy-context {
@@ -1060,6 +1068,7 @@ button {
 
   .strategy-context strong,
   .logic-summary summary small {
+    justify-content: flex-start;
     text-align: left;
   }
 

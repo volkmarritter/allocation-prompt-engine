@@ -740,6 +740,8 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /Auto logic/);
   assert.match(html, /Current strategy/);
   assert.match(html, /strategy-context/);
+  assert.match(html, /strategy-segment/);
+  assert.match(html, /8-12 ETFs/);
   assert.match(html, /data-action="toggle-preset-details"/);
   assert.doesNotMatch(html, /show-preset-details/);
   assert.equal(html.indexOf("preset-grid") < html.indexOf("strategy-context"), true);

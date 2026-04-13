@@ -290,13 +290,17 @@ function getActivePreset() {
 }
 
 function getPresetContextText() {
+  return getPresetContextParts().join(", ");
+}
+
+function getPresetContextParts() {
   const german = isGerman();
   const t = uiText[state.outputLanguage];
   const preset = getActivePreset();
   const label = preset ? (german ? preset.deLabel : preset.label) : t.customStrategy;
   const equitySuffix = german ? "Aktien" : "equity";
   const etfText = german ? "ETFs" : "ETFs";
-  return `${label}: ${state.equityMin}-${state.equityMax}% ${equitySuffix}, ${state.minEtfs}-${state.maxEtfs} ${etfText}, ${state.exchange}`;
+  return [`${label}:`, `${state.equityMin}-${state.equityMax}% ${equitySuffix}`, `${state.minEtfs}-${state.maxEtfs} ${etfText}`, state.exchange];
 }
 
 function getAutoLogicItems() {
@@ -847,7 +851,7 @@ function render() {
                 <button class="details-toggle" type="button" data-action="toggle-preset-details" aria-expanded="${showPresetDetails ? "true" : "false"}">${escapeHtml(showPresetDetails ? t.hideDetails : t.details)}</button>
               </div>
               <div class="preset-grid">${portfolioPresets.map(renderPresetButton).join("")}</div>
-              <div class="strategy-context"><span>${escapeHtml(t.presetContext)}</span><strong>${escapeHtml(getPresetContextText())}</strong></div>
+              <div class="strategy-context"><span>${escapeHtml(t.presetContext)}</span><strong>${renderStrategyContextValue()}</strong></div>
             </div>
 
             <div class="dual-grid triple-grid-mobile">
@@ -1043,6 +1047,13 @@ function renderAdjustmentStatus(isManual, action) {
 function renderAssetClassToggle(option) {
   const german = isGerman();
   return renderCheckboxCard(`asset:${option.id}`, state.assetClasses[option.id], german ? option.deLabel : option.label, getAssetClassDescription(option, german));
+}
+
+function renderStrategyContextValue() {
+  const parts = getPresetContextParts();
+  return parts
+    .map((part, index) => `<span class="strategy-segment">${escapeHtml(part)}${index === 0 ? "" : index < parts.length - 1 ? "," : ""}</span>`)
+    .join(" ");
 }
 
 function renderAssetClassBadge(stats) {

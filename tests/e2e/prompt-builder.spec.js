@@ -35,6 +35,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".quality-card")).toHaveCount(0);
     await expect(page.locator(".logic-summary")).toContainText("Auto logic");
     await expect(page.locator(".strategy-context")).toContainText("Growth");
+    await expect(page.locator(".strategy-context .strategy-segment")).toHaveCount(4);
+    await expect(page.locator(".strategy-context .strategy-segment").nth(2)).toHaveText("8-12 ETFs,");
     await expect(page.locator(".preset-section .preset-summary").first()).toBeHidden();
     await page.locator('button[data-action="toggle-preset-details"]').click();
     await expect(page.locator(".preset-section .preset-summary").first()).toBeVisible();
