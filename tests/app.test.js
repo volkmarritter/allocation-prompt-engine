@@ -12,6 +12,10 @@ const packageJson = fs.readFileSync(path.join(projectRoot, "package.json"), "utf
 const workflow = fs.readFileSync(path.join(projectRoot, ".github", "workflows", "tests.yml"), "utf8");
 
 function createContext() {
+  return createContextWithConfig(configCode);
+}
+
+function createContextWithConfig(configSource) {
   const context = {
     console,
     setTimeout,
@@ -41,7 +45,7 @@ function createContext() {
   };
 
   vm.createContext(context);
-  vm.runInContext(configCode, context, { filename: "config.js" });
+  vm.runInContext(configSource, context, { filename: "config.js" });
   vm.runInContext(appCode, context, { filename: "app.js" });
   return context;
 }
@@ -841,6 +845,31 @@ test("current strategy follows explicit preset state instead of matching values"
   );
 
   assert.deepEqual(Array.from(result), ["Growth:", "Custom setup:", "Growth:"]);
+});
+
+test("reset button label follows configured default preset and base currency", () => {
+  const customConfigCode = `
+    window.PROMPT_BUILDER_CONFIG = {
+      ...window.PROMPT_BUILDER_CONFIG,
+      defaultBaseCurrency: "EUR",
+      defaultPresetId: "balanced",
+    };
+  `;
+  const context = createContextWithConfig(`${configCode}\n${customConfigCode}`);
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.outputLanguage = "English";
+      const englishLabel = getResetDefaultsLabel();
+      state.outputLanguage = "German";
+      const germanLabel = getResetDefaultsLabel();
+      [englishLabel, germanLabel];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), ["Reset defaults: Balanced EUR", "Zurücksetzen: Ausgewogen EUR"]);
 });
 
 test("render includes presets, demo, and marketing sections", () => {

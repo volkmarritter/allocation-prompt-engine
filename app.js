@@ -100,7 +100,7 @@ const uiText = {
     exportMd: "Export .md",
     copied: "Copied",
     copyFailed: "Copy failed",
-    resetDefaults: "Reset defaults: Growth CHF",
+    resetDefaults: "Reset defaults:",
     promptOutput: "Prompt output",
     outputSectionsIncluded: "output sections included",
     targetEtfPositions: "target ETF positions",
@@ -186,7 +186,7 @@ const uiText = {
     exportMd: "Export .md",
     copied: "Kopiert",
     copyFailed: "Kopieren fehlgeschlagen",
-    resetDefaults: "Zurücksetzen: Wachstum CHF",
+    resetDefaults: "Zurücksetzen:",
     promptOutput: "Prompt-Ausgabe",
     outputSectionsIncluded: "Ausgabeabschnitte enthalten",
     targetEtfPositions: "Zielanzahl\nETF-Positionen",
@@ -318,6 +318,17 @@ function getPromptStats(prompt) {
 
 function getActivePreset() {
   return portfolioPresets.find((preset) => preset.id === activePresetId) || null;
+}
+
+function getDefaultPreset() {
+  return portfolioPresets.find((preset) => preset.id === defaultPresetId) || portfolioPresets[0] || null;
+}
+
+function getResetDefaultsLabel() {
+  const t = uiText[state.outputLanguage];
+  const preset = getDefaultPreset();
+  const presetLabel = preset ? (isGerman() ? preset.deLabel : preset.label) : t.customStrategy;
+  return `${t.resetDefaults} ${presetLabel} ${defaultBaseCurrency}`;
 }
 
 function getPresetContextText() {
@@ -1031,7 +1042,7 @@ function render() {
             <button class="button" type="button" data-action="copy">${escapeHtml(t.copyPrompt)}</button>
             <button class="button-ghost" type="button" data-action="export-txt">${escapeHtml(t.exportTxt)}</button>
             <button class="button-ghost" type="button" data-action="export-md">${escapeHtml(t.exportMd)}</button>
-            <button class="button-ghost" type="button" data-action="reset">${escapeHtml(t.resetDefaults)}</button>
+            <button class="button-ghost" type="button" data-action="reset">${escapeHtml(getResetDefaultsLabel())}</button>
           </div>
           <div class="output-meta">${escapeHtml(t.promptOutput)}</div>
           <div class="output-box structured-output">${renderPromptPreview(prompt)}</div>
