@@ -773,6 +773,7 @@ test("GitHub Actions test workflow is configured", () => {
   assert.match(packageJson, /"test": "npm run test:unit && npm run test:e2e"/);
   assert.match(workflow, /actions\/checkout@v4/);
   assert.match(workflow, /actions\/setup-node@v4/);
+  assert.match(workflow, /FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true/);
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /npm test/);
 });
