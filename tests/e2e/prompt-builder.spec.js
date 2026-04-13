@@ -27,6 +27,11 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".etf-count-group").locator(".status-pill")).toHaveText("Auto");
     await page.locator(".range-group").first().locator(".status-info").click();
     await expect(page.locator(".status-info-wrap.is-open .status-tooltip")).toContainText("Automatically derived");
+    await expect(page.locator(".equity-region-pill")).toContainText("5 equity regions");
+    await expect(page.locator(".equity-region-pill .region-sparkline i")).toHaveCount(5);
+    await page.locator('select[name="baseCurrency"]').selectOption("EUR");
+    await expect(page.locator(".equity-region-pill")).toContainText("4 equity regions");
+    await expect(page.locator(".equity-region-pill .region-sparkline i")).toHaveCount(4);
     await expect(page.locator(".hero-aside")).toContainText("Risk appetite");
     await expect(page.locator(".hero-aside")).toContainText("Investment horizon");
     await expect(page.locator(".hero-aside")).toContainText("Maximum equity weight");

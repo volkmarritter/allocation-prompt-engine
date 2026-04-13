@@ -29,6 +29,7 @@ const uiText = {
     investorSetup: "Investor setup",
     setupCopy: "Choose the values that should flow into the generated prompt, then copy the result directly into your workflow.",
     assetClasses: "asset classes",
+    equityRegions: "equity regions",
     language: "Language",
     riskAppetite: "Risk appetite",
     investmentHorizon: "Investment horizon",
@@ -104,6 +105,7 @@ const uiText = {
     investorSetup: "Anlegerprofil",
     setupCopy: "Wähle die Werte, die in den generierten Prompt einfliessen sollen, und kopiere das Ergebnis direkt in deinen Workflow.",
     assetClasses: "Anlageklassen",
+    equityRegions: "Aktienregionen",
     language: "Sprache",
     riskAppetite: "Risikoappetit",
     investmentHorizon: "Anlagehorizont",
@@ -229,9 +231,22 @@ function getSelectedSections() {
   return outputSections.filter((section) => state.sections[section.id]);
 }
 
+function getEquityRegions(german = isGerman()) {
+  if (state.baseCurrency === "CHF") {
+    return german
+      ? ["USA", "Europa ex CH", "Schweiz", "Japan", "EM"]
+      : ["USA", "Europe ex-CH", "Switzerland", "Japan", "EM"];
+  }
+
+  return german
+    ? ["USA", "Europa inkl. CH", "Japan", "EM"]
+    : ["USA", "Europe incl. CH", "Japan", "EM"];
+}
+
 function getPromptStats(prompt) {
   return {
     assetClasses: getSelectedAssetClasses().length,
+    equityRegions: state.assetClasses.equities ? getEquityRegions().length : 0,
     sections: getSelectedSections().length,
     words: prompt.trim().split(/\s+/).filter(Boolean).length,
   };
@@ -725,7 +740,10 @@ function render() {
               <h2>${escapeHtml(t.investorSetup)}</h2>
               <p>${escapeHtml(t.setupCopy)}</p>
             </div>
-            <span class="pill">${stats.assetClasses} ${escapeHtml(t.assetClasses)}</span>
+            <div class="panel-badges">
+              <span class="pill">${stats.assetClasses} ${escapeHtml(t.assetClasses)}</span>
+              ${renderEquityRegionBadge(stats)}
+            </div>
           </div>
 
           <div class="form-grid">
@@ -938,6 +956,22 @@ function renderAdjustmentStatus(isManual, action) {
 function renderAssetClassToggle(option) {
   const german = isGerman();
   return renderCheckboxCard(`asset:${option.id}`, state.assetClasses[option.id], german ? option.deLabel : option.label, getAssetClassDescription(option, german));
+}
+
+function renderEquityRegionBadge(stats) {
+  if (!stats.equityRegions) return "";
+
+  const t = uiText[state.outputLanguage];
+  const regions = getEquityRegions();
+  const regionList = regions.join(", ");
+  return `
+    <span class="pill equity-region-pill" title="${escapeAttribute(regionList)}" aria-label="${escapeAttribute(`${stats.equityRegions} ${t.equityRegions}: ${regionList}`)}">
+      <span>${stats.equityRegions} ${escapeHtml(t.equityRegions)}</span>
+      <span class="region-sparkline" aria-hidden="true">
+        ${regions.map((region) => `<i title="${escapeAttribute(region)}"></i>`).join("")}
+      </span>
+    </span>
+  `;
 }
 
 function renderPresetButton(preset) {

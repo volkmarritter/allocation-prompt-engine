@@ -411,6 +411,34 @@ test("base currency controls home-bias and equity region logic", () => {
   }
 });
 
+test("equity region badge follows base currency and equity selection", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      const root = { innerHTML: "" };
+      document.getElementById = () => root;
+      render();
+      const chfHtml = root.innerHTML;
+      state.baseCurrency = "EUR";
+      render();
+      const eurHtml = root.innerHTML;
+      state.assetClasses.equities = false;
+      render();
+      const noEquitiesHtml = root.innerHTML;
+      [chfHtml, eurHtml, noEquitiesHtml];
+    `
+  );
+
+  assert.match(result[0], /5 equity regions/);
+  assert.match(result[0], /Switzerland/);
+  assert.match(result[1], /4 equity regions/);
+  assert.match(result[1], /Europe incl\. CH/);
+  assert.doesNotMatch(result[2], /equity-region-pill/);
+});
+
 test("base currency sets the preferred exchange for every currency change", () => {
   const context = createContext();
   reset(context);
