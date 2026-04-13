@@ -41,8 +41,12 @@ The browser tests use Playwright Chromium.
 
 ## What it does
 
-- Lets users configure the bracketed portfolio parameters from the original source prompt
-- Generates the final prompt in English or German
-- Supports toggling eligible asset classes and output sections
-- Supports prompt instructions for home bias, hedging, ETF look-through, and synthetic ETFs
-- Keeps the implementation static with no backend or database dependency
+The Portfolio Prompt Builder turns key investor parameters into a structured, ready-to-use prompt for strategic asset allocation analysis. It combines interactive inputs with additional logic for home bias, currency hedging, ETF look-through exposures, synthetic ETF assessment, and plausibility checks.
+- Select base currency, risk appetite, investment horizon, equity allocation, ETF count, and preferred exchange
+- Plausibility checks for risk appetite, investment horizon, and required minimum selections
+- Automatically adjusts the equity allocation range to the selected risk appetite
+- Applies dynamic home-bias logic based on the selected base currency
+- Optional requirements for currency hedging, ETF look-through, and synthetic ETF assessment
+- Selectable output sections such as target allocation, ETF implementation, currency overview, rebalancing, and TER estimate
+- Choose between English and German for the generated prompt
+- Ready-to-copy prompt for structured portfolio analysis
