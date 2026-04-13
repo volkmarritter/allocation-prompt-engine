@@ -23,7 +23,7 @@ Die Presets setzen Risikoappetit, Anlagehorizont, Aktienbandbreite und teilweise
 
 | Preset | Risikoappetit | Anlagehorizont | Aktienbandbreite | Besondere Logik |
 | --- | --- | --- | --- | --- |
-| Conservative / Konservativ | `Low` | `>=3 years` | `25% bis 45%` | `Listed Real Estate` und `Crypto Assets` werden abgewählt; ETF-Zielanzahl wird auf `6 bis 10` gesetzt; ETF-Status bleibt `Auto`. |
+| Conservative / Konservativ | `Low` | `>=3 years` | `25% bis 45%` | `Cash`, `Bonds`, `Equities` und `Commodities` werden aktiviert; `Listed Real Estate` und `Crypto Assets` werden abgewählt; ETF-Zielanzahl wird auf `6 bis 10` gesetzt; ETF-Status bleibt `Auto`. |
 | Balanced / Ausgewogen | `Balanced` | `>=5 years` | `55% bis 75%` | `Crypto Assets` und `Listed Real Estate` werden abgewählt; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
 | Growth / Wachstum | `High` | `>=10 years` | `75% bis 95%` | `Listed Real Estate` wird abgewählt, `Crypto Assets` bleibt aktiviert; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
 | Aggressive / Aggressiv | `Very high` | `>=10 years` | `90% bis 100%` | `Bonds` werden abgewählt, `Listed Real Estate` und `Crypto Assets` bleiben aktiviert; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
@@ -82,6 +82,7 @@ Wenn der Nutzer die ETF-Zielanzahl über Plus-/Minus-Buttons manuell ändert:
 Beim `Conservative`-Preset:
 
 - `Listed Real Estate` und `Crypto Assets` werden abgewählt.
+- `Cash`, `Bonds`, `Equities` und `Commodities` werden aktiviert.
 - Die ETF-Zielanzahl wird automatisch auf `6 bis 10` gesetzt.
 - Der ETF-Status bleibt `Auto`.
 

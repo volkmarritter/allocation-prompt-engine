@@ -23,7 +23,7 @@ The presets set risk appetite, investment horizon, equity allocation range, and 
 
 | Preset | Risk appetite | Investment horizon | Equity allocation range | Special logic |
 | --- | --- | --- | --- | --- |
-| Conservative / Konservativ | `Low` | `>=3 years` | `25% to 45%` | `Listed Real Estate` and `Crypto Assets` are deselected; ETF target count is set to `6 to 10`; ETF status remains `Auto`. |
+| Conservative / Konservativ | `Low` | `>=3 years` | `25% to 45%` | `Cash`, `Bonds`, `Equities`, and `Commodities` are enabled; `Listed Real Estate` and `Crypto Assets` are deselected; ETF target count is set to `6 to 10`; ETF status remains `Auto`. |
 | Balanced / Ausgewogen | `Balanced` | `>=5 years` | `55% to 75%` | `Crypto Assets` and `Listed Real Estate` are deselected; ETF target count is recalculated in Auto mode based on the selected asset classes. |
 | Growth / Wachstum | `High` | `>=10 years` | `75% to 95%` | `Listed Real Estate` is deselected while `Crypto Assets` remains enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
 | Aggressive / Aggressiv | `Very high` | `>=10 years` | `90% to 100%` | `Bonds` are deselected while `Listed Real Estate` and `Crypto Assets` remain enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
@@ -82,6 +82,7 @@ If the user changes the ETF target count with the plus/minus controls:
 For the `Conservative` preset:
 
 - `Listed Real Estate` and `Crypto Assets` are deselected.
+- `Cash`, `Bonds`, `Equities`, and `Commodities` are enabled.
 - ETF target count is automatically set to `6 to 10`.
 - ETF status remains `Auto`.
 

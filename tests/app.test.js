@@ -737,22 +737,23 @@ test("portfolio presets set profile and default asset class exclusions", () => {
       state.minEtfs = 6;
       state.maxEtfs = 9;
       state.etfCountManuallyAdjusted = true;
-      applyPreset("conservative");
-      const conservative = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.bonds, state.assetClasses.realEstate, state.assetClasses.crypto];
-      applyPreset("balanced");
-      const balanced = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.bonds, state.assetClasses.realEstate, state.assetClasses.crypto];
-      applyPreset("growth");
-      const growth = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.bonds, state.assetClasses.realEstate, state.assetClasses.crypto];
       applyPreset("aggressive");
-      const aggressive = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.bonds, state.assetClasses.realEstate, state.assetClasses.crypto];
+      applyPreset("conservative");
+      const conservative = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.cash, state.assetClasses.bonds, state.assetClasses.equities, state.assetClasses.commodities, state.assetClasses.realEstate, state.assetClasses.crypto];
+      applyPreset("balanced");
+      const balanced = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.cash, state.assetClasses.bonds, state.assetClasses.equities, state.assetClasses.commodities, state.assetClasses.realEstate, state.assetClasses.crypto];
+      applyPreset("growth");
+      const growth = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.cash, state.assetClasses.bonds, state.assetClasses.equities, state.assetClasses.commodities, state.assetClasses.realEstate, state.assetClasses.crypto];
+      applyPreset("aggressive");
+      const aggressive = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.cash, state.assetClasses.bonds, state.assetClasses.equities, state.assetClasses.commodities, state.assetClasses.realEstate, state.assetClasses.crypto];
       [conservative, balanced, growth, aggressive];
     `
   );
 
-  assert.deepEqual(Array.from(result[0]), ["Low", ">=3 years", 25, 45, 6, 10, false, false, true, false, false]);
-  assert.deepEqual(Array.from(result[1]), ["Balanced", ">=5 years", 55, 75, 6, 10, false, false, true, false, false]);
-  assert.deepEqual(Array.from(result[2]), ["High", ">=10 years", 75, 95, 7, 11, false, false, true, false, true]);
-  assert.deepEqual(Array.from(result[3]), ["Very high", ">=10 years", 90, 100, 7, 11, false, false, false, true, true]);
+  assert.deepEqual(Array.from(result[0]), ["Low", ">=3 years", 25, 45, 6, 10, false, false, true, true, true, true, false, false]);
+  assert.deepEqual(Array.from(result[1]), ["Balanced", ">=5 years", 55, 75, 6, 10, false, false, true, true, true, true, false, false]);
+  assert.deepEqual(Array.from(result[2]), ["High", ">=10 years", 75, 95, 7, 11, false, false, true, true, true, true, false, true]);
+  assert.deepEqual(Array.from(result[3]), ["Very high", ">=10 years", 90, 100, 7, 11, false, false, true, false, true, true, true, true]);
 });
 
 test("default state is the Growth CHF preset with its asset exclusions", () => {
