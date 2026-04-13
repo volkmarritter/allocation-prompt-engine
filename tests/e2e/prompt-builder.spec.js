@@ -103,6 +103,21 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await page.locator('button[data-action="restore-equity-auto"]').click();
     await expect(page.locator(".range-group").first()).toContainText("55% to 75%");
     await expect(page.locator(".range-group").first().locator(".status-pill")).toHaveText("Auto");
+    await expect(page.locator(".strategy-context")).toContainText("Custom setup");
+  });
+
+  test("current strategy changes only through preset and reset actions", async ({ page }) => {
+    await openApp(page);
+
+    await expect(page.locator(".strategy-context")).toContainText("Growth");
+    await page.locator('button[data-step-target="equityMax"][data-step-direction="-5"]').click();
+    await expect(page.locator(".strategy-context")).toContainText("Custom setup");
+    await page.locator('button[data-preset="growth"]').click();
+    await expect(page.locator(".strategy-context")).toContainText("Growth");
+    await page.locator('select[name="riskAppetite"]').selectOption("Balanced");
+    await expect(page.locator(".strategy-context")).toContainText("Custom setup");
+    await page.locator('button[data-action="reset"]').click();
+    await expect(page.locator(".strategy-context")).toContainText("Growth");
   });
 
   test("shows maximum equity warning only once until risk appetite changes", async ({ page }) => {

@@ -233,6 +233,7 @@ let lastEquityAssetAlertKey = "";
 let lastAdditionalLogicAlertKey = "";
 let activeStatusInfoKey = "";
 let showPresetDetails = false;
+let activePresetId = "growth";
 
 document.addEventListener("DOMContentLoaded", () => {
   render();
@@ -277,16 +278,7 @@ function getPromptStats(prompt) {
 }
 
 function getActivePreset() {
-  return portfolioPresets.find((preset) => {
-    const minEtfs = Number.isInteger(preset.minEtfs) ? preset.minEtfs : defaults.minEtfs;
-    const maxEtfs = Number.isInteger(preset.maxEtfs) ? preset.maxEtfs : defaults.maxEtfs;
-    return preset.riskAppetite === state.riskAppetite
-      && preset.investmentHorizon === state.investmentHorizon
-      && preset.equityMin === state.equityMin
-      && preset.equityMax === state.equityMax
-      && minEtfs === state.minEtfs
-      && maxEtfs === state.maxEtfs;
-  });
+  return portfolioPresets.find((preset) => preset.id === activePresetId) || null;
 }
 
 function getPresetContextText() {
@@ -1208,6 +1200,7 @@ function handleInputChange(event) {
   const { name, type, value, checked } = event.target;
   if (!name) return;
   activeStatusInfoKey = "";
+  activePresetId = null;
   if (name.startsWith("asset:")) {
     state.assetClasses[name.slice(6)] = checked;
     applyAutomaticEtfCountFromAssetClasses();
@@ -1276,6 +1269,7 @@ function handleClick(event) {
   }
   if (stepTarget && !Number.isNaN(stepDirection)) {
     activeStatusInfoKey = "";
+    activePresetId = null;
     if (["minEtfs", "maxEtfs"].includes(stepTarget)) {
       state.etfCountManuallyAdjusted = true;
     } else if (["equityMin", "equityMax"].includes(stepTarget)) {
@@ -1292,11 +1286,13 @@ function handleClick(event) {
   }
   if (action === "reset") {
     activeStatusInfoKey = "";
+    activePresetId = "growth";
     state = createDefaultState();
     render();
   }
   if (action === "restore-equity-auto") {
     activeStatusInfoKey = "";
+    activePresetId = null;
     state.equityRangeManuallyAdjusted = false;
     applyEquityRangeForRisk(state.riskAppetite);
     render();
@@ -1305,12 +1301,14 @@ function handleClick(event) {
   }
   if (action === "restore-etf-auto") {
     activeStatusInfoKey = "";
+    activePresetId = null;
     state.etfCountManuallyAdjusted = false;
     applyAutomaticEtfCountFromAssetClasses();
     render();
   }
   if (action === "restore-exchange-auto") {
     activeStatusInfoKey = "";
+    activePresetId = null;
     state.exchangeManuallyAdjusted = false;
     applyExchangeForBaseCurrency(state.baseCurrency);
     render();
@@ -1324,6 +1322,7 @@ function applyPreset(presetId) {
   const preset = portfolioPresets.find((item) => item.id === presetId);
   if (!preset) return;
 
+  activePresetId = presetId;
   state.riskAppetite = preset.riskAppetite;
   state.investmentHorizon = preset.investmentHorizon;
   state.equityMin = preset.equityMin;

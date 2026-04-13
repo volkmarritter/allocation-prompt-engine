@@ -59,6 +59,7 @@ function reset(context) {
       lastDefensiveAssetAlertKey = "";
       lastEquityAssetAlertKey = "";
       lastAdditionalLogicAlertKey = "";
+      activePresetId = "growth";
       window.__alerts = [];
     `
   );
@@ -712,6 +713,31 @@ test("portfolio presets set profile while only conservative updates ETF target f
 
   assert.deepEqual(Array.from(result[0]), ["Low", ">=3 years", 25, 45, 6, 10, false, false, false, false]);
   assert.deepEqual(Array.from(result[1]), ["High", ">=10 years", 75, 95, 8, 12, false, false, true, true]);
+});
+
+test("current strategy follows explicit preset state instead of matching values", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      const defaultLabel = getPresetContextParts()[0];
+      activePresetId = null;
+      state.riskAppetite = "High";
+      state.investmentHorizon = ">=10 years";
+      state.equityMin = 75;
+      state.equityMax = 95;
+      state.minEtfs = 8;
+      state.maxEtfs = 12;
+      const customLabel = getPresetContextParts()[0];
+      applyPreset("growth");
+      const presetLabel = getPresetContextParts()[0];
+      [defaultLabel, customLabel, presetLabel];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), ["Growth:", "Custom setup:", "Growth:"]);
 });
 
 test("render includes presets, demo, and marketing sections", () => {
