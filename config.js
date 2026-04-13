@@ -1,5 +1,6 @@
 window.PROMPT_BUILDER_CONFIG = {
   baseCurrencies: ["CHF", "EUR", "USD", "GBP"],
+  defaultBaseCurrency: "CHF",
   exchanges: [
     "SIX Swiss Exchange",
     "XETRA Deutsche Börse",

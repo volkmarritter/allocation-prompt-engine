@@ -39,6 +39,7 @@ The preset description explicitly shows the equity allocation range as `XX-XX% e
 - `label` and `deLabel`: visible strategy names; `id` can also be changed if `defaultPresetId` and references use the new id.
 - `icon`: preset icon style (`conservative`, `balanced`, `growth`, `aggressive`).
 - `exchanges`: exchanges available in the `Preferred exchange` selector.
+- `defaultBaseCurrency`: base currency used for initial load and reset.
 - `defaultExchangeByCurrency`: default exchange per base currency.
 - `defaultPresetId`: preset used for initial load and reset.
 

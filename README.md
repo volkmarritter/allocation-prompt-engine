@@ -49,6 +49,7 @@ Edit `config.js` to adjust:
 - preset icon style via `icon`, using one of `conservative`, `balanced`, `growth`, or `aggressive`
 - available exchanges shown in the preferred exchange selector
 - default exchange per base currency
+- default base currency for initial load and reset
 - default preset used for reset and initial load
 
 When publishing the app to WordPress/Plesk, upload `config.js` together with `index.html`, `styles.css`, and `app.js`.

@@ -37,6 +37,7 @@ const defaultExchangeByCurrency = {
   GBP: "LSE London Stock Exchange",
   ...(promptBuilderConfig.defaultExchangeByCurrency || {}),
 };
+const defaultBaseCurrency = promptBuilderConfig.defaultBaseCurrency || baseCurrencyOptions[0] || "CHF";
 const defaultPresetId = promptBuilderConfig.defaultPresetId || "growth";
 
 const uiText = {
@@ -215,13 +216,13 @@ const uiText = {
 };
 
 const defaults = {
-  baseCurrency: "CHF",
+  baseCurrency: defaultBaseCurrency,
   riskAppetite: "High",
   investmentHorizon: ">=10 years",
   equityMin: 75,
   equityMax: 95,
   equityRangeManuallyAdjusted: false,
-  exchange: defaultExchangeByCurrency.CHF || exchangeOptions[0] || "SIX Swiss Exchange",
+  exchange: defaultExchangeByCurrency[defaultBaseCurrency] || exchangeOptions[0] || "SIX Swiss Exchange",
   exchangeManuallyAdjusted: false,
   minEtfs: 8,
   maxEtfs: 12,

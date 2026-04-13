@@ -39,6 +39,7 @@ Die Preset-Beschreibung zeigt die Aktienbandbreite explizit als `XX-XX% equity` 
 - `label` und `deLabel`: sichtbare Strategienamen; `id` kann ebenfalls angepasst werden, wenn `defaultPresetId` und Referenzen auf die neue ID zeigen.
 - `icon`: Icon-Stil des Presets (`conservative`, `balanced`, `growth`, `aggressive`).
 - `exchanges`: die im Feld `Preferred exchange` auswählbaren Börsenplätze.
+- `defaultBaseCurrency`: Basiswährung für Initialzustand und Reset.
 - `defaultExchangeByCurrency`: Default-Börsenplatz pro Basiswährung.
 - `defaultPresetId`: Preset für Initialzustand und Reset.
 

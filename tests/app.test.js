@@ -106,6 +106,7 @@ test("portfolio strategy and exchange defaults are loaded from config", () => {
         window.PROMPT_BUILDER_CONFIG.presets.length,
         portfolioPresets === window.PROMPT_BUILDER_CONFIG.presets,
         exchangeOptions.join("|"),
+        defaultBaseCurrency,
         defaultExchangeByCurrency.EUR,
         defaultPresetId,
       ];
@@ -116,6 +117,7 @@ test("portfolio strategy and exchange defaults are loaded from config", () => {
     4,
     true,
     "SIX Swiss Exchange|XETRA Deutsche Börse|NYSE American Stock Exchange|LSE London Stock Exchange",
+    "CHF",
     "XETRA Deutsche Börse",
     "growth",
   ]);
