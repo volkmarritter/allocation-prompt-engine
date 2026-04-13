@@ -737,36 +737,33 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /asset-class-pill/);
   assert.match(html, /asset-pie/);
   assert.match(html, /conic-gradient/);
-  assert.match(html, /Prompt quality/);
-  assert.match(html, /Asset classes selected/);
   assert.match(html, /Auto logic/);
   assert.match(html, /Current strategy/);
   assert.match(html, /strategy-context/);
   assert.match(html, /Jump to prompt/);
+  assert.equal(html.indexOf("asset-section") < html.indexOf("mobile-jump"), true);
+  assert.equal(html.indexOf("mobile-jump") < html.indexOf("output-section"), true);
+  assert.doesNotMatch(html, /quality-card/);
   assert.match(html, /Version 0\.7/);
   assert.match(html, /How to use the generated prompt/);
   assert.match(html, /Structured portfolio prompts for faster investment research/);
 });
 
-test("quality checks and auto logic reflect current state", () => {
+test("auto logic reflects current state", () => {
   const context = createContext();
   reset(context);
 
   const result = run(
     context,
     `
-      const defaultChecks = getQualityChecks().map((item) => [item.label, item.ok]);
       state.assetClasses.equities = false;
       applyAutomaticEquityRangeFromAssetClasses("asset:equities");
-      const noEquityChecks = getQualityChecks().map((item) => [item.label, item.ok]);
       const logic = getAutoLogicItems();
-      [defaultChecks, noEquityChecks, logic];
+      logic;
     `
   );
 
-  assert.equal(result[0].every((item) => item[1]), true);
-  assert.equal(result[1].every((item) => item[1]), true);
-  assert.match(result[2].join(" "), /Equities disabled/);
+  assert.match(result.join(" "), /Equities disabled/);
 });
 
 test("GitHub Actions test workflow is configured", () => {

@@ -209,8 +209,7 @@ button {
   background: rgba(255, 255, 255, 0.58);
 }
 
-.strategy-context span,
-.quality-heading {
+.strategy-context span {
   color: var(--muted);
   font-family: Consolas, "Courier New", monospace;
   font-size: 0.72rem;
@@ -222,6 +221,10 @@ button {
   text-align: right;
   font-size: 0.86rem;
   line-height: 1.35;
+}
+
+.output-panel .strategy-context {
+  margin: 0 0 14px;
 }
 
 .panel-label {
@@ -779,54 +782,6 @@ button {
 .risk-check-warning {
   border-color: rgba(166, 103, 36, 0.34);
   background: rgba(166, 103, 36, 0.1);
-}
-
-.quality-card {
-  display: grid;
-  gap: 10px;
-  margin: 0 0 14px;
-  padding: 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(24, 24, 24, 0.1);
-  background: rgba(255, 255, 255, 0.62);
-}
-
-.quality-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.quality-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 30px;
-  padding: 6px 9px;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  line-height: 1.2;
-}
-
-.quality-chip b {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
-  font-size: 0.72rem;
-}
-
-.quality-ok {
-  color: #3d6348;
-  background: rgba(83, 122, 95, 0.12);
-}
-
-.quality-warning {
-  color: #79531f;
-  background: rgba(166, 103, 36, 0.12);
 }
 
 .logic-summary {

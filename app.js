@@ -34,14 +34,6 @@ const uiText = {
     assetClasses: "asset classes",
     equityRegions: "equity regions",
     jumpToPrompt: "Jump to prompt",
-    promptQuality: "Prompt quality",
-    checks: {
-      assetClasses: "Asset classes selected",
-      outputSections: "Output sections selected",
-      riskHorizon: "Risk/horizon plausible",
-      etfCount: "ETF count valid",
-      equityRange: "Equity range valid",
-    },
     autoLogic: "Auto logic",
     autoLogicCopy: "What the builder adjusted from your inputs.",
     noAutoLogic: "No automatic overrides are currently active.",
@@ -126,14 +118,6 @@ const uiText = {
     assetClasses: "Anlageklassen",
     equityRegions: "Aktienregionen",
     jumpToPrompt: "Zum Prompt",
-    promptQuality: "Prompt-Qualität",
-    checks: {
-      assetClasses: "Anlageklassen gewählt",
-      outputSections: "Ausgabeabschnitte gewählt",
-      riskHorizon: "Risiko/Horizont plausibel",
-      etfCount: "ETF-Anzahl gültig",
-      equityRange: "Aktienquote gültig",
-    },
     autoLogic: "Auto-Logik",
     autoLogicCopy: "Was der Builder aus deinen Eingaben abgeleitet hat.",
     noAutoLogic: "Aktuell sind keine automatischen Anpassungen aktiv.",
@@ -285,21 +269,6 @@ function getPromptStats(prompt) {
     sections: getSelectedSections().length,
     words: prompt.trim().split(/\s+/).filter(Boolean).length,
   };
-}
-
-function getQualityChecks(riskCheck = getRiskHorizonCheck()) {
-  const t = uiText[state.outputLanguage];
-  const minEtfs = Math.min(state.minEtfs, state.maxEtfs);
-  const maxEtfs = Math.max(state.minEtfs, state.maxEtfs);
-  const minEquity = Math.min(state.equityMin, state.equityMax);
-  const maxEquity = Math.max(state.equityMin, state.equityMax);
-  return [
-    { label: t.checks.assetClasses, ok: getSelectedAssetClasses().length > 0 },
-    { label: t.checks.outputSections, ok: getSelectedSections().length > 0 },
-    { label: t.checks.riskHorizon, ok: riskCheck.ok },
-    { label: t.checks.etfCount, ok: minEtfs >= 1 && maxEtfs >= minEtfs },
-    { label: t.checks.equityRange, ok: state.assetClasses.equities ? maxEquity >= minEquity : minEquity === 0 && maxEquity === 0 },
-  ];
 }
 
 function getActivePreset() {
@@ -870,7 +839,6 @@ function render() {
                 <p class="field-help">${escapeHtml(t.presetCopy)}</p>
               </div>
               <div class="preset-grid">${portfolioPresets.map(renderPresetButton).join("")}</div>
-              <div class="strategy-context"><span>${escapeHtml(t.presetContext)}</span><strong>${escapeHtml(getPresetContextText())}</strong></div>
             </div>
 
             <div class="dual-grid triple-grid-mobile">
@@ -953,6 +921,7 @@ function render() {
             </div>
 
             <div class="field-group option-section asset-section"><span class="field-label">${escapeHtml(t.eligibleAssetClasses)}</span><div class="toggle-grid">${assetClassOptions.map(renderAssetClassToggle).join("")}</div></div>
+            <a class="mobile-jump" href="#prompt-output">${escapeHtml(t.jumpToPrompt)}</a>
             <div class="field-group option-section output-section"><span class="field-label">${escapeHtml(t.requiredOutputSections)}</span><div class="toggle-grid">${outputSections.map(renderSectionToggle).join("")}</div></div>
             <div class="field-group option-section instruction-section"><span class="field-label">${escapeHtml(t.promptInstructions)}</span><div class="toggle-grid">
               ${state.baseCurrency === "USD" ? "" : renderCheckboxCard("includeHomeBiasGuidance", state.includeHomeBiasGuidance, t.includeHomeBias, t.includeHomeBiasDescription)}
@@ -960,7 +929,6 @@ function render() {
               ${renderCheckboxCard("includeLookThrough", state.includeLookThrough, t.includeLookThrough, t.includeLookThroughDescription)}
               ${renderCheckboxCard("includeSyntheticEtfs", state.includeSyntheticEtfs, t.includeSyntheticEtfs, t.includeSyntheticEtfsDescription)}
             </div></div>
-            <a class="mobile-jump" href="#prompt-output">${escapeHtml(t.jumpToPrompt)}</a>
           </div>
         </section>
 
@@ -977,7 +945,7 @@ function render() {
             <strong>${escapeHtml(riskCheck.ok ? t.riskCheckOk : t.riskCheckWarning)}</strong>
             <span>${escapeHtml(riskCheck.message)}</span>
           </div>
-          ${renderQualityChecklist(riskCheck)}
+          <div class="strategy-context"><span>${escapeHtml(t.presetContext)}</span><strong>${escapeHtml(getPresetContextText())}</strong></div>
           ${renderAutoLogicSummary()}
           <div class="action-row">
             <button class="button" type="button" data-action="copy">${escapeHtml(t.copyPrompt)}</button>
@@ -1114,24 +1082,6 @@ function renderEquityRegionBadge(stats) {
         ${regions.map((region) => `<i title="${escapeAttribute(region)}"></i>`).join("")}
       </span>
     </span>
-  `;
-}
-
-function renderQualityChecklist(riskCheck) {
-  const t = uiText[state.outputLanguage];
-  const checks = getQualityChecks(riskCheck);
-  return `
-    <section class="quality-card" aria-label="${escapeAttribute(t.promptQuality)}">
-      <div class="quality-heading">${escapeHtml(t.promptQuality)}</div>
-      <div class="quality-grid">
-        ${checks.map((check) => `
-          <span class="quality-chip ${check.ok ? "quality-ok" : "quality-warning"}">
-            <b>${check.ok ? "✓" : "!"}</b>
-            ${escapeHtml(check.label)}
-          </span>
-        `).join("")}
-      </div>
-    </section>
   `;
 }
 
