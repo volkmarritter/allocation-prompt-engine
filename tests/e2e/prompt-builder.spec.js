@@ -28,12 +28,11 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await page.locator(".range-group").first().locator(".status-info").click();
     await expect(page.locator(".status-info-wrap.is-open .status-tooltip")).toContainText("Automatically derived");
     await expect(page.locator(".asset-class-pill")).toContainText("5 asset classes");
-    await expect(page.locator(".asset-class-pill")).toContainText("Cash / Money Market, Bonds");
     await expect(page.locator(".asset-pie")).toBeVisible();
     await expect(page.locator(".asset-pie")).toHaveAttribute("style", /conic-gradient/);
     await expect(page.locator(".equity-region-pill")).toContainText("5 equity regions");
-    await expect(page.locator(".equity-region-pill")).toContainText("Europe ex-CH");
     await expect(page.locator(".equity-region-pill .region-sparkline i")).toHaveCount(5);
+    await expect(page.locator(".equity-region-pill .region-sparkline").locator("xpath=following-sibling::*[1]")).toHaveText("5 equity regions");
     await expect(page.locator(".parameter-badges")).toBeVisible();
     await expect(page.locator(".preset-section").locator("xpath=following-sibling::*[1]")).toHaveClass(/parameter-badges/);
     await expect(page.locator(".parameter-badges").locator("xpath=following-sibling::*[1]")).toContainText("Risk appetite");

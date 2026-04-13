@@ -210,7 +210,6 @@ button {
 }
 
 .parameter-badges .pill {
-  align-items: flex-start;
   justify-content: center;
   width: 100%;
 }
@@ -719,28 +718,6 @@ button {
   padding-left: 7px;
 }
 
-.badge-copy {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  text-align: left;
-}
-
-.badge-title {
-  line-height: 1.2;
-}
-
-.badge-list {
-  color: var(--muted);
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 0.75rem;
-  font-weight: 500;
-  line-height: 1.28;
-  overflow-wrap: anywhere;
-  text-transform: none;
-}
-
 .asset-pie {
   display: inline-block;
   flex: 0 0 auto;
@@ -753,7 +730,7 @@ button {
 }
 
 .equity-region-pill {
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   min-height: 34px;
   padding-right: 8px;
