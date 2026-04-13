@@ -1,6 +1,7 @@
 # Portfolio Prompt Builder
 
 Prompt-driven SAA engine for Private Banking – transforms structured investment parameters into consistent, testable strategic asset allocation proposals with ETF-based implementation.
+
 A lightweight static prompt builder that turns configurable investor parameters into a structured portfolio-strategy prompt in English or German.
 
 ## Files
