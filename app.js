@@ -218,9 +218,9 @@ const defaults = {
 
 const portfolioPresets = [
   { id: "conservative", label: "Conservative", deLabel: "Konservativ", riskAppetite: "Low", investmentHorizon: ">=3 years", equityMin: 25, equityMax: 45, minEtfs: 6, maxEtfs: 10, assetClasses: { equities: true, realEstate: false, crypto: false } },
-  { id: "balanced", label: "Balanced", deLabel: "Ausgewogen", riskAppetite: "Balanced", investmentHorizon: ">=5 years", equityMin: 55, equityMax: 75, assetClasses: { equities: true, realEstate: true, crypto: true } },
-  { id: "growth", label: "Growth", deLabel: "Wachstum", riskAppetite: "High", investmentHorizon: ">=10 years", equityMin: 75, equityMax: 95, assetClasses: { equities: true, realEstate: true, crypto: true } },
-  { id: "aggressive", label: "Aggressive", deLabel: "Aggressiv", riskAppetite: "Very high", investmentHorizon: ">=10 years", equityMin: 90, equityMax: 100, assetClasses: { equities: true, realEstate: true, crypto: true } },
+  { id: "balanced", label: "Balanced", deLabel: "Ausgewogen", riskAppetite: "Balanced", investmentHorizon: ">=5 years", equityMin: 55, equityMax: 75, assetClasses: { equities: true, bonds: true, realEstate: false, crypto: false } },
+  { id: "growth", label: "Growth", deLabel: "Wachstum", riskAppetite: "High", investmentHorizon: ">=10 years", equityMin: 75, equityMax: 95, assetClasses: { equities: true, bonds: true, realEstate: false, crypto: true } },
+  { id: "aggressive", label: "Aggressive", deLabel: "Aggressiv", riskAppetite: "Very high", investmentHorizon: ">=10 years", equityMin: 90, equityMax: 100, assetClasses: { equities: true, bonds: false, realEstate: true, crypto: true } },
 ];
 
 let state = createDefaultState();

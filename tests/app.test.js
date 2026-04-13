@@ -693,7 +693,7 @@ test("prompt preview splits prompts into top-level sections", () => {
   ]);
 });
 
-test("portfolio presets set profile while only conservative updates ETF target for deselected assets", () => {
+test("portfolio presets set profile and default asset class exclusions", () => {
   const context = createContext();
   reset(context);
 
@@ -704,15 +704,21 @@ test("portfolio presets set profile while only conservative updates ETF target f
       state.maxEtfs = 9;
       state.etfCountManuallyAdjusted = true;
       applyPreset("conservative");
-      const conservative = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.realEstate, state.assetClasses.crypto];
+      const conservative = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.bonds, state.assetClasses.realEstate, state.assetClasses.crypto];
+      applyPreset("balanced");
+      const balanced = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.bonds, state.assetClasses.realEstate, state.assetClasses.crypto];
       applyPreset("growth");
-      const growth = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.realEstate, state.assetClasses.crypto];
-      [conservative, growth];
+      const growth = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.bonds, state.assetClasses.realEstate, state.assetClasses.crypto];
+      applyPreset("aggressive");
+      const aggressive = [state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.minEtfs, state.maxEtfs, state.equityRangeManuallyAdjusted, state.etfCountManuallyAdjusted, state.assetClasses.bonds, state.assetClasses.realEstate, state.assetClasses.crypto];
+      [conservative, balanced, growth, aggressive];
     `
   );
 
-  assert.deepEqual(Array.from(result[0]), ["Low", ">=3 years", 25, 45, 6, 10, false, false, false, false]);
-  assert.deepEqual(Array.from(result[1]), ["High", ">=10 years", 75, 95, 8, 12, false, false, true, true]);
+  assert.deepEqual(Array.from(result[0]), ["Low", ">=3 years", 25, 45, 6, 10, false, false, true, false, false]);
+  assert.deepEqual(Array.from(result[1]), ["Balanced", ">=5 years", 55, 75, 6, 10, false, false, true, false, false]);
+  assert.deepEqual(Array.from(result[2]), ["High", ">=10 years", 75, 95, 7, 11, false, false, true, false, true]);
+  assert.deepEqual(Array.from(result[3]), ["Very high", ">=10 years", 90, 100, 7, 11, false, false, false, true, true]);
 });
 
 test("current strategy follows explicit preset state instead of matching values", () => {

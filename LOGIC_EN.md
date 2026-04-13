@@ -24,9 +24,9 @@ The presets set risk appetite, investment horizon, equity allocation range, and 
 | Preset | Risk appetite | Investment horizon | Equity allocation range | Special logic |
 | --- | --- | --- | --- | --- |
 | Conservative / Konservativ | `Low` | `>=3 years` | `25% to 45%` | `Listed Real Estate` and `Crypto Assets` are deselected; ETF target count is set to `6 to 10`; ETF status remains `Auto`. |
-| Balanced / Ausgewogen | `Balanced` | `>=5 years` | `55% to 75%` | `Equities`, `Listed Real Estate`, and `Crypto Assets` are enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
-| Growth / Wachstum | `High` | `>=10 years` | `75% to 95%` | `Equities`, `Listed Real Estate`, and `Crypto Assets` are enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
-| Aggressive / Aggressiv | `Very high` | `>=10 years` | `90% to 100%` | `Equities`, `Listed Real Estate`, and `Crypto Assets` are enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
+| Balanced / Ausgewogen | `Balanced` | `>=5 years` | `55% to 75%` | `Crypto Assets` and `Listed Real Estate` are deselected; ETF target count is recalculated in Auto mode based on the selected asset classes. |
+| Growth / Wachstum | `High` | `>=10 years` | `75% to 95%` | `Listed Real Estate` is deselected while `Crypto Assets` remains enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
+| Aggressive / Aggressiv | `Very high` | `>=10 years` | `90% to 100%` | `Bonds` are deselected while `Listed Real Estate` and `Crypto Assets` remain enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
 
 The preset description explicitly shows the equity allocation range as `XX-XX% equity` or `XX-XX% Aktien`.
 
@@ -83,8 +83,10 @@ For the `Conservative` preset:
 
 If `Balanced`, `Growth`, or `Aggressive` is selected afterwards:
 
-- `Listed Real Estate` and `Crypto Assets` are enabled again.
-- In Auto mode, the ETF target count returns to `8 to 12`.
+- `Balanced` enables `Bonds` and `Equities`, while `Listed Real Estate` and `Crypto Assets` remain deselected.
+- `Growth` enables `Bonds`, `Equities`, and `Crypto Assets`, while `Listed Real Estate` remains deselected.
+- `Aggressive` enables `Equities`, `Listed Real Estate`, and `Crypto Assets`, while `Bonds` remains deselected.
+- In Auto mode, the ETF target count is recalculated from the selected asset classes.
 
 ## Base Currency and Preferred Exchange
 
@@ -235,4 +237,3 @@ The export uses the same prompt text as the copy button. Filenames follow this p
 
 - `portfolio-prompt-chf-high.txt`
 - `portfolio-prompt-chf-high.md`
-
