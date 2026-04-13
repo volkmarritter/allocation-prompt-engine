@@ -557,6 +557,15 @@ function getAdditionalLogicAlerts(changedName = "") {
     });
   }
 
+  if (cryptoSelected && minEtfs <= 5 && ["asset:crypto", "minEtfs", "maxEtfs"].includes(changedName)) {
+    alerts.push({
+      key: `crypto-low-etf-count-${minEtfs}`,
+      message: german
+        ? "Bei sehr wenigen ETF-Positionen kann eine separate Krypto-Satellitenallokation schwer sauber umsetzbar sein."
+        : "With very few ETF positions, a separate crypto satellite allocation may be difficult to implement cleanly.",
+    });
+  }
+
   return alerts;
 }
 

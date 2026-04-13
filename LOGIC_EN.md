@@ -223,11 +223,12 @@ If `Synthetic ETF assessment` is active but `Equities` is deselected:
 
 - Warning that this requirement is mainly relevant for equity exposure, especially US equities.
 
-### Listed Real Estate With Very Few ETFs
+### Listed Real Estate or Crypto With Very Few ETFs
 
-If `Listed Real Estate` is selected and the minimum ETF target count is `5` or lower:
+If `Listed Real Estate` or `Crypto Assets` is selected and the minimum ETF target count is `5` or lower:
 
 - Warning that a separate listed real estate / REIT allocation may be difficult to implement cleanly with very few ETF positions.
+- Warning that a separate crypto satellite allocation may be difficult to implement cleanly with very few ETF positions.
 
 ## Copy and Export
 

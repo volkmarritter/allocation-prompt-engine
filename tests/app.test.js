@@ -301,7 +301,7 @@ test("balanced and higher risk profiles warn when equities are deselected", () =
   assert.equal(result[5], 2);
 });
 
-test("additional logic checks warn for crypto, bond, look-through, synthetic ETF, and real estate conflicts", () => {
+test("additional logic checks warn for crypto, bond, look-through, synthetic ETF, real estate, and low ETF count conflicts", () => {
   const context = createContext();
   reset(context);
 
@@ -337,12 +337,13 @@ test("additional logic checks warn for crypto, bond, look-through, synthetic ETF
       state.maxEtfs = 5;
       alerts = getAdditionalLogicAlerts("minEtfs").map((alert) => alert.key);
       const realEstateLowEtfCount = alerts.includes("real-estate-low-etf-count-4");
+      const cryptoLowEtfCount = alerts.includes("crypto-low-etf-count-4");
 
-      [cryptoDefensive, cryptoNoRebalancing, noBondsShortHorizon, lookThroughMismatch, syntheticWithoutEquities, realEstateLowEtfCount];
+      [cryptoDefensive, cryptoNoRebalancing, noBondsShortHorizon, lookThroughMismatch, syntheticWithoutEquities, realEstateLowEtfCount, cryptoLowEtfCount];
     `
   );
 
-  assert.deepEqual(Array.from(result), [true, true, true, true, true, true]);
+  assert.deepEqual(Array.from(result), [true, true, true, true, true, true, true]);
 });
 
 test("risk and horizon warning is shown", () => {

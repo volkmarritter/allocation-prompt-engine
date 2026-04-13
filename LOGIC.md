@@ -223,11 +223,12 @@ Wenn `Synthetic ETF assessment` aktiv ist, aber `Equities` abgewählt wird:
 
 - Warnung, dass diese Anforderung vor allem bei Aktienexposure, insbesondere US-Aktien, relevant ist.
 
-### Listed Real Estate bei sehr wenigen ETFs
+### Listed Real Estate oder Crypto bei sehr wenigen ETFs
 
-Wenn `Listed Real Estate` ausgewählt ist und die minimale ETF-Zielanzahl `5` oder tiefer ist:
+Wenn `Listed Real Estate` oder `Crypto Assets` ausgewählt ist und die minimale ETF-Zielanzahl `5` oder tiefer ist:
 
 - Warnung, dass eine separate Immobilien-/REIT-Allokation bei sehr wenigen ETF-Positionen schwer sauber umsetzbar sein kann.
+- Warnung, dass eine separate Krypto-Satellitenallokation bei sehr wenigen ETF-Positionen schwer sauber umsetzbar sein kann.
 
 ## Copy und Export
 
