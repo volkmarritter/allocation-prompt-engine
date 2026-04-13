@@ -585,6 +585,7 @@ button {
 }
 
 .equity-region-pill {
+  align-items: center;
   gap: 8px;
   min-height: 34px;
   padding-right: 8px;
@@ -594,13 +595,15 @@ button {
 
 .region-sparkline {
   display: inline-flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 2px;
-  height: 16px;
-  padding: 3px 5px;
+  box-sizing: border-box;
+  height: 18px;
+  padding: 2px 5px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(24, 24, 24, 0.08);
+  line-height: 0;
 }
 
 .region-sparkline i {
