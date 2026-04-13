@@ -743,6 +743,10 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /strategy-segment/);
   assert.match(html, /8-12 ETFs/);
   assert.match(html, /data-action="toggle-preset-details"/);
+  assert.match(html, /preset-icon-conservative/);
+  assert.match(html, /preset-icon-balanced/);
+  assert.match(html, /preset-icon-growth/);
+  assert.match(html, /preset-icon-aggressive/);
   assert.doesNotMatch(html, /show-preset-details/);
   assert.equal(html.indexOf("preset-grid") < html.indexOf("strategy-context"), true);
   assert.equal(html.indexOf("strategy-context") < html.indexOf("riskAppetite"), true);

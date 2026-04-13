@@ -38,8 +38,10 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".strategy-context .strategy-segment")).toHaveCount(4);
     await expect(page.locator(".strategy-context .strategy-segment").nth(2)).toHaveText("8-12 ETFs,");
     await expect(page.locator(".preset-section .preset-summary").first()).toBeHidden();
+    await expect(page.locator(".preset-section .preset-icon")).toHaveCount(4);
     await page.locator('button[data-action="toggle-preset-details"]').click();
     await expect(page.locator(".preset-section .preset-summary").first()).toBeVisible();
+    await expect(page.locator(".preset-section .preset-icon").first()).toBeHidden();
     await expect(page.locator(".mobile-jump")).toHaveAttribute("href", "#prompt-output");
     await expect(page.locator(".asset-section").locator("xpath=following-sibling::*[1]")).toHaveClass(/mobile-jump/);
     await expect(page.locator(".app-disclaimer")).toContainText("Disclaimer");

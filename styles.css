@@ -354,8 +354,9 @@ button {
 }
 
 .preset-button {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
   gap: 6px;
   min-height: 58px;
   padding: 15px 16px;
@@ -382,8 +383,57 @@ button {
   line-height: 1.2;
 }
 
+.preset-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(24, 24, 24, 0.08);
+}
+
+.preset-icon svg {
+  width: 24px;
+  height: 24px;
+  overflow: visible;
+  stroke: var(--accent-strong);
+  stroke-width: 2.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.preset-icon .soft {
+  stroke: var(--accent);
+  opacity: 0.42;
+}
+
+.preset-icon .muted-line {
+  opacity: 0.25;
+}
+
+.preset-icon .dot {
+  fill: var(--accent-strong);
+  stroke: none;
+}
+
+.preset-icon .faded {
+  opacity: 0.82;
+}
+
+.preset-icon .faint {
+  opacity: 0.68;
+}
+
+.preset-icon .no-fill {
+  fill: none;
+}
+
 .preset-summary {
   display: none;
+  grid-column: 1 / -1;
   flex-wrap: wrap;
   column-gap: 0.35em;
   color: var(--muted);
@@ -394,6 +444,10 @@ button {
 
 .show-preset-details .preset-summary {
   display: flex;
+}
+
+.show-preset-details .preset-icon {
+  display: none;
 }
 
 .preset-context,
