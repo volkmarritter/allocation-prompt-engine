@@ -346,6 +346,39 @@ test("additional logic checks warn for crypto, bond, look-through, synthetic ETF
   assert.deepEqual(Array.from(result), [true, true, true, true, true, true, true]);
 });
 
+test("ETF coverage check compares minimum ETF count with selected asset classes and CHF add-on", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.baseCurrency = "CHF";
+      state.minEtfs = 5;
+      state.maxEtfs = 7;
+      let alerts = getAdditionalLogicAlerts("minEtfs");
+      const chAlert = alerts.find((alert) => alert.key.startsWith("etf-coverage-"));
+
+      state.baseCurrency = "EUR";
+      alerts = getAdditionalLogicAlerts("baseCurrency");
+      const eurAlert = alerts.find((alert) => alert.key.startsWith("etf-coverage-"));
+
+      state.outputLanguage = "German";
+      state.baseCurrency = "CHF";
+      alerts = getAdditionalLogicAlerts("baseCurrency");
+      const germanAlert = alerts.find((alert) => alert.key.startsWith("etf-coverage-"));
+
+      [chAlert?.message, eurAlert?.message || "", germanAlert?.message];
+    `
+  );
+
+  assert.match(result[0], /suggested minimum: 6/);
+  assert.match(result[0], /Cash \/ Money Market, Bonds, Equities by region/);
+  assert.equal(result[1], "");
+  assert.match(result[2], /sinnvolle Mindestanzahl: 6/);
+  assert.match(result[2], /separaten Schweiz-Allokation/);
+});
+
 test("risk and horizon warning is shown", () => {
   const context = createContext();
   reset(context);

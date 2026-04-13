@@ -230,6 +230,15 @@ Wenn `Listed Real Estate` oder `Crypto Assets` ausgewählt ist und die minimale 
 - Warnung, dass eine separate Immobilien-/REIT-Allokation bei sehr wenigen ETF-Positionen schwer sauber umsetzbar sein kann.
 - Warnung, dass eine separate Krypto-Satellitenallokation bei sehr wenigen ETF-Positionen schwer sauber umsetzbar sein kann.
 
+### Mindestanzahl ETFs relativ zu Anlageklassen
+
+Wenn die minimale ETF-Zielanzahl kleiner ist als die Zahl der ausgewählten Anlageklassen:
+
+- Popup mit den ausgewählten Anlageklassen.
+- Hinweis, dass die Mindestanzahl ETFs mindestens der Zahl der ausgewählten Anlageklassen entsprechen sollte.
+- Bei `CHF` und ausgewählten `Equities` wird `+1` eingerechnet, weil die Schweiz als separate Aktienallokation berücksichtigt wird.
+- Beispiel: 5 ausgewählte Anlageklassen inklusive Aktien in `CHF` ergeben eine sinnvolle Mindestanzahl von `6` ETFs.
+
 ## Copy und Export
 
 Der generierte Prompt kann:

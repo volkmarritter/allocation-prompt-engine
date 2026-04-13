@@ -230,6 +230,15 @@ If `Listed Real Estate` or `Crypto Assets` is selected and the minimum ETF targe
 - Warning that a separate listed real estate / REIT allocation may be difficult to implement cleanly with very few ETF positions.
 - Warning that a separate crypto satellite allocation may be difficult to implement cleanly with very few ETF positions.
 
+### Minimum ETF Count Relative to Asset Classes
+
+If the minimum ETF target count is lower than the number of selected asset classes:
+
+- Pop-up listing the selected asset classes.
+- Warning that the minimum ETF count should at least match the number of selected asset classes.
+- For `CHF` with selected `Equities`, `+1` is counted because Swiss equities are treated as a separate equity allocation.
+- Example: 5 selected asset classes including equities in `CHF` imply a suggested minimum of `6` ETFs.
+
 ## Copy and Export
 
 The generated prompt can be:
