@@ -115,7 +115,7 @@ test("portfolio strategy and exchange defaults are loaded from config", () => {
   assert.deepEqual(Array.from(result), [
     4,
     true,
-    "SIX Swiss Exchange|XETRA Deutsche Börse|LSE London Stock Exchange",
+    "SIX Swiss Exchange|XETRA Deutsche Börse|LSE London Stock Exchange|NYSE New York Stock Exchange",
     "XETRA Deutsche Börse",
     "growth",
   ]);
@@ -531,7 +531,7 @@ test("base currency sets the preferred exchange for every currency change", () =
     `
   );
 
-  assert.deepEqual(Array.from(result), ["XETRA Deutsche Börse", "LSE London Stock Exchange", "SIX Swiss Exchange", "SIX Swiss Exchange"]);
+  assert.deepEqual(Array.from(result), ["XETRA Deutsche Börse", "LSE London Stock Exchange", "SIX Swiss Exchange", "NYSE New York Stock Exchange"]);
 });
 
 test("preferred exchange stays fixed while manual and restores to currency default", () => {

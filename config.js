@@ -4,11 +4,12 @@ window.PROMPT_BUILDER_CONFIG = {
     "SIX Swiss Exchange",
     "XETRA Deutsche Börse",
     "LSE London Stock Exchange",
+    "NYSE New York Stock Exchange",
   ],
   defaultExchangeByCurrency: {
     CHF: "SIX Swiss Exchange",
     EUR: "XETRA Deutsche Börse",
-    USD: "SIX Swiss Exchange",
+    USD: "NYSE New York Stock Exchange",
     GBP: "LSE London Stock Exchange",
   },
   defaultPresetId: "growth",
