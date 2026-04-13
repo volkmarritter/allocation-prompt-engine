@@ -214,6 +214,19 @@ button {
   width: 100%;
 }
 
+@media (max-width: 920px) {
+  .parameter-badges {
+    grid-template-columns: 1fr;
+  }
+
+  .parameter-badges .pill {
+    justify-content: flex-start;
+    min-height: 38px;
+    padding: 8px 12px;
+    text-align: left;
+  }
+}
+
 .strategy-context {
   display: flex;
   align-items: center;
