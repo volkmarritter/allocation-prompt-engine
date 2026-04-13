@@ -741,7 +741,7 @@ function render() {
               <p>${escapeHtml(t.setupCopy)}</p>
             </div>
             <div class="panel-badges">
-              <span class="pill">${stats.assetClasses} ${escapeHtml(t.assetClasses)}</span>
+              ${renderAssetClassBadge(stats)}
               ${renderEquityRegionBadge(stats)}
             </div>
           </div>
@@ -956,6 +956,38 @@ function renderAdjustmentStatus(isManual, action) {
 function renderAssetClassToggle(option) {
   const german = isGerman();
   return renderCheckboxCard(`asset:${option.id}`, state.assetClasses[option.id], german ? option.deLabel : option.label, getAssetClassDescription(option, german));
+}
+
+function renderAssetClassBadge(stats) {
+  const t = uiText[state.outputLanguage];
+  const german = isGerman();
+  const selected = getSelectedAssetClasses();
+  const labels = selected.map((option) => german ? option.deLabel : option.label);
+  const title = labels.length ? labels.join(", ") : german ? "Keine Anlageklassen ausgewählt" : "No asset classes selected";
+  const style = getAssetClassPieStyle(selected.length);
+
+  return `
+    <span class="pill asset-class-pill" title="${escapeAttribute(title)}" aria-label="${escapeAttribute(`${stats.assetClasses} ${t.assetClasses}: ${title}`)}">
+      <span class="asset-pie" style="${escapeAttribute(style)}" aria-hidden="true"></span>
+      <span>${stats.assetClasses} ${escapeHtml(t.assetClasses)}</span>
+    </span>
+  `;
+}
+
+function getAssetClassPieStyle(count) {
+  if (!count) {
+    return "--asset-pie: conic-gradient(rgba(24, 24, 24, 0.14) 0 100%);";
+  }
+
+  const colors = ["#8b6f47", "#537a5f", "#2f5f7a", "#c08a4b", "#a65f4e", "#6f5d8f"];
+  const step = 100 / count;
+  const segments = Array.from({ length: count }, (_, index) => {
+    const start = (index * step).toFixed(2);
+    const end = ((index + 1) * step).toFixed(2);
+    return `${colors[index % colors.length]} ${start}% ${end}%`;
+  });
+
+  return `--asset-pie: conic-gradient(${segments.join(", ")});`;
 }
 
 function renderEquityRegionBadge(stats) {

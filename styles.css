@@ -569,6 +569,21 @@ button {
   font-size: 0.74rem;
 }
 
+.asset-class-pill {
+  gap: 8px;
+  padding-left: 7px;
+}
+
+.asset-pie {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--asset-pie);
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 1px rgba(24, 24, 24, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+}
+
 .equity-region-pill {
   gap: 8px;
   min-height: 34px;

@@ -732,8 +732,38 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /data-action="export-md"/);
   assert.match(html, /class="status-info"/);
   assert.match(html, /Automatically derived from the selected parameters\./);
+  assert.match(html, /asset-class-pill/);
+  assert.match(html, /asset-pie/);
+  assert.match(html, /conic-gradient/);
   assert.match(html, /How to use the generated prompt/);
   assert.match(html, /Structured portfolio prompts for faster investment research/);
+});
+
+test("asset class pie badge follows selected asset classes", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      const root = { innerHTML: "" };
+      document.getElementById = () => root;
+      render();
+      const allSelectedHtml = root.innerHTML;
+      Object.keys(state.assetClasses).forEach((key) => {
+        state.assetClasses[key] = false;
+      });
+      render();
+      const noneSelectedHtml = root.innerHTML;
+      [allSelectedHtml, noneSelectedHtml];
+    `
+  );
+
+  assert.match(result[0], /6 asset classes/);
+  assert.match(result[0], /#6f5d8f 83\.33% 100\.00%/);
+  assert.match(result[1], /0 asset classes/);
+  assert.match(result[1], /rgba\(24, 24, 24, 0\.14\) 0 100%/);
+  assert.doesNotMatch(result[1], /equity-region-pill/);
 });
 
 test("prompt export helpers create stable filenames and mime types", () => {
