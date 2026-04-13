@@ -360,6 +360,7 @@ test("ETF coverage check compares minimum ETF count with selected asset classes 
       const chAlert = alerts.find((alert) => alert.key.startsWith("etf-coverage-"));
 
       state.baseCurrency = "EUR";
+      state.minEtfs = 4;
       alerts = getAdditionalLogicAlerts("baseCurrency");
       const eurAlert = alerts.find((alert) => alert.key.startsWith("etf-coverage-"));
 
@@ -374,7 +375,9 @@ test("ETF coverage check compares minimum ETF count with selected asset classes 
 
   assert.match(result[0], /suggested minimum: 6/);
   assert.match(result[0], /Cash \/ Money Market, Bonds, Equities by region/);
-  assert.equal(result[1], "");
+  assert.match(result[0], /For CHF portfolios with equities/);
+  assert.match(result[1], /suggested minimum: 5/);
+  assert.doesNotMatch(result[1], /For CHF portfolios with equities/);
   assert.match(result[2], /sinnvolle Mindestanzahl: 6/);
   assert.match(result[2], /separaten Schweiz-Allokation/);
 });

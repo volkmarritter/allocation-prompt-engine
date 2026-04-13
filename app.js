@@ -505,6 +505,12 @@ function getAdditionalLogicAlerts(changedName = "") {
   const selectedAssetClasses = getSelectedAssetClasses();
   const minEtfsForAssetClasses = getMinimumEtfsForSelectedAssetClasses();
   const selectedAssetClassLabels = selectedAssetClasses.map((option) => german ? option.deLabel : option.label).join(", ");
+  const usesChEquityAddOn = state.baseCurrency === "CHF" && state.assetClasses.equities;
+  const chEquityAddOnText = usesChEquityAddOn
+    ? german
+      ? " Bei CHF mit Aktien wird wegen der separaten Schweiz-Allokation eine zusätzliche Position eingerechnet."
+      : " For CHF portfolios with equities, one additional position is counted because Swiss equities are treated as a separate allocation."
+    : "";
 
   if (["Low", "Moderate"].includes(state.riskAppetite) && cryptoSelected && ["asset:crypto", "riskAppetite"].includes(changedName)) {
     alerts.push({
@@ -555,8 +561,8 @@ function getAdditionalLogicAlerts(changedName = "") {
     alerts.push({
       key: `etf-coverage-${state.baseCurrency}-${minEtfs}-${minEtfsForAssetClasses}-${selectedAssetClasses.map((option) => option.id).join("-")}`,
       message: german
-        ? `Die Mindestanzahl ETFs sollte mindestens der Zahl der ausgewählten Anlageklassen entsprechen. Bei CHF mit Aktien wird wegen der separaten Schweiz-Allokation eine zusätzliche Position eingerechnet. Ausgewählt: ${selectedAssetClassLabels}. Aktuelle Mindestanzahl: ${minEtfs}; sinnvolle Mindestanzahl: ${minEtfsForAssetClasses}.`
-        : `The minimum ETF count should at least match the number of selected asset classes. For CHF portfolios with equities, one additional position is counted because Swiss equities are treated as a separate allocation. Selected asset classes: ${selectedAssetClassLabels}. Current minimum: ${minEtfs}; suggested minimum: ${minEtfsForAssetClasses}.`,
+        ? `Die Mindestanzahl ETFs sollte mindestens der Zahl der ausgewählten Anlageklassen entsprechen.${chEquityAddOnText} Ausgewählt: ${selectedAssetClassLabels}. Aktuelle Mindestanzahl: ${minEtfs}; sinnvolle Mindestanzahl: ${minEtfsForAssetClasses}.`
+        : `The minimum ETF count should at least match the number of selected asset classes.${chEquityAddOnText} Selected asset classes: ${selectedAssetClassLabels}. Current minimum: ${minEtfs}; suggested minimum: ${minEtfsForAssetClasses}.`,
     });
   }
 
