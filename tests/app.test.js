@@ -113,6 +113,9 @@ test("portfolio strategy and exchange defaults are loaded from config", () => {
         defaultBaseCurrency,
         defaultExchangeByCurrency.EUR,
         defaultPresetId,
+        defaultMinEtfs,
+        defaultMaxEtfs,
+        window.PROMPT_BUILDER_CONFIG.presets.every((preset) => !("minEtfs" in preset) && !("maxEtfs" in preset)),
       ];
     `
   );
@@ -124,6 +127,33 @@ test("portfolio strategy and exchange defaults are loaded from config", () => {
     "CHF",
     "XETRA Deutsche Börse",
     "growth",
+    8,
+    12,
+    true,
+  ]);
+});
+
+test("ETF count base is loaded from config and drives automatic strategy ranges", () => {
+  const customConfigCode = configCode.replace("min: 8,", "min: 10,").replace("max: 12,", "max: 14,");
+  const context = createContextWithConfig(customConfigCode);
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      applyPreset("growth");
+      const growth = [state.minEtfs, state.maxEtfs, state.etfCountManuallyAdjusted];
+      applyPreset("balanced");
+      const balanced = [state.minEtfs, state.maxEtfs, state.etfCountManuallyAdjusted];
+      [defaults.minEtfs, defaults.maxEtfs, growth, balanced];
+    `
+  );
+
+  assert.deepEqual(Array.from(result, (item) => Array.isArray(item) ? Array.from(item) : item), [
+    10,
+    14,
+    [9, 13, false],
+    [8, 12, false],
   ]);
 });
 

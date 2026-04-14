@@ -39,6 +39,11 @@ const defaultExchangeByCurrency = {
 };
 const defaultBaseCurrency = promptBuilderConfig.defaultBaseCurrency || baseCurrencyOptions[0] || "CHF";
 const defaultPresetId = promptBuilderConfig.defaultPresetId || "growth";
+const configuredEtfCountBase = promptBuilderConfig.etfCountBase || {};
+const defaultMinEtfs = Number.isInteger(configuredEtfCountBase.min) ? configuredEtfCountBase.min : 8;
+const defaultMaxEtfs = Number.isInteger(configuredEtfCountBase.max) && configuredEtfCountBase.max >= defaultMinEtfs
+  ? configuredEtfCountBase.max
+  : Math.max(defaultMinEtfs, 12);
 
 const uiText = {
   English: {
@@ -242,8 +247,8 @@ const defaults = {
   equityRangeManuallyAdjusted: false,
   exchange: defaultExchangeByCurrency[defaultBaseCurrency] || exchangeOptions[0] || "SIX Swiss Exchange",
   exchangeManuallyAdjusted: false,
-  minEtfs: 8,
-  maxEtfs: 12,
+  minEtfs: defaultMinEtfs,
+  maxEtfs: defaultMaxEtfs,
   etfCountManuallyAdjusted: false,
   promptMode: "pro",
   outputLanguage: "English",
@@ -256,10 +261,10 @@ const defaults = {
 };
 
 const fallbackPortfolioPresets = [
-  { id: "conservative", label: "Conservative", deLabel: "Konservativ", riskAppetite: "Low", investmentHorizon: ">=3 years", equityMin: 20, equityMax: 40, minEtfs: 6, maxEtfs: 10, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
-  { id: "balanced", label: "Balanced", deLabel: "Ausgewogen", riskAppetite: "Moderate", investmentHorizon: ">=5 years", equityMin: 40, equityMax: 60, minEtfs: 6, maxEtfs: 10, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
-  { id: "growth", label: "Growth", deLabel: "Wachstum", riskAppetite: "High", investmentHorizon: ">=10 years", equityMin: 60, equityMax: 80, minEtfs: 7, maxEtfs: 11, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: true } },
-  { id: "aggressive", label: "Aggressive", deLabel: "Aggressiv", riskAppetite: "Very high", investmentHorizon: ">=10 years", equityMin: 80, equityMax: 100, minEtfs: 7, maxEtfs: 11, assetClasses: { cash: true, bonds: false, equities: true, commodities: true, realEstate: true, crypto: true } },
+  { id: "conservative", label: "Conservative", deLabel: "Konservativ", riskAppetite: "Low", investmentHorizon: ">=3 years", equityMin: 20, equityMax: 40, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
+  { id: "balanced", label: "Balanced", deLabel: "Ausgewogen", riskAppetite: "Moderate", investmentHorizon: ">=5 years", equityMin: 40, equityMax: 60, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
+  { id: "growth", label: "Growth", deLabel: "Wachstum", riskAppetite: "High", investmentHorizon: ">=10 years", equityMin: 60, equityMax: 80, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: true } },
+  { id: "aggressive", label: "Aggressive", deLabel: "Aggressiv", riskAppetite: "Very high", investmentHorizon: ">=10 years", equityMin: 80, equityMax: 100, assetClasses: { cash: true, bonds: false, equities: true, commodities: true, realEstate: true, crypto: true } },
 ];
 const portfolioPresets = Array.isArray(promptBuilderConfig.presets) && promptBuilderConfig.presets.length
   ? promptBuilderConfig.presets
@@ -1494,13 +1499,8 @@ function applyPreset(presetId) {
     Object.assign(state.assetClasses, preset.assetClasses);
   }
   applyAutomaticEquityRangeFromAssetClasses();
-  if (Number.isInteger(preset.minEtfs) && Number.isInteger(preset.maxEtfs)) {
-    state.minEtfs = preset.minEtfs;
-    state.maxEtfs = preset.maxEtfs;
-    state.etfCountManuallyAdjusted = false;
-  } else if (!state.etfCountManuallyAdjusted) {
-    applyAutomaticEtfCountFromAssetClasses();
-  }
+  state.etfCountManuallyAdjusted = false;
+  applyAutomaticEtfCountFromAssetClasses();
   lastEquityRiskAlertKey = "";
 }
 

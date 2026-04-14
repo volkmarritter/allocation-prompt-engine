@@ -19,15 +19,15 @@ Der Reset-Button ist entsprechend beschriftet als `Reset defaults: Growth CHF` b
 
 ## Investment Strategy Presets
 
-Die Presets setzen Risikoappetit, Anlagehorizont, Aktienbandbreite und teilweise Anlageklassen/ETF-Zielanzahl.
+Die Presets setzen Risikoappetit, Anlagehorizont, Aktienbandbreite und Anlageklassen; die ETF-Zielanzahl wird danach strikt im Auto-Modus aus dem konfigurierten Basiswert abgeleitet.
 Diese Werte werden in `config.js` gepflegt, damit sie ohne Eingriff in die App-Logik angepasst werden können.
 
 | Preset | Risikoappetit | Anlagehorizont | Aktienbandbreite | Besondere Logik |
 | --- | --- | --- | --- | --- |
-| Conservative / Konservativ | `Low` | `>=3 years` | `20% bis 40%` | `Cash`, `Bonds`, `Equities` und `Commodities` werden aktiviert; `Listed Real Estate` und `Crypto Assets` werden abgewählt; ETF-Zielanzahl wird auf `6 bis 10` gesetzt; ETF-Status bleibt `Auto`. |
-| Balanced / Ausgewogen | `Moderate` | `>=5 years` | `40% bis 60%` | `Crypto Assets` und `Listed Real Estate` werden abgewählt; ETF-Zielanzahl wird auf `6 bis 10` gesetzt; ETF-Status bleibt `Auto`. |
-| Growth / Wachstum | `High` | `>=10 years` | `60% bis 80%` | `Listed Real Estate` wird abgewählt, `Crypto Assets` bleibt aktiviert; ETF-Zielanzahl wird auf `7 bis 11` gesetzt; ETF-Status bleibt `Auto`. |
-| Aggressive / Aggressiv | `Very high` | `>=10 years` | `80% bis 100%` | `Bonds` werden abgewählt, `Listed Real Estate` und `Crypto Assets` bleiben aktiviert; ETF-Zielanzahl wird auf `7 bis 11` gesetzt; ETF-Status bleibt `Auto`. |
+| Conservative / Konservativ | `Low` | `>=3 years` | `20% bis 40%` | `Cash`, `Bonds`, `Equities` und `Commodities` werden aktiviert; `Listed Real Estate` und `Crypto Assets` werden abgewählt; ETF-Zielanzahl wird aus `etfCountBase` als `6 bis 10` abgeleitet; ETF-Status bleibt `Auto`. |
+| Balanced / Ausgewogen | `Moderate` | `>=5 years` | `40% bis 60%` | `Crypto Assets` und `Listed Real Estate` werden abgewählt; ETF-Zielanzahl wird aus `etfCountBase` als `6 bis 10` abgeleitet; ETF-Status bleibt `Auto`. |
+| Growth / Wachstum | `High` | `>=10 years` | `60% bis 80%` | `Listed Real Estate` wird abgewählt, `Crypto Assets` bleibt aktiviert; ETF-Zielanzahl wird aus `etfCountBase` als `7 bis 11` abgeleitet; ETF-Status bleibt `Auto`. |
+| Aggressive / Aggressiv | `Very high` | `>=10 years` | `80% bis 100%` | `Bonds` werden abgewählt, `Listed Real Estate` und `Crypto Assets` bleiben aktiviert; ETF-Zielanzahl wird aus `etfCountBase` als `7 bis 11` abgeleitet; ETF-Status bleibt `Auto`. |
 
 Die Preset-Beschreibung zeigt die Aktienbandbreite explizit als `XX-XX% equity` bzw. `XX-XX% Aktien`.
 
@@ -35,7 +35,8 @@ Die Preset-Beschreibung zeigt die Aktienbandbreite explizit als `XX-XX% equity` 
 
 `config.js` enthält die fachlich editierbaren Werte:
 
-- `presets`: Strategieprofile inklusive Risikoappetit, Anlagehorizont, Aktienbandbreite, ETF-Zielanzahl-Overrides und Anlageklassen.
+- `presets`: Strategieprofile inklusive Risikoappetit, Anlagehorizont, Aktienbandbreite und Anlageklassen.
+- `etfCountBase`: ETF-Zielanzahl, wenn alle Anlageklassen ausgewählt sind; aktuell `8 bis 12`.
 - `label` und `deLabel`: sichtbare Strategienamen; `id` kann ebenfalls angepasst werden, wenn `defaultPresetId` und Referenzen auf die neue ID zeigen.
 - `icon`: Icon-Stil des Presets (`conservative`, `balanced`, `growth`, `aggressive`).
 - `exchanges`: die im Feld `Preferred exchange` auswählbaren Börsenplätze.
@@ -72,9 +73,10 @@ Wenn der Nutzer die Aktienquote über Plus-/Minus-Buttons manuell ändert:
 
 ## ETF-Zielanzahl
 
-Basiswert für die Auto-Berechnung:
+Basiswert für die Auto-Berechnung in `config.js`:
 
-- `8 bis 12` ETF-Positionen.
+- `etfCountBase.min`: `8`
+- `etfCountBase.max`: `12`
 
 Da der Default-Zustand dem `Growth`-Preset entspricht und `Listed Real Estate` abgewählt ist, startet die App effektiv mit:
 
@@ -97,7 +99,7 @@ Beim `Conservative`-Preset:
 
 - `Listed Real Estate` und `Crypto Assets` werden abgewählt.
 - `Cash`, `Bonds`, `Equities` und `Commodities` werden aktiviert.
-- Die ETF-Zielanzahl wird automatisch auf `6 bis 10` gesetzt.
+- Die ETF-Zielanzahl wird aus `etfCountBase` automatisch als `6 bis 10` abgeleitet.
 - Der ETF-Status bleibt `Auto`.
 
 Wenn danach `Balanced`, `Growth` oder `Aggressive` gewählt wird:
@@ -105,9 +107,9 @@ Wenn danach `Balanced`, `Growth` oder `Aggressive` gewählt wird:
 - `Balanced` aktiviert `Bonds` und `Equities`, lässt aber `Listed Real Estate` und `Crypto Assets` abgewählt.
 - `Growth` aktiviert `Bonds`, `Equities` und `Crypto Assets`, lässt aber `Listed Real Estate` abgewählt.
 - `Aggressive` aktiviert `Equities`, `Listed Real Estate` und `Crypto Assets`, lässt aber `Bonds` abgewählt.
-- `Balanced` setzt die ETF-Zielanzahl auf `6 bis 10`.
-- `Growth` setzt die ETF-Zielanzahl auf `7 bis 11`.
-- `Aggressive` setzt die ETF-Zielanzahl auf `7 bis 11`.
+- `Balanced` leitet aus dem Basiswert die ETF-Zielanzahl `6 bis 10` ab.
+- `Growth` leitet aus dem Basiswert die ETF-Zielanzahl `7 bis 11` ab.
+- `Aggressive` leitet aus dem Basiswert die ETF-Zielanzahl `7 bis 11` ab.
 - Der ETF-Status bleibt jeweils `Auto`.
 
 ## Base Currency und Preferred Exchange
