@@ -112,6 +112,8 @@ const uiText = {
     copyPrompt: "Copy prompt",
     exportTxt: "Export .txt",
     exportMd: "Export .md",
+    openInstalledApps: "Open Installed AI Apps",
+    installedAppsDisclaimer: "App buttons use local links and only work when the app is installed and your browser allows opening it. WhatsApp opens WhatsApp, not a guaranteed Meta AI chat.",
     copied: "Copied",
     copyFailed: "Copy failed",
     resetDefaults: "Reset defaults:",
@@ -207,6 +209,8 @@ const uiText = {
     copyPrompt: "Prompt kopieren",
     exportTxt: "Export .txt",
     exportMd: "Export .md",
+    openInstalledApps: "Installierte AI-Apps öffnen",
+    installedAppsDisclaimer: "App-Buttons nutzen lokale Links und funktionieren nur, wenn die App installiert ist und der Browser das Öffnen erlaubt. WhatsApp öffnet WhatsApp, aber nicht garantiert einen Meta-AI-Chat.",
     copied: "Kopiert",
     copyFailed: "Kopieren fehlgeschlagen",
     resetDefaults: "Zurücksetzen:",
@@ -269,6 +273,11 @@ const fallbackPortfolioPresets = [
 const portfolioPresets = Array.isArray(promptBuilderConfig.presets) && promptBuilderConfig.presets.length
   ? promptBuilderConfig.presets
   : fallbackPortfolioPresets;
+const installedAiAppLinks = [
+  { label: "ChatGPT app", url: "chatgpt://" },
+  { label: "Claude app", url: "claude://" },
+  { label: "WhatsApp", url: "whatsapp://send" },
+];
 
 let state = createDefaultState();
 let copyResetTimer = null;
@@ -682,6 +691,9 @@ function buildPrompt() {
   const languageInstruction = german
     ? "Schreibe die vollständige Antwort in klarem Deutsch."
     : "Write the full answer in clear English.";
+  const disclaimerInstruction = german
+    ? "Füge am Ende der Antwort einen Anlagehinweis nach anerkannten Best-Practice-Standards hinzu."
+    : "Add an investment disclaimer at the end of the answer according to recognized best-practice standards.";
   const assetClassLines = selectedAssetClasses.length
     ? selectedAssetClasses.map((option) => `- ${getAssetClassPromptLabel(option, german)}`).join("\n")
     : german
@@ -741,7 +753,10 @@ Vorgaben und Restriktionen:
 ${requirementsLines}
 
 Ausgabeformat:
-${sectionLines}`;
+${sectionLines}
+
+Abschluss:
+${disclaimerInstruction}`;
   }
 
   return `Role:
@@ -761,7 +776,10 @@ Requirements and constraints:
 ${requirementsLines}
 
 Output format:
-${sectionLines}`;
+${sectionLines}
+
+Closing instruction:
+${disclaimerInstruction}`;
 }
 
 function translateRisk(risk, german) {
@@ -1050,6 +1068,7 @@ function render() {
             ${basicMode ? "" : `<button class="button-ghost" type="button" data-action="export-md">${escapeHtml(t.exportMd)}</button>`}
             ${basicMode ? "" : `<button class="button-ghost" type="button" data-action="reset">${escapeHtml(getResetDefaultsLabel())}</button>`}
           </div>
+          ${renderAiToolLinks(t)}
           <div class="output-meta">${escapeHtml(t.promptOutput)}</div>
           <div class="output-box structured-output">${renderPromptPreview(prompt)}</div>
           <div class="summary-grid">
@@ -1152,6 +1171,24 @@ function getAdjustmentInfoLabel(isManual) {
   return isManual
     ? "Manually adjusted. Click Manual to return to automatic logic."
     : "Automatically derived from the selected parameters.";
+}
+
+function renderAiToolLinks(t) {
+  const isOpen = activeStatusInfoKey === "installed-apps";
+  return `
+    <div class="ai-tool-panel" aria-label="${escapeAttribute(t.openInstalledApps)}">
+      <div class="ai-tool-heading">
+        <strong>${escapeHtml(t.openInstalledApps)}</strong>
+        <span class="status-info-wrap ${isOpen ? "is-open" : ""}">
+          <button class="status-info" type="button" data-action="toggle-status-info" data-info-key="installed-apps" aria-label="${escapeAttribute(t.installedAppsDisclaimer)}" aria-expanded="${isOpen ? "true" : "false"}">(i)</button>
+          <span class="status-tooltip" role="tooltip">${escapeHtml(t.installedAppsDisclaimer)}</span>
+        </span>
+      </div>
+      <div class="ai-tool-links">
+        ${installedAiAppLinks.map((tool) => `<a class="ai-tool-link ai-app-link" href="${escapeAttribute(tool.url)}" data-app-link="true">${escapeHtml(tool.label)}</a>`).join("")}
+      </div>
+    </div>
+  `;
 }
 
 function renderAdjustmentStatus(isManual, action) {
@@ -1382,6 +1419,14 @@ function handleInputChange(event) {
 }
 
 function handleClick(event) {
+  const appLink = event.target.closest("[data-app-link]");
+  if (appLink) {
+    if (!confirmExternalAppDisclaimer()) {
+      event.preventDefault();
+    }
+    return;
+  }
+
   const actionTarget = event.target.closest("[data-action]");
   const action = actionTarget?.getAttribute("data-action");
   const presetId = event.target.closest("[data-preset]")?.getAttribute("data-preset");
@@ -1473,6 +1518,11 @@ function handleClick(event) {
   if (action === "export-txt") exportPrompt("txt");
   if (action === "export-md") exportPrompt("md");
   if (action === "copy") copyPrompt();
+}
+
+function confirmExternalAppDisclaimer() {
+  const t = uiText[state.outputLanguage];
+  return window.confirm(t.disclaimerText);
 }
 
 function applyPreset(presetId) {

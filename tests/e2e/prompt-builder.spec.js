@@ -49,6 +49,14 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".preset-section .preset-icon").first()).toBeHidden();
     await expect(page.locator(".mobile-jump")).toHaveAttribute("href", "#prompt-output");
     await expect(page.locator(".asset-section").locator("xpath=following-sibling::*[1]")).toHaveClass(/mobile-jump/);
+    await expect(page.locator(".ai-tool-panel")).toContainText("Open Installed AI Apps");
+    await expect(page.locator(".ai-tool-panel .status-info")).toHaveText("(i)");
+    await page.locator(".ai-tool-panel .status-info").click();
+    await expect(page.locator(".status-info-wrap.is-open .status-tooltip")).toContainText("not a guaranteed Meta AI chat");
+    await expect(page.locator(".ai-tool-link")).toHaveCount(3);
+    await expect(page.locator('.ai-tool-link[href="chatgpt://"]')).toHaveText("ChatGPT app");
+    await expect(page.locator('.ai-tool-link[href="claude://"]')).toHaveText("Claude app");
+    await expect(page.locator('.ai-tool-link[href="whatsapp://send"]')).toHaveText("WhatsApp");
     await expect(page.locator(".app-disclaimer")).toContainText("Disclaimer");
     await expect(page.locator(".version-note")).toContainText("Version 0.7");
     await page.locator('select[name="baseCurrency"]').selectOption("EUR");
@@ -64,6 +72,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     expect(prompt).toContain("Columns: Asset class | Target weight | ETF name | ISIN");
     expect(prompt).toContain("12. Include synthetic ETFs where they provide structural advantages");
     expect(prompt).toContain("13. Write the full answer in clear English.");
+    expect(prompt).toContain("Closing instruction:\nAdd an investment disclaimer at the end of the answer according to recognized best-practice standards.");
   });
 
   test("switches to German UI and German prompt output", async ({ page }) => {
@@ -82,6 +91,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     const prompt = await getPrompt(page);
     expect(prompt).toContain("Spalten: Anlageklasse | Zielgewicht | ETF-Name | ISIN");
     expect(prompt).toContain("12. Beziehe synthetische ETFs ein");
+    expect(prompt).toContain("Abschluss:");
+    expect(prompt).toContain("Anlagehinweis nach anerkannten Best-Practice-Standards");
     expect(prompt).toContain("13. Schreibe die vollständige Antwort in klarem Deutsch.");
   });
 

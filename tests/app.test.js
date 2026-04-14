@@ -169,6 +169,7 @@ test("English prompt includes current Table 2 and instruction requirements", () 
   assert.match(prompt, /12\. Include synthetic ETFs where they provide structural advantages/);
   assert.match(prompt, /US equity exposure/);
   assert.match(prompt, /13\. Write the full answer in clear English\./);
+  assert.match(prompt, /Closing instruction:\nAdd an investment disclaimer at the end of the answer according to recognized best-practice standards\./);
 });
 
 test("German prompt includes current Table 2 and instruction requirements", () => {
@@ -186,6 +187,7 @@ test("German prompt includes current Table 2 and instruction requirements", () =
   assert.match(prompt, /Spalten: Anlageklasse \| Zielgewicht \| ETF-Name \| ISIN/);
   assert.match(prompt, /12\. Beziehe synthetische ETFs ein/);
   assert.match(prompt, /US-Aktienexposure/);
+  assert.match(prompt, /Abschluss:[\s\S]*Anlagehinweis nach anerkannten Best-Practice-Standards/);
   assert.match(prompt, /13\. Schreibe die vollständige Antwort in klarem Deutsch\./);
 });
 
@@ -1086,6 +1088,14 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.doesNotMatch(html, /Auto \/ Manual logic/);
   assert.match(html, /data-action="export-txt"/);
   assert.match(html, /data-action="export-md"/);
+  assert.match(html, /class="ai-tool-panel"/);
+  assert.match(html, /Open Installed AI Apps/);
+  assert.match(html, /chatgpt:\/\//);
+  assert.match(html, /claude:\/\//);
+  assert.match(html, /whatsapp:\/\/send/);
+  assert.match(html, /not a guaranteed Meta AI chat/);
+  assert.match(html, /data-info-key="installed-apps"/);
+  assert.match(html, /data-app-link="true"/);
   assert.match(html, /class="status-info"/);
   assert.match(html, /Automatically derived from the selected parameters\./);
   assert.match(html, /asset-class-pill/);
@@ -1122,6 +1132,39 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /Version 0\.7/);
   assert.match(html, /How to use the generated prompt/);
   assert.match(html, /Structured portfolio prompts for faster investment research/);
+});
+
+test("installed app links ask for the disclaimer before opening", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      let prevented = false;
+      const confirmMessages = [];
+      window.confirm = (message) => {
+        confirmMessages.push(message);
+        return false;
+      };
+      handleClick({
+        target: {
+          closest(selector) {
+            return selector === "[data-app-link]" ? {} : null;
+          },
+        },
+        preventDefault() {
+          prevented = true;
+        },
+      });
+      [prevented, confirmMessages];
+    `
+  );
+
+  assert.equal(result[0], true);
+  assert.deepEqual(Array.from(result[1]), [
+    "This does not constitute investment advice, an investment recommendation, or a solicitation to buy or sell financial instruments.",
+  ]);
 });
 
 test("preset ids can differ from their configured icon style", () => {

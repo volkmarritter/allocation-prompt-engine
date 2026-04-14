@@ -1052,6 +1052,84 @@ button {
   color: var(--muted);
   line-height: 1.45;
 }
+
+.ai-tool-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  margin: 14px 0 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+
+.ai-tool-panel strong,
+.ai-tool-panel span {
+  display: block;
+}
+
+.ai-tool-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ai-tool-panel strong {
+  font-size: 0.92rem;
+}
+
+.ai-tool-panel span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.ai-tool-panel .status-info-wrap {
+  display: inline-flex;
+}
+
+.ai-tool-panel .status-tooltip {
+  right: auto;
+  left: 50%;
+  width: min(300px, calc(100vw - 96px));
+  transform: translate(-50%, -3px);
+}
+
+.ai-tool-panel .status-info-wrap:hover .status-tooltip,
+.ai-tool-panel .status-info-wrap:focus-within .status-tooltip,
+.ai-tool-panel .status-info-wrap.is-open .status-tooltip {
+  transform: translate(-50%, 0);
+}
+
+.ai-tool-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.ai-tool-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-strong);
+  color: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ai-tool-link:hover,
+.ai-tool-link:focus-visible {
+  border-color: rgba(139, 111, 71, 0.46);
+  background: var(--accent-soft);
+}
+
 .output-meta {
   color: var(--muted);
   font-size: 0.8rem;
@@ -1247,6 +1325,14 @@ button {
   .action-row {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .ai-tool-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .ai-tool-links {
+    justify-content: flex-start;
   }
 
   .hero h1 {
