@@ -129,6 +129,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
   test("basic mode collapses advanced controls and keeps required options selected", async ({ page }) => {
     await openApp(page);
 
+    await page.locator('button[data-preset="balanced"]').click();
+    await expect(page.locator(".strategy-context")).toContainText("Balanced");
     await page.locator('input[name="asset:equities"]').click();
     await expect(page.locator(".equity-region-pill")).toHaveCount(0);
     await page.locator('button[data-step-target="equityMax"][data-step-direction="-5"]').click();
@@ -139,6 +141,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await page.locator('button[data-action="set-mode"][data-mode="basic"]').click();
 
     await expect(page.locator('button[data-action="set-mode"][data-mode="basic"]')).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".strategy-context")).toContainText("Balanced");
     await expect(page.locator('select[name="riskAppetite"]')).toHaveCount(0);
     await expect(page.locator('select[name="investmentHorizon"]')).toHaveCount(0);
     await expect(page.locator('select[name="exchange"]')).toHaveCount(0);
@@ -160,7 +163,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator('button[data-action="reset"]')).toHaveCount(0);
 
     await page.locator('button[data-action="set-mode"][data-mode="pro"]').click();
-    await expect(page.locator('select[name="riskAppetite"]')).toHaveValue("High");
+    await expect(page.locator('select[name="riskAppetite"]')).toHaveValue("Moderate");
+    await expect(page.locator(".range-group").first()).toContainText("40% to 60%");
     await expect(page.locator(".range-group").first().locator(".status-pill")).toHaveText("Auto");
     await expect(page.locator('input[name="asset:equities"]')).toBeEnabled();
     await expect(page.locator(".logic-summary")).toContainText("Auto logic");

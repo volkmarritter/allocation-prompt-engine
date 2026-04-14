@@ -849,6 +849,7 @@ test("basic mode auto-selects required defaults and locks equities", () => {
       const afterBasic = [
         state.promptMode,
         activePresetId,
+        lastChosenPresetId,
         state.assetClasses.equities,
         state.exchangeManuallyAdjusted,
         state.equityRangeManuallyAdjusted,
@@ -872,9 +873,37 @@ test("basic mode auto-selects required defaults and locks equities", () => {
     `
   );
 
-  assert.deepEqual(Array.from(result[0]), ["basic", "growth", true, false, false, false, 7, true, true, true, true, 60, 80, 7, 11]);
+  assert.deepEqual(Array.from(result[0]), ["basic", "growth", "growth", true, false, false, false, 7, true, true, true, true, 60, 80, 7, 11]);
   assert.equal(result[1], true);
   assert.equal(result[2], "pro");
+});
+
+test("basic mode restores the last chosen strategy", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      applyPreset("balanced");
+      state.riskAppetite = "Very high";
+      activePresetId = null;
+      state.equityMin = 10;
+      state.equityMax = 20;
+      setPromptMode("basic");
+      const afterBasic = [activePresetId, lastChosenPresetId, state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.promptMode];
+      setPromptMode("pro");
+      applyPreset("conservative");
+      state.riskAppetite = "High";
+      activePresetId = null;
+      setPromptMode("basic");
+      const afterSecondBasic = [activePresetId, lastChosenPresetId, state.riskAppetite, state.investmentHorizon, state.equityMin, state.equityMax, state.promptMode];
+      [afterBasic, afterSecondBasic];
+    `
+  );
+
+  assert.deepEqual(Array.from(result[0]), ["balanced", "balanced", "Moderate", ">=5 years", 40, 60, "basic"]);
+  assert.deepEqual(Array.from(result[1]), ["conservative", "conservative", "Low", ">=3 years", 20, 40, "basic"]);
 });
 
 test("basic mode render hides jump and auto logic while labeling summary pills", () => {

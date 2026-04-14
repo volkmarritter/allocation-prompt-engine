@@ -276,6 +276,7 @@ let lastAdditionalLogicAlertKey = "";
 let activeStatusInfoKey = "";
 let showPresetDetails = false;
 let activePresetId = defaultPresetId;
+let lastChosenPresetId = defaultPresetId;
 
 document.addEventListener("DOMContentLoaded", () => {
   render();
@@ -1467,6 +1468,7 @@ function handleClick(event) {
   if (action === "reset") {
     activeStatusInfoKey = "";
     activePresetId = defaultPresetId;
+    lastChosenPresetId = defaultPresetId;
     state = createDefaultState();
     render();
   }
@@ -1503,6 +1505,7 @@ function applyPreset(presetId) {
   if (!preset) return;
 
   activePresetId = presetId;
+  lastChosenPresetId = presetId;
   state.riskAppetite = preset.riskAppetite;
   state.investmentHorizon = preset.investmentHorizon;
   state.equityMin = preset.equityMin;
@@ -1530,9 +1533,10 @@ function setPromptMode(mode) {
 }
 
 function applyBasicModeDefaults() {
-  if (!activePresetId) {
-    applyPreset(defaultPresetId);
-  }
+  const presetId = portfolioPresets.some((preset) => preset.id === lastChosenPresetId)
+    ? lastChosenPresetId
+    : defaultPresetId;
+  applyPreset(presetId);
   state.promptMode = "basic";
   state.assetClasses.equities = true;
   state.exchangeManuallyAdjusted = false;
