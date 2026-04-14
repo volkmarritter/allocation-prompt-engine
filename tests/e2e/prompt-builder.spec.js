@@ -169,6 +169,17 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator('button[data-action="reset"]')).toBeVisible();
   });
 
+  test("German basic mode breaks long summary labels", async ({ page }) => {
+    await openApp(page);
+
+    await page.locator('select[name="outputLanguage"]').selectOption("German");
+    await page.locator('button[data-action="set-mode"][data-mode="basic"]').click();
+
+    await expect(page.locator(".basic-auto-summary")).toContainText("Risiko-\nAppetit");
+    await expect(page.locator(".basic-auto-summary")).toContainText("Anlage-\nHorizont");
+    await expect(page.locator(".field-label", { hasText: /^Risikoappetit$/ })).toHaveCount(0);
+  });
+
   test("shows maximum equity warning only once until risk appetite changes", async ({ page }) => {
     const dialogs = [];
     page.on("dialog", async (dialog) => {

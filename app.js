@@ -53,6 +53,8 @@ const uiText = {
     basicMode: "Basic",
     proMode: "Pro",
     basicModeSummary: "Basic mode keeps advanced parameters automatic.",
+    basicRiskAppetite: "Risk appetite",
+    basicInvestmentHorizon: "Investment horizon",
     allSelected: "All selected",
     equityShort: "Equity",
     etfsShort: "ETFs",
@@ -146,6 +148,8 @@ const uiText = {
     basicMode: "Basic",
     proMode: "Pro",
     basicModeSummary: "Basic-Modus hält erweiterte Parameter automatisch.",
+    basicRiskAppetite: "Risiko-\nAppetit",
+    basicInvestmentHorizon: "Anlage-\nHorizont",
     allSelected: "Alle ausgewählt",
     equityShort: "Aktien",
     etfsShort: "ETFs",
@@ -1124,8 +1128,8 @@ function renderBasicModeSummary() {
       <span class="field-label">${escapeHtml(t.basicMode)}</span>
       <p>${escapeHtml(t.basicModeSummary)}</p>
       <div class="basic-auto-pills">
-        <span class="basic-info-pill"><small>${escapeHtml(t.riskAppetite)}</small><strong>${escapeHtml(translateRisk(state.riskAppetite, isGerman()))}</strong></span>
-        <span class="basic-info-pill"><small>${escapeHtml(t.investmentHorizon)}</small><strong>${escapeHtml(translateHorizon(state.investmentHorizon, isGerman()))}</strong></span>
+        <span class="basic-info-pill"><small>${escapeHtml(t.basicRiskAppetite)}</small><strong>${escapeHtml(translateRisk(state.riskAppetite, isGerman()))}</strong></span>
+        <span class="basic-info-pill"><small>${escapeHtml(t.basicInvestmentHorizon)}</small><strong>${escapeHtml(translateHorizon(state.investmentHorizon, isGerman()))}</strong></span>
         <span class="basic-info-pill"><small>${escapeHtml(t.equityShort)}</small><strong>${formatUiRange(Math.min(state.equityMin, state.equityMax), Math.max(state.equityMin, state.equityMax), "%")}</strong></span>
         <span class="basic-info-pill"><small>${escapeHtml(t.etfsShort)}</small><strong>${formatUiRange(Math.min(state.minEtfs, state.maxEtfs), Math.max(state.minEtfs, state.maxEtfs))}</strong></span>
       </div>
