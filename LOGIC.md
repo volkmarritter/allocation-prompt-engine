@@ -25,9 +25,9 @@ Diese Werte werden in `config.js` gepflegt, damit sie ohne Eingriff in die App-L
 | Preset | Risikoappetit | Anlagehorizont | Aktienbandbreite | Besondere Logik |
 | --- | --- | --- | --- | --- |
 | Conservative / Konservativ | `Low` | `>=3 years` | `20% bis 40%` | `Cash`, `Bonds`, `Equities` und `Commodities` werden aktiviert; `Listed Real Estate` und `Crypto Assets` werden abgewählt; ETF-Zielanzahl wird auf `6 bis 10` gesetzt; ETF-Status bleibt `Auto`. |
-| Balanced / Ausgewogen | `Moderate` | `>=5 years` | `40% bis 60%` | `Crypto Assets` und `Listed Real Estate` werden abgewählt; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
-| Growth / Wachstum | `High` | `>=10 years` | `60% bis 80%` | `Listed Real Estate` wird abgewählt, `Crypto Assets` bleibt aktiviert; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
-| Aggressive / Aggressiv | `Very high` | `>=10 years` | `80% bis 100%` | `Bonds` werden abgewählt, `Listed Real Estate` und `Crypto Assets` bleiben aktiviert; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
+| Balanced / Ausgewogen | `Moderate` | `>=5 years` | `40% bis 60%` | `Crypto Assets` und `Listed Real Estate` werden abgewählt; ETF-Zielanzahl wird auf `6 bis 10` gesetzt; ETF-Status bleibt `Auto`. |
+| Growth / Wachstum | `High` | `>=10 years` | `60% bis 80%` | `Listed Real Estate` wird abgewählt, `Crypto Assets` bleibt aktiviert; ETF-Zielanzahl wird auf `7 bis 11` gesetzt; ETF-Status bleibt `Auto`. |
+| Aggressive / Aggressiv | `Very high` | `>=10 years` | `80% bis 100%` | `Bonds` werden abgewählt, `Listed Real Estate` und `Crypto Assets` bleiben aktiviert; ETF-Zielanzahl wird auf `7 bis 11` gesetzt; ETF-Status bleibt `Auto`. |
 
 Die Preset-Beschreibung zeigt die Aktienbandbreite explizit als `XX-XX% equity` bzw. `XX-XX% Aktien`.
 
@@ -105,7 +105,10 @@ Wenn danach `Balanced`, `Growth` oder `Aggressive` gewählt wird:
 - `Balanced` aktiviert `Bonds` und `Equities`, lässt aber `Listed Real Estate` und `Crypto Assets` abgewählt.
 - `Growth` aktiviert `Bonds`, `Equities` und `Crypto Assets`, lässt aber `Listed Real Estate` abgewählt.
 - `Aggressive` aktiviert `Equities`, `Listed Real Estate` und `Crypto Assets`, lässt aber `Bonds` abgewählt.
-- Im Auto-Modus wird die ETF-Zielanzahl aus den ausgewählten Anlageklassen neu berechnet.
+- `Balanced` setzt die ETF-Zielanzahl auf `6 bis 10`.
+- `Growth` setzt die ETF-Zielanzahl auf `7 bis 11`.
+- `Aggressive` setzt die ETF-Zielanzahl auf `7 bis 11`.
+- Der ETF-Status bleibt jeweils `Auto`.
 
 ## Base Currency und Preferred Exchange
 
