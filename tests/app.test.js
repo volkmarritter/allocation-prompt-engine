@@ -340,7 +340,7 @@ test("moderate and higher risk profiles warn when equities are deselected", () =
   assert.equal(result[5], 2);
 });
 
-test("additional logic checks warn for crypto, bond, look-through, synthetic ETF, real estate, and low ETF count conflicts", () => {
+test("additional logic checks warn for crypto, bond, look-through, and synthetic ETF conflicts", () => {
   const context = createContext();
   reset(context);
 
@@ -371,18 +371,11 @@ test("additional logic checks warn for crypto, bond, look-through, synthetic ETF
       alerts = getAdditionalLogicAlerts("asset:equities").map((alert) => alert.key);
       const syntheticWithoutEquities = alerts.includes("synthetic-etfs-without-equities");
 
-      state.assetClasses.realEstate = true;
-      state.minEtfs = 4;
-      state.maxEtfs = 5;
-      alerts = getAdditionalLogicAlerts("minEtfs").map((alert) => alert.key);
-      const realEstateLowEtfCount = alerts.includes("real-estate-low-etf-count-4");
-      const cryptoLowEtfCount = alerts.includes("crypto-low-etf-count-4");
-
-      [cryptoDefensive, cryptoNoRebalancing, noBondsShortHorizon, lookThroughMismatch, syntheticWithoutEquities, realEstateLowEtfCount, cryptoLowEtfCount];
+      [cryptoDefensive, cryptoNoRebalancing, noBondsShortHorizon, lookThroughMismatch, syntheticWithoutEquities];
     `
   );
 
-  assert.deepEqual(Array.from(result), [true, true, true, true, true, true, true]);
+  assert.deepEqual(Array.from(result), [true, true, true, true, true]);
 });
 
 test("ETF coverage check compares minimum ETF count with selected asset classes and CHF add-on", () => {
@@ -796,6 +789,32 @@ test("portfolio presets set profile and default asset class exclusions", () => {
   assert.deepEqual(Array.from(result[1]), ["Moderate", ">=5 years", 40, 60, 6, 10, false, false, true, true, true, true, false, false]);
   assert.deepEqual(Array.from(result[2]), ["High", ">=10 years", 60, 80, 7, 11, false, false, true, true, true, true, false, true]);
   assert.deepEqual(Array.from(result[3]), ["Very high", ">=10 years", 80, 100, 7, 11, false, false, true, false, true, true, true, true]);
+});
+
+test("portfolio presets reset manually adjusted ETF counts", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      portfolioPresets.map((preset) => {
+        state = createDefaultState();
+        state.minEtfs = 5;
+        state.maxEtfs = 9;
+        state.etfCountManuallyAdjusted = true;
+        applyPreset(preset.id);
+        return [preset.id, state.minEtfs, state.maxEtfs, state.etfCountManuallyAdjusted];
+      });
+    `
+  );
+
+  assert.deepEqual(Array.from(result, (item) => Array.from(item)), [
+    ["conservative", 6, 10, false],
+    ["balanced", 6, 10, false],
+    ["growth", 7, 11, false],
+    ["aggressive", 7, 11, false],
+  ]);
 });
 
 test("default state is the Growth CHF preset with its asset exclusions", () => {

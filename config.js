@@ -44,6 +44,8 @@ window.PROMPT_BUILDER_CONFIG = {
       investmentHorizon: ">=5 years",
       equityMin: 40,
       equityMax: 60,
+      minEtfs: 6,
+      maxEtfs: 10,
       assetClasses: {
         cash: true,
         bonds: true,
@@ -62,6 +64,8 @@ window.PROMPT_BUILDER_CONFIG = {
       investmentHorizon: ">=10 years",
       equityMin: 60,
       equityMax: 80,
+      minEtfs: 7,
+      maxEtfs: 11,
       assetClasses: {
         cash: true,
         bonds: true,
@@ -80,6 +84,8 @@ window.PROMPT_BUILDER_CONFIG = {
       investmentHorizon: ">=10 years",
       equityMin: 80,
       equityMax: 100,
+      minEtfs: 7,
+      maxEtfs: 11,
       assetClasses: {
         cash: true,
         bonds: false,

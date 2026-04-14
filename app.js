@@ -257,9 +257,9 @@ const defaults = {
 
 const fallbackPortfolioPresets = [
   { id: "conservative", label: "Conservative", deLabel: "Konservativ", riskAppetite: "Low", investmentHorizon: ">=3 years", equityMin: 20, equityMax: 40, minEtfs: 6, maxEtfs: 10, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
-  { id: "balanced", label: "Balanced", deLabel: "Ausgewogen", riskAppetite: "Moderate", investmentHorizon: ">=5 years", equityMin: 40, equityMax: 60, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
-  { id: "growth", label: "Growth", deLabel: "Wachstum", riskAppetite: "High", investmentHorizon: ">=10 years", equityMin: 60, equityMax: 80, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: true } },
-  { id: "aggressive", label: "Aggressive", deLabel: "Aggressiv", riskAppetite: "Very high", investmentHorizon: ">=10 years", equityMin: 80, equityMax: 100, assetClasses: { cash: true, bonds: false, equities: true, commodities: true, realEstate: true, crypto: true } },
+  { id: "balanced", label: "Balanced", deLabel: "Ausgewogen", riskAppetite: "Moderate", investmentHorizon: ">=5 years", equityMin: 40, equityMax: 60, minEtfs: 6, maxEtfs: 10, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
+  { id: "growth", label: "Growth", deLabel: "Wachstum", riskAppetite: "High", investmentHorizon: ">=10 years", equityMin: 60, equityMax: 80, minEtfs: 7, maxEtfs: 11, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: true } },
+  { id: "aggressive", label: "Aggressive", deLabel: "Aggressiv", riskAppetite: "Very high", investmentHorizon: ">=10 years", equityMin: 80, equityMax: 100, minEtfs: 7, maxEtfs: 11, assetClasses: { cash: true, bonds: false, equities: true, commodities: true, realEstate: true, crypto: true } },
 ];
 const portfolioPresets = Array.isArray(promptBuilderConfig.presets) && promptBuilderConfig.presets.length
   ? promptBuilderConfig.presets
@@ -554,22 +554,20 @@ function maybeShowAdditionalLogicAlerts(changedName = "") {
 function getAdditionalLogicAlerts(changedName = "") {
   const german = isGerman();
   const alerts = [];
-  const minEtfs = Math.min(state.minEtfs, state.maxEtfs);
   const cryptoSelected = state.assetClasses.crypto;
-  const realEstateSelected = state.assetClasses.realEstate;
   const equitiesSelected = state.assetClasses.equities;
   const rebalancingSelected = state.sections.f;
   const lookThroughSectionSelected = state.sections.e;
   const selectedAssetClasses = getSelectedAssetClasses();
+  const minEtfs = Math.min(state.minEtfs, state.maxEtfs);
   const minEtfsForAssetClasses = getMinimumEtfsForSelectedAssetClasses();
   const selectedAssetClassLabels = selectedAssetClasses.map((option) => german ? option.deLabel : option.label).join(", ");
   const usesChEquityAddOn = state.baseCurrency === "CHF" && state.assetClasses.equities;
   const chEquityAddOnText = usesChEquityAddOn
     ? german
-      ? " Bei CHF mit Aktien wird wegen der separaten Schweiz-Allokation eine zusätzliche Position eingerechnet."
+      ? " Bei CHF mit Aktien wird wegen der separaten Schweiz-Allokation eine zusaetzliche Position eingerechnet."
       : " For CHF portfolios with equities, one additional position is counted because Swiss equities are treated as a separate allocation."
     : "";
-
   if (state.riskAppetite === "Low" && cryptoSelected && ["asset:crypto", "riskAppetite"].includes(changedName)) {
     alerts.push({
       key: `crypto-defensive-${state.riskAppetite}`,
@@ -619,29 +617,10 @@ function getAdditionalLogicAlerts(changedName = "") {
     alerts.push({
       key: `etf-coverage-${state.baseCurrency}-${minEtfs}-${minEtfsForAssetClasses}-${selectedAssetClasses.map((option) => option.id).join("-")}`,
       message: german
-        ? `Die Mindestanzahl ETFs sollte mindestens der Zahl der ausgewählten Anlageklassen entsprechen.${chEquityAddOnText} Ausgewählt: ${selectedAssetClassLabels}. Aktuelle Mindestanzahl: ${minEtfs}; sinnvolle Mindestanzahl: ${minEtfsForAssetClasses}.`
+        ? `Die Mindestanzahl ETFs sollte mindestens der Zahl der ausgewaehlten Anlageklassen entsprechen.${chEquityAddOnText} Ausgewaehlt: ${selectedAssetClassLabels}. Aktuelle Mindestanzahl: ${minEtfs}; sinnvolle Mindestanzahl: ${minEtfsForAssetClasses}.`
         : `The minimum ETF count should at least match the number of selected asset classes.${chEquityAddOnText} Selected asset classes: ${selectedAssetClassLabels}. Current minimum: ${minEtfs}; suggested minimum: ${minEtfsForAssetClasses}.`,
     });
   }
-
-  if (realEstateSelected && minEtfs <= 5 && ["asset:realEstate", "minEtfs", "maxEtfs"].includes(changedName)) {
-    alerts.push({
-      key: `real-estate-low-etf-count-${minEtfs}`,
-      message: german
-        ? "Bei sehr wenigen ETF-Positionen kann eine separate Immobilien-/REIT-Allokation schwer sauber umsetzbar sein."
-        : "With very few ETF positions, a separate listed real estate / REIT allocation may be difficult to implement cleanly.",
-    });
-  }
-
-  if (cryptoSelected && minEtfs <= 5 && ["asset:crypto", "minEtfs", "maxEtfs"].includes(changedName)) {
-    alerts.push({
-      key: `crypto-low-etf-count-${minEtfs}`,
-      message: german
-        ? "Bei sehr wenigen ETF-Positionen kann eine separate Krypto-Satellitenallokation schwer sauber umsetzbar sein."
-        : "With very few ETF positions, a separate crypto satellite allocation may be difficult to implement cleanly.",
-    });
-  }
-
   return alerts;
 }
 
