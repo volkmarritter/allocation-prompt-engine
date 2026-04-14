@@ -49,6 +49,7 @@ const uiText = {
     baseCurrency: "Base currency",
     exchangeFocus: "Exchange focus",
     parameters: "Parameters",
+    appMode: "App mode",
     basicMode: "Basic",
     proMode: "Pro",
     basicModeSummary: "Basic mode keeps advanced parameters automatic.",
@@ -141,6 +142,7 @@ const uiText = {
     baseCurrency: "Basiswährung",
     exchangeFocus: "Börsenfokus",
     parameters: "Parameter",
+    appMode: "App-Modus",
     basicMode: "Basic",
     proMode: "Pro",
     basicModeSummary: "Basic-Modus hält erweiterte Parameter automatisch.",
@@ -1106,9 +1108,12 @@ function renderOptions(options, selected, labels = {}) {
 function renderModeSwitch() {
   const t = uiText[state.outputLanguage];
   return `
-    <div class="mode-switch" role="group" aria-label="${escapeAttribute(t.promptMode)}">
-      <button class="mode-option ${isBasicMode() ? "is-active" : ""}" type="button" data-action="set-mode" data-mode="basic" aria-pressed="${isBasicMode() ? "true" : "false"}">${escapeHtml(t.basicMode)}</button>
-      <button class="mode-option ${isBasicMode() ? "" : "is-active"}" type="button" data-action="set-mode" data-mode="pro" aria-pressed="${isBasicMode() ? "false" : "true"}">${escapeHtml(t.proMode)}</button>
+    <div class="mode-switch-wrap">
+      <span class="mode-switch-label">${escapeHtml(t.appMode)}</span>
+      <div class="mode-switch" role="group" aria-label="${escapeAttribute(t.appMode)}">
+        <button class="mode-option ${isBasicMode() ? "is-active" : ""}" type="button" data-action="set-mode" data-mode="basic" aria-pressed="${isBasicMode() ? "true" : "false"}">${escapeHtml(t.basicMode)}</button>
+        <button class="mode-option ${isBasicMode() ? "" : "is-active"}" type="button" data-action="set-mode" data-mode="pro" aria-pressed="${isBasicMode() ? "false" : "true"}">${escapeHtml(t.proMode)}</button>
+      </div>
     </div>
   `;
 }

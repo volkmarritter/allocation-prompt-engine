@@ -190,9 +190,23 @@ button {
   line-height: 1.58;
 }
 
+.mode-switch-wrap {
+  display: grid;
+  justify-items: end;
+  gap: 5px;
+  flex: 0 0 auto;
+}
+
+.mode-switch-label {
+  color: var(--muted);
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .mode-switch {
   display: inline-flex;
-  flex: 0 0 auto;
   gap: 3px;
   padding: 4px;
   border: 1px solid rgba(24, 24, 24, 0.1);
@@ -1249,7 +1263,7 @@ button {
     align-items: start;
   }
 
-  .controls-panel .mode-switch {
+  .controls-panel .mode-switch-wrap {
     justify-self: end;
   }
 

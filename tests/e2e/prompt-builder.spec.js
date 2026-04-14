@@ -20,6 +20,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await openApp(page);
 
     await expect(page.locator('select[name="baseCurrency"]')).toHaveValue("CHF");
+    await expect(page.locator(".mode-switch-wrap")).toContainText("App mode");
     await expect(page.locator('select[name="riskAppetite"]')).toHaveValue("High");
     await expect(page.locator('select[name="investmentHorizon"]')).toHaveValue(">=10 years");
     await expect(page.locator(".etf-count-group")).toBeVisible();
@@ -70,6 +71,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
 
     await page.locator('select[name="outputLanguage"]').selectOption("German");
 
+    await expect(page.locator(".mode-switch-wrap")).toContainText("App-Modus");
     await expect(page.locator(".field-label", { hasText: /^Risikoappetit$/ })).toBeVisible();
     await expect(page.locator(".field-label", { hasText: /^Anlagehorizont$/ })).toBeVisible();
     await expect(page.locator('select[name="outputLanguage"]')).toContainText("Englisch");
