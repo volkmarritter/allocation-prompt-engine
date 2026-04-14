@@ -155,12 +155,16 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".equity-region-pill")).toContainText("5 equity regions");
     await expect(page.locator(".logic-summary")).toHaveCount(0);
     await expect(page.locator(".mobile-jump")).toHaveCount(0);
+    await expect(page.locator('button[data-action="export-txt"]')).toHaveCount(0);
+    await expect(page.locator('button[data-action="export-md"]')).toHaveCount(0);
 
     await page.locator('button[data-action="set-mode"][data-mode="pro"]').click();
     await expect(page.locator('select[name="riskAppetite"]')).toHaveValue("High");
     await expect(page.locator(".range-group").first().locator(".status-pill")).toHaveText("Auto");
     await expect(page.locator('input[name="asset:equities"]')).toBeEnabled();
     await expect(page.locator(".logic-summary")).toContainText("Auto logic");
+    await expect(page.locator('button[data-action="export-txt"]')).toBeVisible();
+    await expect(page.locator('button[data-action="export-md"]')).toBeVisible();
   });
 
   test("shows maximum equity warning only once until risk appetite changes", async ({ page }) => {

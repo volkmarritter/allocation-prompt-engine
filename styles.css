@@ -193,7 +193,7 @@ button {
 .mode-switch-wrap {
   display: grid;
   justify-items: end;
-  gap: 5px;
+  gap: 4px;
   flex: 0 0 auto;
 }
 

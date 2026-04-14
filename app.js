@@ -1067,8 +1067,8 @@ function render() {
           ${basicMode ? "" : renderAutoLogicSummary()}
           <div class="action-row">
             <button class="button" type="button" data-action="copy">${escapeHtml(t.copyPrompt)}</button>
-            <button class="button-ghost" type="button" data-action="export-txt">${escapeHtml(t.exportTxt)}</button>
-            <button class="button-ghost" type="button" data-action="export-md">${escapeHtml(t.exportMd)}</button>
+            ${basicMode ? "" : `<button class="button-ghost" type="button" data-action="export-txt">${escapeHtml(t.exportTxt)}</button>`}
+            ${basicMode ? "" : `<button class="button-ghost" type="button" data-action="export-md">${escapeHtml(t.exportMd)}</button>`}
             <button class="button-ghost" type="button" data-action="reset">${escapeHtml(getResetDefaultsLabel())}</button>
           </div>
           <div class="output-meta">${escapeHtml(t.promptOutput)}</div>
@@ -1109,11 +1109,11 @@ function renderModeSwitch() {
   const t = uiText[state.outputLanguage];
   return `
     <div class="mode-switch-wrap">
-      <span class="mode-switch-label">${escapeHtml(t.appMode)}</span>
       <div class="mode-switch" role="group" aria-label="${escapeAttribute(t.appMode)}">
         <button class="mode-option ${isBasicMode() ? "is-active" : ""}" type="button" data-action="set-mode" data-mode="basic" aria-pressed="${isBasicMode() ? "true" : "false"}">${escapeHtml(t.basicMode)}</button>
         <button class="mode-option ${isBasicMode() ? "" : "is-active"}" type="button" data-action="set-mode" data-mode="pro" aria-pressed="${isBasicMode() ? "false" : "true"}">${escapeHtml(t.proMode)}</button>
       </div>
+      <span class="mode-switch-label">${escapeHtml(t.appMode)}</span>
     </div>
   `;
 }
