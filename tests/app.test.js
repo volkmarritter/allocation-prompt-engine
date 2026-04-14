@@ -900,6 +900,7 @@ test("basic mode render hides jump and auto logic while labeling summary pills",
   assert.doesNotMatch(html, /logic-summary/);
   assert.doesNotMatch(html, /data-action="export-txt"/);
   assert.doesNotMatch(html, /data-action="export-md"/);
+  assert.doesNotMatch(html, /data-action="reset"/);
 });
 
 test("current strategy follows explicit preset state instead of matching values", () => {

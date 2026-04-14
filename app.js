@@ -1069,7 +1069,7 @@ function render() {
             <button class="button" type="button" data-action="copy">${escapeHtml(t.copyPrompt)}</button>
             ${basicMode ? "" : `<button class="button-ghost" type="button" data-action="export-txt">${escapeHtml(t.exportTxt)}</button>`}
             ${basicMode ? "" : `<button class="button-ghost" type="button" data-action="export-md">${escapeHtml(t.exportMd)}</button>`}
-            <button class="button-ghost" type="button" data-action="reset">${escapeHtml(getResetDefaultsLabel())}</button>
+            ${basicMode ? "" : `<button class="button-ghost" type="button" data-action="reset">${escapeHtml(getResetDefaultsLabel())}</button>`}
           </div>
           <div class="output-meta">${escapeHtml(t.promptOutput)}</div>
           <div class="output-box structured-output">${renderPromptPreview(prompt)}</div>
