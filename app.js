@@ -49,6 +49,10 @@ const uiText = {
     baseCurrency: "Base currency",
     exchangeFocus: "Exchange focus",
     parameters: "Parameters",
+    basicMode: "Basic",
+    proMode: "Pro",
+    basicModeSummary: "Basic mode keeps advanced parameters automatic.",
+    allSelected: "All selected",
     investorSetup: "Investor setup",
     setupCopy: "Choose the values that should flow into the generated prompt, then copy the result directly into your workflow.",
     assetClasses: "asset classes",
@@ -131,10 +135,14 @@ const uiText = {
     eyebrow: "Portfolio-Prompt-Builder",
     headline: "Mandat definieren. Prompt generieren.",
     heroCopy: "Konfiguriere das Anlegerprofil und die Umsetzungsrestriktionen, um einen strukturierten Prompt für strategische Asset Allocation zu generieren.",
-    promptMode: "Prompt-Sprache",
+    promptMode: "Modus",
     baseCurrency: "Basiswährung",
     exchangeFocus: "Börsenfokus",
     parameters: "Parameter",
+    basicMode: "Basic",
+    proMode: "Pro",
+    basicModeSummary: "Basic-Modus hält erweiterte Parameter automatisch.",
+    allSelected: "Alle ausgewählt",
     investorSetup: "Anlegerprofil",
     setupCopy: "Wähle die Werte, die in den generierten Prompt einfliessen sollen, und kopiere das Ergebnis direkt in deinen Workflow.",
     assetClasses: "Anlageklassen",
@@ -227,6 +235,7 @@ const defaults = {
   minEtfs: 8,
   maxEtfs: 12,
   etfCountManuallyAdjusted: false,
+  promptMode: "pro",
   outputLanguage: "English",
   includeHomeBiasGuidance: true,
   includeHedgingQuestion: true,
@@ -285,6 +294,10 @@ function createDefaultState() {
 
 function isGerman() {
   return state.outputLanguage === "German";
+}
+
+function isBasicMode() {
+  return state.promptMode === "basic";
 }
 
 function getSelectedAssetClasses() {
@@ -877,6 +890,7 @@ function render() {
   const stats = getPromptStats(prompt);
   const t = uiText[state.outputLanguage];
   const riskCheck = getRiskHorizonCheck();
+  const basicMode = isBasicMode();
   const root = document.getElementById("root");
 
   root.innerHTML = `
@@ -903,9 +917,10 @@ function render() {
               <h2>${escapeHtml(t.investorSetup)}</h2>
               <p>${escapeHtml(t.setupCopy)}</p>
             </div>
+            ${renderModeSwitch()}
           </div>
 
-          <div class="form-grid">
+          <div class="form-grid ${basicMode ? "basic-form-grid" : ""}">
             <div class="dual-grid triple-grid-mobile">
               <label class="field-group">
                 <span class="field-label">${escapeHtml(t.language)}</span>
@@ -934,7 +949,8 @@ function render() {
               ${renderEquityRegionBadge(stats)}
             </div>
 
-            <div class="dual-grid triple-grid-mobile">
+            ${basicMode ? renderBasicModeSummary() : `
+            <div class="dual-grid triple-grid-mobile advanced-control">
               <label class="field-group">
                 <span class="field-label">${escapeHtml(t.riskAppetite)}</span>
                 <select class="select" name="riskAppetite">${renderOptions(["Low", "Moderate", "Balanced", "High", "Very high"], state.riskAppetite, getRiskOptionLabels())}</select>
@@ -945,7 +961,7 @@ function render() {
               </label>
             </div>
 
-            <div class="dual-grid exchange-grid triple-grid-mobile">
+            <div class="dual-grid exchange-grid triple-grid-mobile advanced-control">
               <div class="field-group exchange-group">
                 <div class="range-header">
                   <span class="field-label">${escapeHtml(t.preferredExchange)}</span>
@@ -957,7 +973,7 @@ function render() {
               </div>
             </div>
 
-            <div class="field-group range-group">
+            <div class="field-group range-group advanced-control">
               <div class="range-header">
                 <span class="field-label">${escapeHtml(t.equityRange)}</span>
                 <div class="range-status">
@@ -985,7 +1001,7 @@ function render() {
               </div>
             </div>
 
-            <div class="field-group range-group etf-count-group">
+            <div class="field-group range-group etf-count-group advanced-control">
               <div class="range-header">
                 <span class="field-label">${escapeHtml(t.targetEtfPositions)}</span>
                 <div class="range-status">
@@ -1011,17 +1027,21 @@ function render() {
                   </div>
                 </div>
               </div>
-            </div>
+            </div>`}
 
             <div class="field-group option-section asset-section"><span class="field-label">${escapeHtml(t.eligibleAssetClasses)}</span><div class="toggle-grid">${assetClassOptions.map(renderAssetClassToggle).join("")}</div></div>
             <a class="mobile-jump" href="#prompt-output">${escapeHtml(t.jumpToPrompt)}</a>
-            <div class="field-group option-section output-section"><span class="field-label">${escapeHtml(t.requiredOutputSections)}</span><div class="toggle-grid">${outputSections.map(renderSectionToggle).join("")}</div></div>
-            <div class="field-group option-section instruction-section"><span class="field-label">${escapeHtml(t.promptInstructions)}</span><div class="toggle-grid">
+            ${basicMode
+              ? renderCollapsedOptionSection("output-section", t.requiredOutputSections, `${outputSections.length} ${t.allSelected}`)
+              : `<div class="field-group option-section output-section"><span class="field-label">${escapeHtml(t.requiredOutputSections)}</span><div class="toggle-grid">${outputSections.map(renderSectionToggle).join("")}</div></div>`}
+            ${basicMode
+              ? renderCollapsedOptionSection("instruction-section", t.promptInstructions, t.allSelected)
+              : `<div class="field-group option-section instruction-section"><span class="field-label">${escapeHtml(t.promptInstructions)}</span><div class="toggle-grid">
               ${state.baseCurrency === "USD" ? "" : renderCheckboxCard("includeHomeBiasGuidance", state.includeHomeBiasGuidance, t.includeHomeBias, t.includeHomeBiasDescription)}
               ${renderCheckboxCard("includeHedgingQuestion", state.includeHedgingQuestion, t.includeHedging, t.includeHedgingDescription)}
               ${renderCheckboxCard("includeLookThrough", state.includeLookThrough, t.includeLookThrough, t.includeLookThroughDescription)}
               ${renderCheckboxCard("includeSyntheticEtfs", state.includeSyntheticEtfs, t.includeSyntheticEtfs, t.includeSyntheticEtfsDescription)}
-            </div></div>
+            </div></div>`}
           </div>
         </section>
 
@@ -1079,6 +1099,40 @@ function renderOptions(options, selected, labels = {}) {
     .join("");
 }
 
+function renderModeSwitch() {
+  const t = uiText[state.outputLanguage];
+  return `
+    <div class="mode-switch" role="group" aria-label="${escapeAttribute(t.promptMode)}">
+      <button class="mode-option ${isBasicMode() ? "is-active" : ""}" type="button" data-action="set-mode" data-mode="basic" aria-pressed="${isBasicMode() ? "true" : "false"}">${escapeHtml(t.basicMode)}</button>
+      <button class="mode-option ${isBasicMode() ? "" : "is-active"}" type="button" data-action="set-mode" data-mode="pro" aria-pressed="${isBasicMode() ? "false" : "true"}">${escapeHtml(t.proMode)}</button>
+    </div>
+  `;
+}
+
+function renderBasicModeSummary() {
+  const t = uiText[state.outputLanguage];
+  return `
+    <div class="basic-auto-summary">
+      <span class="field-label">${escapeHtml(t.basicMode)}</span>
+      <p>${escapeHtml(t.basicModeSummary)}</p>
+      <div class="basic-auto-pills">
+        <span class="pill">${escapeHtml(translateRisk(state.riskAppetite, isGerman()))}</span>
+        <span class="pill">${escapeHtml(translateHorizon(state.investmentHorizon, isGerman()))}</span>
+        <span class="pill">${formatUiRange(Math.min(state.equityMin, state.equityMax), Math.max(state.equityMin, state.equityMax), "%")}</span>
+        <span class="pill">${formatUiRange(Math.min(state.minEtfs, state.maxEtfs), Math.max(state.minEtfs, state.maxEtfs))}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderCollapsedOptionSection(sectionClass, label, summary) {
+  return `
+    <details class="field-group option-section collapsed-option-section ${escapeAttribute(sectionClass)}">
+      <summary><span class="field-label">${escapeHtml(label)}</span><span class="pill">${escapeHtml(summary)}</span></summary>
+    </details>
+  `;
+}
+
 function getLanguageOptionLabels() {
   return isGerman() ? { English: "Englisch", German: "Deutsch" } : {};
 }
@@ -1126,7 +1180,13 @@ function renderAdjustmentStatus(isManual, action) {
 
 function renderAssetClassToggle(option) {
   const german = isGerman();
-  return renderCheckboxCard(`asset:${option.id}`, state.assetClasses[option.id], german ? option.deLabel : option.label, getAssetClassDescription(option, german));
+  return renderCheckboxCard(
+    `asset:${option.id}`,
+    state.assetClasses[option.id],
+    german ? option.deLabel : option.label,
+    getAssetClassDescription(option, german),
+    isBasicMode() && option.id === "equities"
+  );
 }
 
 function renderStrategyContextValue() {
@@ -1224,8 +1284,8 @@ function renderSectionToggle(section) {
   return renderCheckboxCard(`section:${section.id}`, state.sections[section.id], text.label, text.description);
 }
 
-function renderCheckboxCard(name, checked, title, description) {
-  return `<label class="toggle"><input type="checkbox" name="${escapeAttribute(name)}" ${checked ? "checked" : ""} /><div><strong>${escapeHtml(title)}</strong><span>${escapeHtml(description)}</span></div></label>`;
+function renderCheckboxCard(name, checked, title, description, disabled = false) {
+  return `<label class="toggle ${disabled ? "is-disabled" : ""}"><input type="checkbox" name="${escapeAttribute(name)}" ${checked ? "checked" : ""} ${disabled ? "disabled" : ""} /><div><strong>${escapeHtml(title)}</strong><span>${escapeHtml(description)}</span></div></label>`;
 }
 
 function formatUiRange(minValue, maxValue, suffix = "") {
@@ -1291,6 +1351,11 @@ function handleInputChange(event) {
   activeStatusInfoKey = "";
   activePresetId = null;
   if (name.startsWith("asset:")) {
+    if (isBasicMode() && name === "asset:equities" && !checked) {
+      state.assetClasses.equities = true;
+      render();
+      return;
+    }
     state.assetClasses[name.slice(6)] = checked;
     applyAutomaticEtfCountFromAssetClasses();
     applyAutomaticEquityRangeFromAssetClasses(name);
@@ -1329,12 +1394,23 @@ function handleInputChange(event) {
 }
 
 function handleClick(event) {
-  const action = event.target.getAttribute("data-action");
+  const actionTarget = event.target.closest("[data-action]");
+  const action = actionTarget?.getAttribute("data-action");
   const presetId = event.target.closest("[data-preset]")?.getAttribute("data-preset");
   const stepTarget = event.target.getAttribute("data-step-target");
   const stepDirection = Number.parseInt(event.target.getAttribute("data-step-direction"), 10);
+  if (action === "set-mode") {
+    const nextMode = actionTarget.getAttribute("data-mode") === "basic" ? "basic" : "pro";
+    setPromptMode(nextMode);
+    activeStatusInfoKey = "";
+    render();
+    maybeShowRiskHorizonAlert();
+    maybeShowEquityRiskAlert();
+    maybeShowAdditionalLogicAlerts("promptMode");
+    return;
+  }
   if (action === "toggle-status-info") {
-    const infoKey = event.target.getAttribute("data-info-key");
+    const infoKey = actionTarget.getAttribute("data-info-key");
     activeStatusInfoKey = activeStatusInfoKey === infoKey ? "" : infoKey;
     render();
     return;
@@ -1348,6 +1424,9 @@ function handleClick(event) {
   if (presetId) {
     activeStatusInfoKey = "";
     applyPreset(presetId);
+    if (isBasicMode()) {
+      applyBasicModeDefaults();
+    }
     render();
     maybeShowRiskHorizonAlert();
     maybeShowEquityRiskAlert();
@@ -1429,6 +1508,34 @@ function applyPreset(presetId) {
     applyAutomaticEtfCountFromAssetClasses();
   }
   lastEquityRiskAlertKey = "";
+}
+
+function setPromptMode(mode) {
+  state.promptMode = mode === "basic" ? "basic" : "pro";
+  if (isBasicMode()) {
+    applyBasicModeDefaults();
+  }
+}
+
+function applyBasicModeDefaults() {
+  if (!activePresetId) {
+    applyPreset(defaultPresetId);
+  }
+  state.promptMode = "basic";
+  state.assetClasses.equities = true;
+  state.exchangeManuallyAdjusted = false;
+  state.equityRangeManuallyAdjusted = false;
+  state.etfCountManuallyAdjusted = false;
+  applyExchangeForBaseCurrency(state.baseCurrency);
+  applyEquityRangeForRisk(state.riskAppetite);
+  applyAutomaticEtfCountFromAssetClasses();
+  outputSections.forEach((section) => {
+    state.sections[section.id] = true;
+  });
+  state.includeHomeBiasGuidance = true;
+  state.includeHedgingQuestion = true;
+  state.includeLookThrough = true;
+  state.includeSyntheticEtfs = true;
 }
 
 function applyExchangeForBaseCurrency(baseCurrency) {

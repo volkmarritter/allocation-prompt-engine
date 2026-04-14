@@ -822,6 +822,59 @@ test("default state is the Growth CHF preset with its asset exclusions", () => {
   assert.deepEqual(Array.from(result), ["CHF", "High", ">=10 years", 75, 95, 7, 11, true, false, true, 5]);
 });
 
+test("basic mode auto-selects required defaults and locks equities", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      activePresetId = null;
+      state.assetClasses.equities = false;
+      state.exchange = "LSE London Stock Exchange";
+      state.exchangeManuallyAdjusted = true;
+      state.equityMin = 0;
+      state.equityMax = 0;
+      state.equityRangeManuallyAdjusted = true;
+      state.minEtfs = 2;
+      state.maxEtfs = 3;
+      state.etfCountManuallyAdjusted = true;
+      state.sections.a = false;
+      state.sections.g = false;
+      state.includeHedgingQuestion = false;
+      state.includeLookThrough = false;
+      setPromptMode("basic");
+      const afterBasic = [
+        state.promptMode,
+        activePresetId,
+        state.assetClasses.equities,
+        state.exchangeManuallyAdjusted,
+        state.equityRangeManuallyAdjusted,
+        state.etfCountManuallyAdjusted,
+        getSelectedSections().length,
+        state.includeHomeBiasGuidance,
+        state.includeHedgingQuestion,
+        state.includeLookThrough,
+        state.includeSyntheticEtfs,
+        state.equityMin,
+        state.equityMax,
+        state.minEtfs,
+        state.maxEtfs,
+      ];
+      state.assetClasses.equities = false;
+      const event = { target: { name: "asset:equities", type: "checkbox", checked: false } };
+      handleInputChange(event);
+      const lockedEquities = state.assetClasses.equities;
+      setPromptMode("pro");
+      [afterBasic, lockedEquities, state.promptMode];
+    `
+  );
+
+  assert.deepEqual(Array.from(result[0]), ["basic", "growth", true, false, false, false, 7, true, true, true, true, 75, 95, 7, 11]);
+  assert.equal(result[1], true);
+  assert.equal(result[2], "pro");
+});
+
 test("current strategy follows explicit preset state instead of matching values", () => {
   const context = createContext();
   reset(context);

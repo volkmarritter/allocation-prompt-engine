@@ -190,6 +190,34 @@ button {
   line-height: 1.58;
 }
 
+.mode-switch {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 3px;
+  padding: 4px;
+  border: 1px solid rgba(24, 24, 24, 0.1);
+  border-radius: 999px;
+  background: rgba(247, 245, 240, 0.88);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.mode-option {
+  min-height: 30px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.mode-option.is-active {
+  background: #181818;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(24, 24, 24, 0.12);
+}
+
 .panel-badges,
 .parameter-badges {
   display: inline-flex;
@@ -344,6 +372,48 @@ button {
   padding: 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
+}
+
+.basic-auto-summary,
+.collapsed-option-section {
+  padding: 14px 16px;
+  border: 1px solid rgba(24, 24, 24, 0.1);
+  border-radius: var(--radius-lg);
+  background: rgba(247, 245, 240, 0.72);
+}
+
+.basic-auto-summary {
+  display: grid;
+  gap: 10px;
+}
+
+.basic-auto-summary p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.basic-auto-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.collapsed-option-section {
+  display: block;
+}
+
+.collapsed-option-section summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  list-style: none;
+  cursor: default;
+}
+
+.collapsed-option-section summary::-webkit-details-marker {
+  display: none;
 }
 
 .preset-section {
@@ -533,6 +603,14 @@ button {
 .toggle input {
   margin-top: 3px;
   accent-color: var(--accent);
+}
+
+.toggle.is-disabled {
+  opacity: 0.78;
+}
+
+.toggle.is-disabled input {
+  cursor: not-allowed;
 }
 
 .toggle strong {
