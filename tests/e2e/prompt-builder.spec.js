@@ -89,25 +89,25 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await openApp(page);
 
     await page.locator('select[name="riskAppetite"]').selectOption("Low");
-    await expect(page.locator(".range-group").first()).toContainText("25% to 45%");
+    await expect(page.locator(".range-group").first()).toContainText("20% to 40%");
     await expect(page.locator(".range-group").first().locator(".status-pill")).toHaveText("Auto");
 
-    await page.locator('select[name="riskAppetite"]').selectOption("Balanced");
-    await expect(page.locator(".range-group").first()).toContainText("55% to 75%");
+    await page.locator('select[name="riskAppetite"]').selectOption("Moderate");
+    await expect(page.locator(".range-group").first()).toContainText("40% to 60%");
 
     await page.locator('select[name="riskAppetite"]').selectOption("Very high");
-    await expect(page.locator(".range-group").first()).toContainText("90% to 100%");
+    await expect(page.locator(".range-group").first()).toContainText("80% to 100%");
     await page.locator('button[data-step-target="equityMax"][data-step-direction="-5"]').click();
     await expect(page.locator(".range-group").first().locator(".status-pill")).toHaveText("Manual");
 
-    await page.locator('select[name="riskAppetite"]').selectOption("Balanced");
-    await expect(page.locator(".range-group").first()).toContainText("55% to 75%");
+    await page.locator('select[name="riskAppetite"]').selectOption("Moderate");
+    await expect(page.locator(".range-group").first()).toContainText("40% to 60%");
     await expect(page.locator(".range-group").first().locator(".status-pill")).toHaveText("Auto");
 
     await page.locator('button[data-step-target="equityMax"][data-step-direction="-5"]').click();
     await expect(page.locator(".range-group").first().locator(".status-pill")).toHaveText("Manual");
     await page.locator('button[data-action="restore-equity-auto"]').click();
-    await expect(page.locator(".range-group").first()).toContainText("55% to 75%");
+    await expect(page.locator(".range-group").first()).toContainText("40% to 60%");
     await expect(page.locator(".range-group").first().locator(".status-pill")).toHaveText("Auto");
     await expect(page.locator(".strategy-context")).toContainText("Custom setup");
   });
@@ -120,7 +120,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".strategy-context")).toContainText("Custom setup");
     await page.locator('button[data-preset="growth"]').click();
     await expect(page.locator(".strategy-context")).toContainText("Growth");
-    await page.locator('select[name="riskAppetite"]').selectOption("Balanced");
+    await page.locator('select[name="riskAppetite"]').selectOption("Moderate");
     await expect(page.locator(".strategy-context")).toContainText("Custom setup");
     await page.locator('button[data-action="reset"]').click();
     await expect(page.locator(".strategy-context")).toContainText("Growth");
@@ -259,7 +259,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator('select[name="baseCurrency"]')).toHaveValue("CHF");
     await expect(page.locator('select[name="riskAppetite"]')).toHaveValue("High");
     await expect(page.locator('select[name="exchange"]')).toHaveValue("SIX Swiss Exchange");
-    await expect(page.locator(".range-group").first()).toContainText("75% to 95%");
+    await expect(page.locator(".range-group").first()).toContainText("60% to 80%");
   });
 
   test("copy button writes the generated prompt to clipboard", async ({ page }) => {
@@ -357,9 +357,9 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
       await page.locator('button[data-step-target="equityMax"][data-step-direction="-5"]').click();
     }
 
-    await expect(page.locator(".range-group").first()).toContainText("75% to 75%");
-    await expect(page.locator(".output-box")).toContainText("- Equity allocation: 75%");
-    await expect(page.locator(".output-box")).not.toContainText("Equity allocation between 75% and 75%");
+    await expect(page.locator(".range-group").first()).toContainText("60% to 60%");
+    await expect(page.locator(".output-box")).toContainText("- Equity allocation: 60%");
+    await expect(page.locator(".output-box")).not.toContainText("Equity allocation between 60% and 60%");
   });
 });
 

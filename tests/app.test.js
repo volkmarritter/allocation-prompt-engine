@@ -171,11 +171,10 @@ test("equity allocation range follows risk appetite", () => {
   reset(context);
 
   const expectedRanges = {
-    Low: [25, 45],
+    Low: [20, 40],
     Moderate: [40, 60],
-    Balanced: [55, 75],
-    High: [75, 95],
-    "Very high": [90, 100],
+    High: [60, 80],
+    "Very high": [80, 100],
   };
 
   for (const [risk, expected] of Object.entries(expectedRanges)) {
@@ -199,6 +198,18 @@ test("maximum equity warning appears once per risk appetite", () => {
       context,
       `
         state.riskAppetite = "Low";
+        state.equityMax = 45;
+        maybeShowEquityRiskAlert();
+        window.__alerts.length;
+      `
+    ),
+    1
+  );
+
+  assert.equal(
+    run(
+      context,
+      `
         state.equityMax = 50;
         maybeShowEquityRiskAlert();
         window.__alerts.length;
@@ -207,30 +218,21 @@ test("maximum equity warning appears once per risk appetite", () => {
     1
   );
 
-  assert.equal(
-    run(
-      context,
-      `
-        state.equityMax = 55;
-        maybeShowEquityRiskAlert();
-        window.__alerts.length;
-      `
-    ),
-    1
-  );
-
-  assert.equal(
-    run(
+  assert.deepEqual(
+    Array.from(run(
       context,
       `
         state.riskAppetite = "Moderate";
         lastEquityRiskAlertKey = "";
+        state.equityMax = 60;
+        maybeShowEquityRiskAlert();
+        const atModerateLimit = window.__alerts.length;
         state.equityMax = 65;
         maybeShowEquityRiskAlert();
-        window.__alerts.length;
+        [atModerateLimit, window.__alerts.length];
       `
-    ),
-    2
+    )),
+    [1, 2]
   );
 });
 
@@ -263,7 +265,7 @@ test("empty selection warnings are shown", () => {
   assert.match(sectionAlert, /No output sections selected/);
 });
 
-test("low and moderate risk profiles warn when cash or bonds are deselected", () => {
+test("low risk profiles warn when cash or bonds are deselected", () => {
   const context = createContext();
   reset(context);
 
@@ -287,11 +289,11 @@ test("low and moderate risk profiles warn when cash or bonds are deselected", ()
       state.assetClasses.cash = true;
       state.assetClasses.bonds = false;
       maybeShowDefensiveAssetAlert("riskAppetite");
-      const moderateBondAlert = window.__alerts.at(-1);
+      const afterModerateRisk = window.__alerts.length;
       state.riskAppetite = "High";
       maybeShowDefensiveAssetAlert("riskAppetite");
       const afterHighRisk = window.__alerts.length;
-      [lowCashAlert, afterDuplicateAttempt, afterCashAddedBack, lowCashBondAlert, moderateBondAlert, afterHighRisk];
+      [lowCashAlert, afterDuplicateAttempt, afterCashAddedBack, lowCashBondAlert, afterModerateRisk, afterHighRisk];
     `
   );
 
@@ -299,21 +301,21 @@ test("low and moderate risk profiles warn when cash or bonds are deselected", ()
   assert.equal(result[1], 1);
   assert.equal(result[2], 1);
   assert.match(result[3], /Cash \/ Money Market and Bonds/);
-  assert.match(result[4], /Bonds/);
-  assert.equal(result[5], 3);
+  assert.equal(result[4], 2);
+  assert.equal(result[5], 2);
 });
 
-test("balanced and higher risk profiles warn when equities are deselected", () => {
+test("moderate and higher risk profiles warn when equities are deselected", () => {
   const context = createContext();
   reset(context);
 
   const result = run(
     context,
     `
-      state.riskAppetite = "Balanced";
+      state.riskAppetite = "Moderate";
       state.assetClasses.equities = false;
       maybeShowEquityAssetAlert("asset:equities");
-      const balancedAlert = window.__alerts.at(-1);
+      const moderateAlert = window.__alerts.at(-1);
       maybeShowEquityAssetAlert("asset:equities");
       const afterDuplicateAttempt = window.__alerts.length;
       state.assetClasses.equities = true;
@@ -326,7 +328,7 @@ test("balanced and higher risk profiles warn when equities are deselected", () =
       state.riskAppetite = "High";
       maybeShowEquityAssetAlert("riskAppetite");
       const highAlert = window.__alerts.at(-1);
-      [balancedAlert, afterDuplicateAttempt, afterEquitiesAddedBack, afterLowRisk, highAlert, window.__alerts.length];
+      [moderateAlert, afterDuplicateAttempt, afterEquitiesAddedBack, afterLowRisk, highAlert, window.__alerts.length];
     `
   );
 
@@ -694,7 +696,7 @@ test("equity allocation range is zero while equities are deselected", () => {
   assert.deepEqual(Array.from(result[0]), [0, 0, false]);
   assert.deepEqual(Array.from(result[1]), [0, 0]);
   assert.deepEqual(Array.from(result[2]), [0, 0]);
-  assert.deepEqual(Array.from(result[3]), [90, 100]);
+  assert.deepEqual(Array.from(result[3]), [80, 100]);
 });
 
 test("equal equity and ETF targets use exact wording in prompts", () => {
@@ -790,10 +792,10 @@ test("portfolio presets set profile and default asset class exclusions", () => {
     `
   );
 
-  assert.deepEqual(Array.from(result[0]), ["Low", ">=3 years", 25, 45, 6, 10, false, false, true, true, true, true, false, false]);
-  assert.deepEqual(Array.from(result[1]), ["Balanced", ">=5 years", 55, 75, 6, 10, false, false, true, true, true, true, false, false]);
-  assert.deepEqual(Array.from(result[2]), ["High", ">=10 years", 75, 95, 7, 11, false, false, true, true, true, true, false, true]);
-  assert.deepEqual(Array.from(result[3]), ["Very high", ">=10 years", 90, 100, 7, 11, false, false, true, false, true, true, true, true]);
+  assert.deepEqual(Array.from(result[0]), ["Low", ">=3 years", 20, 40, 6, 10, false, false, true, true, true, true, false, false]);
+  assert.deepEqual(Array.from(result[1]), ["Moderate", ">=5 years", 40, 60, 6, 10, false, false, true, true, true, true, false, false]);
+  assert.deepEqual(Array.from(result[2]), ["High", ">=10 years", 60, 80, 7, 11, false, false, true, true, true, true, false, true]);
+  assert.deepEqual(Array.from(result[3]), ["Very high", ">=10 years", 80, 100, 7, 11, false, false, true, false, true, true, true, true]);
 });
 
 test("default state is the Growth CHF preset with its asset exclusions", () => {
@@ -819,7 +821,7 @@ test("default state is the Growth CHF preset with its asset exclusions", () => {
     `
   );
 
-  assert.deepEqual(Array.from(result), ["CHF", "High", ">=10 years", 75, 95, 7, 11, true, false, true, 5]);
+  assert.deepEqual(Array.from(result), ["CHF", "High", ">=10 years", 60, 80, 7, 11, true, false, true, 5]);
 });
 
 test("basic mode auto-selects required defaults and locks equities", () => {
@@ -870,7 +872,7 @@ test("basic mode auto-selects required defaults and locks equities", () => {
     `
   );
 
-  assert.deepEqual(Array.from(result[0]), ["basic", "growth", true, false, false, false, 7, true, true, true, true, 75, 95, 7, 11]);
+  assert.deepEqual(Array.from(result[0]), ["basic", "growth", true, false, false, false, 7, true, true, true, true, 60, 80, 7, 11]);
   assert.equal(result[1], true);
   assert.equal(result[2], "pro");
 });
@@ -981,12 +983,21 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /Current strategy/);
   assert.match(html, /strategy-context/);
   assert.match(html, /strategy-segment/);
+  assert.doesNotMatch(html, /<option value="Balanced"/);
   assert.match(html, /7-11 ETFs/);
   assert.match(html, /data-action="toggle-preset-details"/);
   assert.match(html, /preset-icon-conservative/);
   assert.match(html, /preset-icon-balanced/);
   assert.match(html, /preset-icon-growth/);
   assert.match(html, /preset-icon-aggressive/);
+  assert.match(html, /Low · &gt;=3 years ·/);
+  assert.match(html, /20-40% equity/);
+  assert.match(html, /Moderate · &gt;=5 years ·/);
+  assert.match(html, /40-60% equity/);
+  assert.match(html, /High · &gt;=10 years ·/);
+  assert.match(html, /60-80% equity/);
+  assert.match(html, /Very high · &gt;=10 years ·/);
+  assert.match(html, /80-100% equity/);
   assert.doesNotMatch(html, /show-preset-details/);
   assert.equal(html.indexOf("preset-grid") < html.indexOf("strategy-context"), true);
   assert.equal(html.indexOf("strategy-context") < html.indexOf("parameter-badges"), true);
@@ -1110,16 +1121,16 @@ test("UI range labels use localized separators", () => {
   const result = run(
     context,
     `
-      const englishEquity = formatUiRange(55, 75, "%");
+      const englishEquity = formatUiRange(40, 60, "%");
       const englishEtfs = formatUiRange(8, 12);
       state.outputLanguage = "German";
-      const germanEquity = formatUiRange(55, 75, "%");
+      const germanEquity = formatUiRange(40, 60, "%");
       const germanEtfs = formatUiRange(8, 12);
       [englishEquity, englishEtfs, germanEquity, germanEtfs];
     `
   );
 
-  assert.deepEqual(Array.from(result), ["55% to 75%", "8 to 12", "55% bis 75%", "8 bis 12"]);
+  assert.deepEqual(Array.from(result), ["40% to 60%", "8 to 12", "40% bis 60%", "8 bis 12"]);
 });
 
 test("risk and horizon warning matrix is enforced", () => {
@@ -1140,7 +1151,7 @@ test("risk and horizon warning matrix is enforced", () => {
       checks.push(getRiskHorizonCheck().ok);
       state.investmentHorizon = ">=5 years";
       checks.push(getRiskHorizonCheck().ok);
-      state.riskAppetite = "Balanced";
+      state.riskAppetite = "Moderate";
       state.investmentHorizon = ">=3 years";
       checks.push(getRiskHorizonCheck().ok);
       checks;

@@ -237,8 +237,8 @@ const defaults = {
   baseCurrency: defaultBaseCurrency,
   riskAppetite: "High",
   investmentHorizon: ">=10 years",
-  equityMin: 75,
-  equityMax: 95,
+  equityMin: 60,
+  equityMax: 80,
   equityRangeManuallyAdjusted: false,
   exchange: defaultExchangeByCurrency[defaultBaseCurrency] || exchangeOptions[0] || "SIX Swiss Exchange",
   exchangeManuallyAdjusted: false,
@@ -256,10 +256,10 @@ const defaults = {
 };
 
 const fallbackPortfolioPresets = [
-  { id: "conservative", label: "Conservative", deLabel: "Konservativ", riskAppetite: "Low", investmentHorizon: ">=3 years", equityMin: 25, equityMax: 45, minEtfs: 6, maxEtfs: 10, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
-  { id: "balanced", label: "Balanced", deLabel: "Ausgewogen", riskAppetite: "Balanced", investmentHorizon: ">=5 years", equityMin: 55, equityMax: 75, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
-  { id: "growth", label: "Growth", deLabel: "Wachstum", riskAppetite: "High", investmentHorizon: ">=10 years", equityMin: 75, equityMax: 95, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: true } },
-  { id: "aggressive", label: "Aggressive", deLabel: "Aggressiv", riskAppetite: "Very high", investmentHorizon: ">=10 years", equityMin: 90, equityMax: 100, assetClasses: { cash: true, bonds: false, equities: true, commodities: true, realEstate: true, crypto: true } },
+  { id: "conservative", label: "Conservative", deLabel: "Konservativ", riskAppetite: "Low", investmentHorizon: ">=3 years", equityMin: 20, equityMax: 40, minEtfs: 6, maxEtfs: 10, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
+  { id: "balanced", label: "Balanced", deLabel: "Ausgewogen", riskAppetite: "Moderate", investmentHorizon: ">=5 years", equityMin: 40, equityMax: 60, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: false } },
+  { id: "growth", label: "Growth", deLabel: "Wachstum", riskAppetite: "High", investmentHorizon: ">=10 years", equityMin: 60, equityMax: 80, assetClasses: { cash: true, bonds: true, equities: true, commodities: true, realEstate: false, crypto: true } },
+  { id: "aggressive", label: "Aggressive", deLabel: "Aggressiv", riskAppetite: "Very high", investmentHorizon: ">=10 years", equityMin: 80, equityMax: 100, assetClasses: { cash: true, bonds: false, equities: true, commodities: true, realEstate: true, crypto: true } },
 ];
 const portfolioPresets = Array.isArray(promptBuilderConfig.presets) && promptBuilderConfig.presets.length
   ? promptBuilderConfig.presets
@@ -464,7 +464,7 @@ function maybeShowEquityRiskAlert() {
 }
 
 function maybeShowDefensiveAssetAlert(changedName = "") {
-  if (!["Low", "Moderate"].includes(state.riskAppetite)) {
+  if (state.riskAppetite !== "Low") {
     lastDefensiveAssetAlertKey = "";
     return;
   }
@@ -510,7 +510,7 @@ function maybeShowDefensiveAssetAlert(changedName = "") {
 }
 
 function maybeShowEquityAssetAlert(changedName = "") {
-  if (!["Balanced", "High", "Very high"].includes(state.riskAppetite)) {
+  if (!["Moderate", "High", "Very high"].includes(state.riskAppetite)) {
     lastEquityAssetAlertKey = "";
     return;
   }
@@ -569,7 +569,7 @@ function getAdditionalLogicAlerts(changedName = "") {
       : " For CHF portfolios with equities, one additional position is counted because Swiss equities are treated as a separate allocation."
     : "";
 
-  if (["Low", "Moderate"].includes(state.riskAppetite) && cryptoSelected && ["asset:crypto", "riskAppetite"].includes(changedName)) {
+  if (state.riskAppetite === "Low" && cryptoSelected && ["asset:crypto", "riskAppetite"].includes(changedName)) {
     alerts.push({
       key: `crypto-defensive-${state.riskAppetite}`,
       message: german
@@ -790,7 +790,7 @@ ${sectionLines}`;
 
 function translateRisk(risk, german) {
   if (!german) return risk;
-  const mapping = { Low: "niedrig", Moderate: "moderat", Balanced: "ausgewogen", High: "hoch", "Very high": "sehr hoch" };
+  const mapping = { Low: "niedrig", Moderate: "moderat", High: "hoch", "Very high": "sehr hoch" };
   return mapping[risk] || risk;
 }
 
@@ -962,7 +962,7 @@ function render() {
             <div class="dual-grid triple-grid-mobile advanced-control">
               <label class="field-group">
                 <span class="field-label">${escapeHtml(t.riskAppetite)}</span>
-                <select class="select" name="riskAppetite">${renderOptions(["Low", "Moderate", "Balanced", "High", "Very high"], state.riskAppetite, getRiskOptionLabels())}</select>
+                <select class="select" name="riskAppetite">${renderOptions(["Low", "Moderate", "High", "Very high"], state.riskAppetite, getRiskOptionLabels())}</select>
               </label>
               <label class="field-group">
                 <span class="field-label">${escapeHtml(t.investmentHorizon)}</span>
@@ -1151,7 +1151,7 @@ function getLanguageOptionLabels() {
 
 function getRiskOptionLabels() {
   return isGerman()
-    ? { Low: "Niedrig", Moderate: "Moderat", Balanced: "Ausgewogen", High: "Hoch", "Very high": "Sehr hoch" }
+    ? { Low: "Niedrig", Moderate: "Moderat", High: "Hoch", "Very high": "Sehr hoch" }
     : {};
 }
 
@@ -1625,11 +1625,10 @@ function applyEquityRangeForRisk(riskAppetite) {
 
 function getEquityRangeForRisk(riskAppetite) {
   const ranges = {
-    Low: [25, 45],
+    Low: [20, 40],
     Moderate: [40, 60],
-    Balanced: [55, 75],
-    High: [75, 95],
-    "Very high": [90, 100],
+    High: [60, 80],
+    "Very high": [80, 100],
   };
   return ranges[riskAppetite] || null;
 }

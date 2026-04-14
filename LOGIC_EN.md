@@ -7,7 +7,7 @@ This file documents the app's business logic for strategy presets, selected para
 - `Base currency`: `CHF`
 - `Risk appetite`: `High`
 - `Investment horizon`: `>=10 years`
-- `Equity allocation range`: `75% to 95%`
+- `Equity allocation range`: `60% to 80%`
 - `Preferred exchange`: `SIX Swiss Exchange`
 - `Target ETF positions`: `7 to 11`
 - `Language`: `English`
@@ -24,10 +24,10 @@ These values are maintained in `config.js` so they can be adjusted without editi
 
 | Preset | Risk appetite | Investment horizon | Equity allocation range | Special logic |
 | --- | --- | --- | --- | --- |
-| Conservative / Konservativ | `Low` | `>=3 years` | `25% to 45%` | `Cash`, `Bonds`, `Equities`, and `Commodities` are enabled; `Listed Real Estate` and `Crypto Assets` are deselected; ETF target count is set to `6 to 10`; ETF status remains `Auto`. |
-| Balanced / Ausgewogen | `Balanced` | `>=5 years` | `55% to 75%` | `Crypto Assets` and `Listed Real Estate` are deselected; ETF target count is recalculated in Auto mode based on the selected asset classes. |
-| Growth / Wachstum | `High` | `>=10 years` | `75% to 95%` | `Listed Real Estate` is deselected while `Crypto Assets` remains enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
-| Aggressive / Aggressiv | `Very high` | `>=10 years` | `90% to 100%` | `Bonds` are deselected while `Listed Real Estate` and `Crypto Assets` remain enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
+| Conservative / Konservativ | `Low` | `>=3 years` | `20% to 40%` | `Cash`, `Bonds`, `Equities`, and `Commodities` are enabled; `Listed Real Estate` and `Crypto Assets` are deselected; ETF target count is set to `6 to 10`; ETF status remains `Auto`. |
+| Balanced / Ausgewogen | `Moderate` | `>=5 years` | `40% to 60%` | `Crypto Assets` and `Listed Real Estate` are deselected; ETF target count is recalculated in Auto mode based on the selected asset classes. |
+| Growth / Wachstum | `High` | `>=10 years` | `60% to 80%` | `Listed Real Estate` is deselected while `Crypto Assets` remains enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
+| Aggressive / Aggressiv | `Very high` | `>=10 years` | `80% to 100%` | `Bonds` are deselected while `Listed Real Estate` and `Crypto Assets` remain enabled; ETF target count is recalculated in Auto mode based on the selected asset classes. |
 
 The preset description explicitly shows the equity allocation range as `XX-XX% equity` or `XX-XX% Aktien`.
 
@@ -51,11 +51,10 @@ If `Equities` is selected, the equity allocation range is set automatically by r
 
 | Risk appetite | Equity allocation range |
 | --- | --- |
-| `Low` | `25% to 45%` |
+| `Low` | `20% to 40%` |
 | `Moderate` | `40% to 60%` |
-| `Balanced` | `55% to 75%` |
-| `High` | `75% to 95%` |
-| `Very high` | `90% to 100%` |
+| `High` | `60% to 80%` |
+| `Very high` | `80% to 100%` |
 
 If `Equities` is deselected:
 
@@ -142,8 +141,8 @@ The UI and prompt language can be set to `English` or `German`.
 
 Range displays use:
 
-- English: `55% to 75%`, `8 to 12`
-- German: `55% bis 75%`, `8 bis 12`
+- English: `40% to 60%`, `8 to 12`
+- German: `40% bis 60%`, `8 bis 12`
 
 If minimum and maximum are identical:
 
@@ -192,26 +191,26 @@ This warning appears only once per risk appetite until the risk appetite is chan
 - If no asset class is selected: pop-up.
 - If no output section is selected: pop-up.
 
-### Low/Moderate Without Cash or Bonds
+### Low Without Cash or Bonds
 
-If `Risk appetite` is `Low` or `Moderate`:
+If `Risk appetite` is `Low`:
 
 - Warning when `Cash / Money Market` is deselected.
 - Warning when `Bonds` are deselected.
 - If Cash or Bonds are added back, no new warning appears.
-- If the user later switches to `Low` or `Moderate` while Cash/Bonds are already missing, a warning also appears.
+- If the user later switches to `Low` while Cash/Bonds are already missing, a warning also appears.
 
-### Balanced and Higher Without Equities
+### Moderate and Higher Without Equities
 
-If `Risk appetite` is `Balanced`, `High`, or `Very high`:
+If `Risk appetite` is `Moderate`, `High`, or `Very high`:
 
 - Warning when `Equities` are deselected.
 - If `Equities` are added back, no new warning appears.
-- If the user later switches to `Balanced`, `High`, or `Very high` while `Equities` are already missing, a warning also appears.
+- If the user later switches to `Moderate`, `High`, or `Very high` while `Equities` are already missing, a warning also appears.
 
-### Crypto With Low/Moderate
+### Crypto With Low Risk Appetite
 
-If `Crypto Assets` is selected and `Risk appetite` is `Low` or `Moderate`:
+If `Crypto Assets` is selected and `Risk appetite` is `Low`:
 
 - Warning that crypto should be justified especially carefully as a high-volatility satellite allocation.
 

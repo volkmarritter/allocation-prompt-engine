@@ -7,7 +7,7 @@ Diese Datei dokumentiert die fachliche Logik der App in Bezug auf gewählte Stra
 - `Base currency`: `CHF`
 - `Risk appetite`: `High`
 - `Investment horizon`: `>=10 years`
-- `Equity allocation range`: `75% bis 95%`
+- `Equity allocation range`: `60% bis 80%`
 - `Preferred exchange`: `SIX Swiss Exchange`
 - `Target ETF positions`: `7 bis 11`
 - `Language`: `English`
@@ -24,10 +24,10 @@ Diese Werte werden in `config.js` gepflegt, damit sie ohne Eingriff in die App-L
 
 | Preset | Risikoappetit | Anlagehorizont | Aktienbandbreite | Besondere Logik |
 | --- | --- | --- | --- | --- |
-| Conservative / Konservativ | `Low` | `>=3 years` | `25% bis 45%` | `Cash`, `Bonds`, `Equities` und `Commodities` werden aktiviert; `Listed Real Estate` und `Crypto Assets` werden abgewählt; ETF-Zielanzahl wird auf `6 bis 10` gesetzt; ETF-Status bleibt `Auto`. |
-| Balanced / Ausgewogen | `Balanced` | `>=5 years` | `55% bis 75%` | `Crypto Assets` und `Listed Real Estate` werden abgewählt; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
-| Growth / Wachstum | `High` | `>=10 years` | `75% bis 95%` | `Listed Real Estate` wird abgewählt, `Crypto Assets` bleibt aktiviert; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
-| Aggressive / Aggressiv | `Very high` | `>=10 years` | `90% bis 100%` | `Bonds` werden abgewählt, `Listed Real Estate` und `Crypto Assets` bleiben aktiviert; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
+| Conservative / Konservativ | `Low` | `>=3 years` | `20% bis 40%` | `Cash`, `Bonds`, `Equities` und `Commodities` werden aktiviert; `Listed Real Estate` und `Crypto Assets` werden abgewählt; ETF-Zielanzahl wird auf `6 bis 10` gesetzt; ETF-Status bleibt `Auto`. |
+| Balanced / Ausgewogen | `Moderate` | `>=5 years` | `40% bis 60%` | `Crypto Assets` und `Listed Real Estate` werden abgewählt; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
+| Growth / Wachstum | `High` | `>=10 years` | `60% bis 80%` | `Listed Real Estate` wird abgewählt, `Crypto Assets` bleibt aktiviert; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
+| Aggressive / Aggressiv | `Very high` | `>=10 years` | `80% bis 100%` | `Bonds` werden abgewählt, `Listed Real Estate` und `Crypto Assets` bleiben aktiviert; ETF-Zielanzahl wird im Auto-Modus neu auf Basis der Anlageklassen berechnet. |
 
 Die Preset-Beschreibung zeigt die Aktienbandbreite explizit als `XX-XX% equity` bzw. `XX-XX% Aktien`.
 
@@ -51,11 +51,10 @@ Wenn `Equities` ausgewählt ist, wird die Aktienbandbreite automatisch nach Risi
 
 | Risikoappetit | Aktienbandbreite |
 | --- | --- |
-| `Low` | `25% bis 45%` |
+| `Low` | `20% bis 40%` |
 | `Moderate` | `40% bis 60%` |
-| `Balanced` | `55% bis 75%` |
-| `High` | `75% bis 95%` |
-| `Very high` | `90% bis 100%` |
+| `High` | `60% bis 80%` |
+| `Very high` | `80% bis 100%` |
 
 Wenn `Equities` abgewählt wird:
 
@@ -142,8 +141,8 @@ Die UI- und Prompt-Sprache kann zwischen `English` und `German` gewählt werden.
 
 Für Range-Anzeigen gilt:
 
-- Englisch: `55% to 75%`, `8 to 12`
-- Deutsch: `55% bis 75%`, `8 bis 12`
+- Englisch: `40% to 60%`, `8 to 12`
+- Deutsch: `40% bis 60%`, `8 bis 12`
 
 Wenn Minimum und Maximum identisch sind:
 
@@ -192,26 +191,26 @@ Diese Warnung erscheint nur einmal pro Risikoappetit, bis der Risikoappetit geä
 - Wenn keine Anlageklasse ausgewählt ist: Popup.
 - Wenn kein Ausgabeabschnitt ausgewählt ist: Popup.
 
-### Low/Moderate ohne Cash oder Bonds
+### Low ohne Cash oder Bonds
 
-Wenn `Risk appetite` `Low` oder `Moderate` ist:
+Wenn `Risk appetite` `Low` ist:
 
 - Warnung beim Abwählen von `Cash / Money Market`.
 - Warnung beim Abwählen von `Bonds`.
 - Wenn Cash oder Bonds wieder hinzugefügt werden, erscheint keine neue Warnung.
-- Wenn später auf `Low` oder `Moderate` gewechselt wird und Cash/Bonds bereits fehlen, erscheint ebenfalls eine Warnung.
+- Wenn später auf `Low` gewechselt wird und Cash/Bonds bereits fehlen, erscheint ebenfalls eine Warnung.
 
-### Balanced und höher ohne Equities
+### Moderate und höher ohne Equities
 
-Wenn `Risk appetite` `Balanced`, `High` oder `Very high` ist:
+Wenn `Risk appetite` `Moderate`, `High` oder `Very high` ist:
 
 - Warnung beim Abwählen von `Equities`.
 - Wenn `Equities` wieder hinzugefügt wird, erscheint keine neue Warnung.
-- Wenn später auf `Balanced`, `High` oder `Very high` gewechselt wird und `Equities` bereits fehlt, erscheint ebenfalls eine Warnung.
+- Wenn später auf `Moderate`, `High` oder `Very high` gewechselt wird und `Equities` bereits fehlt, erscheint ebenfalls eine Warnung.
 
-### Crypto bei Low/Moderate
+### Crypto bei Low
 
-Wenn `Crypto Assets` ausgewählt ist und `Risk appetite` `Low` oder `Moderate` ist:
+Wenn `Crypto Assets` ausgewählt ist und `Risk appetite` `Low` ist:
 
 - Warnung, dass Crypto als volatile Satellitenallokation besonders bewusst begründet werden sollte.
 
