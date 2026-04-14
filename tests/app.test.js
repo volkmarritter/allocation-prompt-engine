@@ -875,6 +875,31 @@ test("basic mode auto-selects required defaults and locks equities", () => {
   assert.equal(result[2], "pro");
 });
 
+test("basic mode render hides jump and auto logic while labeling summary pills", () => {
+  const context = createContext();
+  reset(context);
+
+  const html = run(
+    context,
+    `
+      const root = { innerHTML: "" };
+      document.getElementById = () => root;
+      setPromptMode("basic");
+      render();
+      root.innerHTML;
+    `
+  );
+
+  assert.match(html, /basic-auto-summary/);
+  assert.match(html, /Risk appetite/);
+  assert.match(html, /Investment horizon/);
+  assert.match(html, /Equity/);
+  assert.match(html, /ETFs/);
+  assert.match(html, /set-mode/);
+  assert.doesNotMatch(html, /mobile-jump/);
+  assert.doesNotMatch(html, /logic-summary/);
+});
+
 test("current strategy follows explicit preset state instead of matching values", () => {
   const context = createContext();
   reset(context);

@@ -53,6 +53,8 @@ const uiText = {
     proMode: "Pro",
     basicModeSummary: "Basic mode keeps advanced parameters automatic.",
     allSelected: "All selected",
+    equityShort: "Equity",
+    etfsShort: "ETFs",
     investorSetup: "Investor setup",
     setupCopy: "Choose the values that should flow into the generated prompt, then copy the result directly into your workflow.",
     assetClasses: "asset classes",
@@ -143,6 +145,8 @@ const uiText = {
     proMode: "Pro",
     basicModeSummary: "Basic-Modus hält erweiterte Parameter automatisch.",
     allSelected: "Alle ausgewählt",
+    equityShort: "Aktien",
+    etfsShort: "ETFs",
     investorSetup: "Anlegerprofil",
     setupCopy: "Wähle die Werte, die in den generierten Prompt einfliessen sollen, und kopiere das Ergebnis direkt in deinen Workflow.",
     assetClasses: "Anlageklassen",
@@ -1030,7 +1034,7 @@ function render() {
             </div>`}
 
             <div class="field-group option-section asset-section"><span class="field-label">${escapeHtml(t.eligibleAssetClasses)}</span><div class="toggle-grid">${assetClassOptions.map(renderAssetClassToggle).join("")}</div></div>
-            <a class="mobile-jump" href="#prompt-output">${escapeHtml(t.jumpToPrompt)}</a>
+            ${basicMode ? "" : `<a class="mobile-jump" href="#prompt-output">${escapeHtml(t.jumpToPrompt)}</a>`}
             ${basicMode
               ? renderCollapsedOptionSection("output-section", t.requiredOutputSections, `${outputSections.length} ${t.allSelected}`)
               : `<div class="field-group option-section output-section"><span class="field-label">${escapeHtml(t.requiredOutputSections)}</span><div class="toggle-grid">${outputSections.map(renderSectionToggle).join("")}</div></div>`}
@@ -1058,7 +1062,7 @@ function render() {
             <strong>${escapeHtml(riskCheck.ok ? t.riskCheckOk : t.riskCheckWarning)}</strong>
             <span>${escapeHtml(riskCheck.message)}</span>
           </div>
-          ${renderAutoLogicSummary()}
+          ${basicMode ? "" : renderAutoLogicSummary()}
           <div class="action-row">
             <button class="button" type="button" data-action="copy">${escapeHtml(t.copyPrompt)}</button>
             <button class="button-ghost" type="button" data-action="export-txt">${escapeHtml(t.exportTxt)}</button>
@@ -1116,10 +1120,10 @@ function renderBasicModeSummary() {
       <span class="field-label">${escapeHtml(t.basicMode)}</span>
       <p>${escapeHtml(t.basicModeSummary)}</p>
       <div class="basic-auto-pills">
-        <span class="pill">${escapeHtml(translateRisk(state.riskAppetite, isGerman()))}</span>
-        <span class="pill">${escapeHtml(translateHorizon(state.investmentHorizon, isGerman()))}</span>
-        <span class="pill">${formatUiRange(Math.min(state.equityMin, state.equityMax), Math.max(state.equityMin, state.equityMax), "%")}</span>
-        <span class="pill">${formatUiRange(Math.min(state.minEtfs, state.maxEtfs), Math.max(state.minEtfs, state.maxEtfs))}</span>
+        <span class="basic-info-pill"><small>${escapeHtml(t.riskAppetite)}</small><strong>${escapeHtml(translateRisk(state.riskAppetite, isGerman()))}</strong></span>
+        <span class="basic-info-pill"><small>${escapeHtml(t.investmentHorizon)}</small><strong>${escapeHtml(translateHorizon(state.investmentHorizon, isGerman()))}</strong></span>
+        <span class="basic-info-pill"><small>${escapeHtml(t.equityShort)}</small><strong>${formatUiRange(Math.min(state.equityMin, state.equityMax), Math.max(state.equityMin, state.equityMax), "%")}</strong></span>
+        <span class="basic-info-pill"><small>${escapeHtml(t.etfsShort)}</small><strong>${formatUiRange(Math.min(state.minEtfs, state.maxEtfs), Math.max(state.minEtfs, state.maxEtfs))}</strong></span>
       </div>
     </div>
   `;

@@ -142,17 +142,23 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator('select[name="exchange"]')).toHaveCount(0);
     await expect(page.locator(".range-group")).toHaveCount(0);
     await expect(page.locator(".basic-auto-summary")).toContainText("Basic mode keeps advanced parameters automatic");
+    await expect(page.locator(".basic-auto-summary")).toContainText("Risk appetite");
+    await expect(page.locator(".basic-auto-summary")).toContainText("Investment horizon");
+    await expect(page.locator(".basic-auto-summary")).toContainText("Equity");
+    await expect(page.locator(".basic-auto-summary")).toContainText("ETFs");
     await expect(page.locator(".collapsed-option-section.output-section")).toContainText("7 All selected");
     await expect(page.locator(".collapsed-option-section.instruction-section")).toContainText("All selected");
     await expect(page.locator('input[name="asset:equities"]')).toBeChecked();
     await expect(page.locator('input[name="asset:equities"]')).toBeDisabled();
     await expect(page.locator(".equity-region-pill")).toContainText("5 equity regions");
-    await expect(page.locator(".logic-summary")).toContainText("Auto logic");
+    await expect(page.locator(".logic-summary")).toHaveCount(0);
+    await expect(page.locator(".mobile-jump")).toHaveCount(0);
 
     await page.locator('button[data-action="set-mode"][data-mode="pro"]').click();
     await expect(page.locator('select[name="riskAppetite"]')).toHaveValue("High");
     await expect(page.locator(".range-group").first().locator(".status-pill")).toHaveText("Auto");
     await expect(page.locator('input[name="asset:equities"]')).toBeEnabled();
+    await expect(page.locator(".logic-summary")).toContainText("Auto logic");
   });
 
   test("shows maximum equity warning only once until risk appetite changes", async ({ page }) => {
