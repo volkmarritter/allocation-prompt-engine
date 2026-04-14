@@ -142,7 +142,7 @@ const uiText = {
     baseCurrency: "Basiswährung",
     exchangeFocus: "Börsenfokus",
     parameters: "Parameter",
-    appMode: "App-Modus",
+    appMode: "App Mode",
     basicMode: "Basic",
     proMode: "Pro",
     basicModeSummary: "Basic-Modus hält erweiterte Parameter automatisch.",
@@ -948,11 +948,10 @@ function render() {
               </div>
               <div class="preset-grid">${portfolioPresets.map(renderPresetButton).join("")}</div>
               <div class="strategy-context"><span>${escapeHtml(t.presetContext)}</span><strong>${renderStrategyContextValue()}</strong></div>
-            </div>
-
-            <div class="parameter-badges">
-              ${renderAssetClassBadge(stats)}
-              ${renderEquityRegionBadge(stats)}
+              <div class="parameter-badges">
+                ${renderAssetClassBadge(stats)}
+                ${renderEquityRegionBadge(stats)}
+              </div>
             </div>
 
             ${basicMode ? renderBasicModeSummary() : `

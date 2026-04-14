@@ -35,8 +35,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".equity-region-pill .region-sparkline i")).toHaveCount(5);
     await expect(page.locator(".equity-region-pill .region-sparkline").locator("xpath=following-sibling::*[1]")).toHaveText("5 equity regions");
     await expect(page.locator(".parameter-badges")).toBeVisible();
-    await expect(page.locator(".preset-section").locator("xpath=following-sibling::*[1]")).toHaveClass(/parameter-badges/);
-    await expect(page.locator(".parameter-badges").locator("xpath=following-sibling::*[1]")).toContainText("Risk appetite");
+    await expect(page.locator(".preset-section .parameter-badges")).toBeVisible();
+    await expect(page.locator(".preset-section").locator("xpath=following-sibling::*[1]")).toContainText("Risk appetite");
     await expect(page.locator(".quality-card")).toHaveCount(0);
     await expect(page.locator(".logic-summary")).toContainText("Auto logic");
     await expect(page.locator(".strategy-context")).toContainText("Growth");
@@ -71,7 +71,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
 
     await page.locator('select[name="outputLanguage"]').selectOption("German");
 
-    await expect(page.locator(".mode-switch-wrap")).toContainText("App-Modus");
+    await expect(page.locator(".mode-switch-wrap")).toContainText("App Mode");
     await expect(page.locator(".field-label", { hasText: /^Risikoappetit$/ })).toBeVisible();
     await expect(page.locator(".field-label", { hasText: /^Anlagehorizont$/ })).toBeVisible();
     await expect(page.locator('select[name="outputLanguage"]')).toContainText("Englisch");
