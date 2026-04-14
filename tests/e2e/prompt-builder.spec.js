@@ -332,15 +332,15 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".output-box")).toContainText("Target 5-9 positions");
 
     await page.locator('input[name="asset:equities"]').click();
-    await expect(page.locator(".etf-count-group")).toContainText("1 to 4");
-    await expect(page.locator(".output-box")).toContainText("Target 1-4 positions");
+    await expect(page.locator(".etf-count-group")).toContainText("2 to 4");
+    await expect(page.locator(".output-box")).toContainText("Target 2-4 positions");
 
     await page.locator('button[data-step-target="minEtfs"][data-step-direction="1"]').click();
-    await expect(page.locator(".etf-count-group")).toContainText("2 to 4");
+    await expect(page.locator(".etf-count-group")).toContainText("3 to 4");
     await expect(page.locator(".etf-count-group").locator(".status-pill")).toHaveText("Manual");
 
     await page.locator('input[name="asset:crypto"]').click();
-    await expect(page.locator(".etf-count-group")).toContainText("2 to 4");
+    await expect(page.locator(".etf-count-group")).toContainText("3 to 4");
 
     await page.locator('button[data-action="restore-etf-auto"]').click();
     await expect(page.locator(".etf-count-group")).toContainText("1 to 3");

@@ -301,7 +301,7 @@ function createDefaultState() {
     if (defaultPreset.assetClasses) {
       Object.assign(next.assetClasses, defaultPreset.assetClasses);
     }
-    const [minEtfs, maxEtfs] = getAutomaticEtfCount(next.assetClasses);
+    const [minEtfs, maxEtfs] = getAutomaticEtfCount(next.assetClasses, next.baseCurrency);
     next.minEtfs = minEtfs;
     next.maxEtfs = maxEtfs;
   }
@@ -609,15 +609,6 @@ function getAdditionalLogicAlerts(changedName = "") {
     });
   }
 
-  if (state.includeSyntheticEtfs && !equitiesSelected && ["includeSyntheticEtfs", "asset:equities"].includes(changedName)) {
-    alerts.push({
-      key: "synthetic-etfs-without-equities",
-      message: german
-        ? "Die Beurteilung synthetischer ETFs ist vor allem bei Aktienexposure, insbesondere US-Aktien, relevant. Ohne Aktien kann diese Anforderung weniger passend sein."
-        : "Synthetic ETF assessment is mainly relevant for equity exposure, especially US equities. Without equities, this requirement may be less useful.",
-    });
-  }
-
   if (selectedAssetClasses.length && minEtfs < minEtfsForAssetClasses && shouldCheckEtfCoverage(changedName)) {
     alerts.push({
       key: `etf-coverage-${state.baseCurrency}-${minEtfs}-${minEtfsForAssetClasses}-${selectedAssetClasses.map((option) => option.id).join("-")}`,
@@ -637,9 +628,9 @@ function shouldCheckEtfCoverage(changedName = "") {
   return changedName.startsWith("asset:") || ["minEtfs", "maxEtfs", "baseCurrency"].includes(changedName);
 }
 
-function getMinimumEtfsForSelectedAssetClasses() {
-  const selectedCount = getSelectedAssetClasses().length;
-  const chEquityAddOn = state.baseCurrency === "CHF" && state.assetClasses.equities ? 1 : 0;
+function getMinimumEtfsForSelectedAssetClasses(assetClasses = state.assetClasses, baseCurrency = state.baseCurrency) {
+  const selectedCount = assetClassOptions.filter((option) => assetClasses[option.id]).length;
+  const chEquityAddOn = baseCurrency === "CHF" && assetClasses.equities ? 1 : 0;
   return selectedCount + chEquityAddOn;
 }
 
@@ -1559,17 +1550,17 @@ function getNextEtfCount(key, value) {
 function applyAutomaticEtfCountFromAssetClasses() {
   if (state.etfCountManuallyAdjusted) return;
 
-  const [minEtfs, maxEtfs] = getAutomaticEtfCount(state.assetClasses);
+  const [minEtfs, maxEtfs] = getAutomaticEtfCount(state.assetClasses, state.baseCurrency);
   state.minEtfs = minEtfs;
   state.maxEtfs = maxEtfs;
 }
 
-function getAutomaticEtfCount(assetClasses) {
+function getAutomaticEtfCount(assetClasses, baseCurrency = defaultBaseCurrency) {
   const reduction = assetClassOptions.reduce((total, option) => {
     if (assetClasses[option.id]) return total;
     return total + (option.id === "equities" ? 5 : 1);
   }, 0);
-  const minEtfs = Math.max(1, defaults.minEtfs - reduction);
+  const minEtfs = Math.max(getMinimumEtfsForSelectedAssetClasses(assetClasses, baseCurrency), defaults.minEtfs - reduction);
   const maxEtfs = Math.max(minEtfs, defaults.maxEtfs - reduction);
   return [minEtfs, maxEtfs];
 }

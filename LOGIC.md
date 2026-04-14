@@ -86,7 +86,7 @@ Solange der Nutzer die ETF-Zielanzahl nicht manuell geändert hat:
 
 - Jede abgewählte Nicht-Aktien-Anlageklasse reduziert Minimum und Maximum um `1`.
 - Wenn `Equities` abgewählt wird, reduziert dies Minimum und Maximum um `5`.
-- Die minimale ETF-Anzahl wird nie unter `1` gesetzt.
+- Die minimale ETF-Anzahl wird nie unter die Zahl der ausgewählten Anlageklassen gesetzt; bei `CHF` und ausgewählten Aktien wird eine zusätzliche Schweiz-Position als Mindestwert eingerechnet.
 - Das Maximum wird nie kleiner als das Minimum.
 
 Wenn der Nutzer die ETF-Zielanzahl über Plus-/Minus-Buttons manuell ändert:
@@ -236,12 +236,6 @@ Wenn `Bonds` abgewählt ist und `Investment horizon` `>=3 years` ist:
 Wenn Output Section `E) Top 10 look-through holdings` aktiv ist, aber die Look-through-Instruktion deaktiviert wird:
 
 - Warnung, dass die erwartete Ausgabe weniger eindeutig sein kann.
-
-### Synthetic ETF Assessment ohne Equities
-
-Wenn `Synthetic ETF assessment` aktiv ist, aber `Equities` abgewählt wird:
-
-- Warnung, dass diese Anforderung vor allem bei Aktienexposure, insbesondere US-Aktien, relevant ist.
 
 ### Mindestanzahl ETFs relativ zu Anlageklassen
 

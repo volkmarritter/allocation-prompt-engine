@@ -370,7 +370,7 @@ test("moderate and higher risk profiles warn when equities are deselected", () =
   assert.equal(result[5], 2);
 });
 
-test("additional logic checks warn for crypto, bond, look-through, and synthetic ETF conflicts", () => {
+test("additional logic checks warn for crypto, bond, and look-through conflicts", () => {
   const context = createContext();
   reset(context);
 
@@ -396,16 +396,27 @@ test("additional logic checks warn for crypto, bond, look-through, and synthetic
       alerts = getAdditionalLogicAlerts("includeLookThrough").map((alert) => alert.key);
       const lookThroughMismatch = alerts.includes("look-through-section-without-instruction");
 
-      state.includeSyntheticEtfs = true;
-      state.assetClasses.equities = false;
-      alerts = getAdditionalLogicAlerts("asset:equities").map((alert) => alert.key);
-      const syntheticWithoutEquities = alerts.includes("synthetic-etfs-without-equities");
-
-      [cryptoDefensive, cryptoNoRebalancing, noBondsShortHorizon, lookThroughMismatch, syntheticWithoutEquities];
+      [cryptoDefensive, cryptoNoRebalancing, noBondsShortHorizon, lookThroughMismatch];
     `
   );
 
-  assert.deepEqual(Array.from(result), [true, true, true, true, true]);
+  assert.deepEqual(Array.from(result), [true, true, true, true]);
+});
+
+test("deselecting equities does not warn about synthetic ETF assessment", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.includeSyntheticEtfs = true;
+      state.assetClasses.equities = false;
+      getAdditionalLogicAlerts("asset:equities").map((alert) => alert.key);
+    `
+  );
+
+  assert.equal(Array.from(result).includes("synthetic-etfs-without-equities"), false);
 });
 
 test("ETF coverage check compares minimum ETF count with selected asset classes and CHF add-on", () => {
@@ -665,9 +676,33 @@ test("ETF count follows deselected asset classes until manually changed", () => 
 
   assert.deepEqual(Array.from(result[0]), [6, 10]);
   assert.deepEqual(Array.from(result[1]), [5, 9]);
-  assert.deepEqual(Array.from(result[2]), [1, 4]);
-  assert.deepEqual(Array.from(result[3]), [1, 4]);
+  assert.deepEqual(Array.from(result[2]), [2, 4]);
+  assert.deepEqual(Array.from(result[3]), [2, 4]);
   assert.deepEqual(Array.from(result[4]), [6, 10, false]);
+});
+
+test("ETF count keeps a coverage floor when equities are deselected from strategies", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      portfolioPresets.map((preset) => {
+        applyPreset(preset.id);
+        state.assetClasses.equities = false;
+        applyAutomaticEtfCountFromAssetClasses();
+        return [preset.id, state.minEtfs, state.maxEtfs, state.etfCountManuallyAdjusted];
+      });
+    `
+  );
+
+  assert.deepEqual(Array.from(result, (item) => Array.from(item)), [
+    ["conservative", 3, 5, false],
+    ["balanced", 3, 5, false],
+    ["growth", 4, 6, false],
+    ["aggressive", 4, 6, false],
+  ]);
 });
 
 test("min and max equity weights are bounded against each other", () => {

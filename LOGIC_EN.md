@@ -86,7 +86,7 @@ As long as the user has not manually changed the ETF target count:
 
 - Each deselected non-equity asset class reduces both minimum and maximum by `1`.
 - Deselecting `Equities` reduces both minimum and maximum by `5`.
-- The minimum ETF count is never set below `1`.
+- The minimum ETF count is never set below the number of selected asset classes; for `CHF` portfolios with equities, one additional Swiss equity position is included in that minimum.
 - The maximum is never smaller than the minimum.
 
 If the user changes the ETF target count with the plus/minus controls:
@@ -236,12 +236,6 @@ If `Bonds` are deselected and `Investment horizon` is `>=3 years`:
 If output section `E) Top 10 look-through holdings` is active but the look-through instruction is disabled:
 
 - Warning that the expected response may become less explicit.
-
-### Synthetic ETF Assessment Without Equities
-
-If `Synthetic ETF assessment` is active but `Equities` is deselected:
-
-- Warning that this requirement is mainly relevant for equity exposure, especially US equities.
 
 ### Minimum ETF Count Relative to Asset Classes
 
