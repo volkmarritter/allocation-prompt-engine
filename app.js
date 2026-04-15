@@ -17,7 +17,7 @@ const outputSections = [
   { id: "g" },
 ];
 
-const appVersion = "0.7";
+const appVersion = "2.0";
 const appUpdated = "April 2026";
 const promptBuilderConfig = typeof window !== "undefined" && window.PROMPT_BUILDER_CONFIG
   ? window.PROMPT_BUILDER_CONFIG
@@ -1159,23 +1159,23 @@ function renderQuickStartPanel(introMode = false) {
       </div>
       <div class="quick-start-grid">
         <label class="field-group quick-start-language">
-          <span class="field-label">${escapeHtml(t.language)}</span>
+          ${renderQuickStartLabel(t.language, isGerman() ? "Start" : "Start")}
           <select class="select" name="outputLanguage">${renderOptions(["English", "German"], state.outputLanguage, getLanguageOptionLabels())}</select>
         </label>
         <label class="field-group">
-          <span class="field-label">${escapeHtml(t.quickBaseCurrency)}</span>
+          ${renderQuickStartLabel(t.quickBaseCurrency)}
           <select class="select" name="quickStart.baseCurrency">${renderOptions(baseCurrencyOptions, quick.baseCurrency)}</select>
         </label>
         <label class="field-group">
-          <span class="field-label">${escapeHtml(t.quickInvestmentHorizon)}</span>
+          ${renderQuickStartLabel(t.quickInvestmentHorizon)}
           <select class="select" name="quickStart.investmentHorizon">${renderOptions([">=3 years", ">=5 years", ">=10 years"], quick.investmentHorizon, getHorizonOptionLabels())}</select>
         </label>
         <label class="field-group">
-          <span class="field-label">${escapeHtml(t.quickRiskAppetite)}</span>
+          ${renderQuickStartLabel(t.quickRiskAppetite)}
           <select class="select" name="quickStart.riskAppetite">${renderOptions(["Low", "Moderate", "High", "Very high"], quick.riskAppetite, getRiskOptionLabels())}</select>
         </label>
         <label class="field-group">
-          <span class="field-label">${escapeHtml(t.quickAppMode)}</span>
+          ${renderQuickStartLabel(t.quickAppMode)}
           <select class="select" name="quickStart.promptMode">${renderOptions(["basic", "pro"], quick.promptMode || "basic", { basic: t.basicMode, pro: t.proMode })}</select>
         </label>
       </div>
@@ -1187,6 +1187,18 @@ function renderQuickStartPanel(introMode = false) {
         <button class="button quick-start-button" type="button" data-action="apply-quick-start">${escapeHtml(t.quickStartButton)}</button>
       </div>
     </section>
+  `;
+}
+
+function renderQuickStartLabel(label, fallbackStep = "") {
+  const match = String(label).match(/^(\d+)\.\s*(.+)$/);
+  const step = match ? match[1] : fallbackStep;
+  const text = match ? match[2] : label;
+  return `
+    <span class="field-label quick-step-label">
+      ${step ? `<span class="quick-step-number">${escapeHtml(step)}</span>` : ""}
+      <span class="quick-step-text">${escapeHtml(text)}</span>
+    </span>
   `;
 }
 

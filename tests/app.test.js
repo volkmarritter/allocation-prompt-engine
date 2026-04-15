@@ -1292,7 +1292,7 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.equal(html.indexOf("asset-section") < html.indexOf("mobile-jump"), true);
   assert.equal(html.indexOf("mobile-jump") < html.indexOf("output-section"), true);
   assert.doesNotMatch(html, /quality-card/);
-  assert.match(html, /Version 0\.7/);
+  assert.match(html, /Version 2\.0/);
   assert.match(html, /How to use the generated prompt/);
   assert.match(html, /Structured portfolio prompts for faster investment research/);
 });

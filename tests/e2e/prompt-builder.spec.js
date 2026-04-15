@@ -64,7 +64,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator('.ai-tool-link[href="claude://"]')).toHaveText("Claude app");
     await expect(page.locator('.ai-tool-link[href="whatsapp://send"]')).toHaveText("WhatsApp");
     await expect(page.locator(".app-disclaimer")).toContainText("Disclaimer");
-    await expect(page.locator(".version-note")).toContainText("Version 0.7");
+    await expect(page.locator(".version-note")).toContainText("Version 2.0");
     await page.locator('select[name="baseCurrency"]').selectOption("EUR");
     await expect(page.locator(".equity-region-pill")).toContainText("4 equity regions");
     await expect(page.locator(".equity-region-pill .region-sparkline i")).toHaveCount(4);
