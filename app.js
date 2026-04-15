@@ -58,7 +58,8 @@ const uiText = {
     quickStartCopy: "Answer three questions and start from a sensible strategy preset. You can refine everything afterwards.",
     quickBaseCurrency: "1. Base currency",
     quickInvestmentHorizon: "2. Investment horizon",
-    quickRiskAppetite: "3. Risk comfort",
+    quickRiskAppetite: "3. Risk appetite",
+    quickAppMode: "4. App mode",
     quickRecommended: "Recommended strategy",
     quickStartButton: "Apply and open builder",
     appMode: "App mode",
@@ -123,7 +124,7 @@ const uiText = {
     installedAppsDisclaimer: "App buttons use local links and only work when the app is installed and your browser allows opening it. WhatsApp opens WhatsApp, not a guaranteed Meta AI chat.",
     copied: "Copied",
     copyFailed: "Copy failed",
-    resetDefaults: "Reset defaults:",
+    resetDefaults: "Reset original strategy:",
     promptOutput: "Prompt output",
     outputSectionsIncluded: "output sections included",
     targetEtfPositions: "target ETF positions",
@@ -162,7 +163,8 @@ const uiText = {
     quickStartCopy: "Beantworte drei Fragen und starte mit einem passenden Strategie-Preset. Danach kannst du alles verfeinern.",
     quickBaseCurrency: "1. Basiswährung",
     quickInvestmentHorizon: "2. Anlagehorizont",
-    quickRiskAppetite: "3. Risikokomfort",
+    quickRiskAppetite: "3. Risikoappetit",
+    quickAppMode: "4. App Mode",
     quickRecommended: "Empfohlene Strategie",
     quickStartButton: "Übernehmen und Builder öffnen",
     appMode: "App Mode",
@@ -227,7 +229,7 @@ const uiText = {
     installedAppsDisclaimer: "App-Buttons nutzen lokale Links und funktionieren nur, wenn die App installiert ist und der Browser das Öffnen erlaubt. WhatsApp öffnet WhatsApp, aber nicht garantiert einen Meta-AI-Chat.",
     copied: "Kopiert",
     copyFailed: "Kopieren fehlgeschlagen",
-    resetDefaults: "Zurücksetzen:",
+    resetDefaults: "Originalstrategie zurücksetzen:",
     promptOutput: "Prompt-Ausgabe",
     outputSectionsIncluded: "Ausgabeabschnitte enthalten",
     targetEtfPositions: "Zielanzahl\nETF-Positionen",
@@ -273,6 +275,7 @@ const defaults = {
     baseCurrency: defaultBaseCurrency,
     investmentHorizon: ">=10 years",
     riskAppetite: "High",
+    promptMode: "basic",
   },
   builderStarted: false,
   outputLanguage: "English",
@@ -299,6 +302,8 @@ const installedAiAppLinks = [
   { label: "WhatsApp", url: "whatsapp://send" },
 ];
 
+let sessionDefaultPresetId = defaultPresetId;
+let sessionDefaultBaseCurrency = defaultBaseCurrency;
 let state = createDefaultState();
 let copyResetTimer = null;
 let lastRiskHorizonAlertKey = "";
@@ -319,7 +324,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function createDefaultState() {
   const next = JSON.parse(JSON.stringify(defaults));
-  const defaultPreset = portfolioPresets.find((preset) => preset.id === defaultPresetId);
+  const defaultPreset = portfolioPresets.find((preset) => preset.id === sessionDefaultPresetId);
+  next.baseCurrency = sessionDefaultBaseCurrency;
+  next.exchange = defaultExchangeByCurrency[sessionDefaultBaseCurrency] || exchangeOptions[0] || defaults.exchange;
   if (defaultPreset) {
     Object.assign(next, {
       riskAppetite: defaultPreset.riskAppetite,
@@ -338,6 +345,7 @@ function createDefaultState() {
     baseCurrency: next.baseCurrency,
     investmentHorizon: next.investmentHorizon,
     riskAppetite: next.riskAppetite,
+    promptMode: "basic",
   };
   return next;
 }
@@ -384,14 +392,14 @@ function getActivePreset() {
 }
 
 function getDefaultPreset() {
-  return portfolioPresets.find((preset) => preset.id === defaultPresetId) || portfolioPresets[0] || null;
+  return portfolioPresets.find((preset) => preset.id === sessionDefaultPresetId) || portfolioPresets[0] || null;
 }
 
 function getResetDefaultsLabel() {
   const t = uiText[state.outputLanguage];
   const preset = getDefaultPreset();
   const presetLabel = preset ? (isGerman() ? preset.deLabel : preset.label) : t.customStrategy;
-  return `${t.resetDefaults} ${presetLabel} ${defaultBaseCurrency}`;
+  return `${t.resetDefaults} ${presetLabel} ${sessionDefaultBaseCurrency}`;
 }
 
 function getPresetContextText() {
@@ -973,8 +981,8 @@ function render() {
                 </div>
                 <button class="details-toggle" type="button" data-action="toggle-preset-details" aria-expanded="${showPresetDetails ? "true" : "false"}">${escapeHtml(showPresetDetails ? t.hideDetails : t.details)}</button>
               </div>
-              <div class="preset-grid">${portfolioPresets.map(renderPresetButton).join("")}</div>
               <div class="strategy-context"><span>${escapeHtml(t.presetContext)}</span><strong>${renderStrategyContextValue()}</strong></div>
+              <div class="preset-grid">${portfolioPresets.map(renderPresetButton).join("")}</div>
               <div class="parameter-badges">
                 ${renderAssetClassBadge(stats)}
                 ${renderEquityRegionBadge(stats)}
@@ -1140,7 +1148,7 @@ function renderQuickStartPanel(introMode = false) {
   const quick = state.quickStart || defaults.quickStart;
   const preset = getQuickStartPreset(quick);
   const presetLabel = preset ? (isGerman() ? preset.deLabel : preset.label) : t.customStrategy;
-  const equityRange = preset ? `${preset.equityMin}-${preset.equityMax}%` : "";
+  const equityRange = preset ? `${preset.equityMin}-${preset.equityMax}% ${isGerman() ? "Aktien" : "equity"}` : "";
 
   return `
     <section class="panel quick-start-panel ${introMode ? "quick-start-intro" : ""}" aria-label="${escapeAttribute(t.quickStartTitle)}">
@@ -1165,6 +1173,10 @@ function renderQuickStartPanel(introMode = false) {
         <label class="field-group">
           <span class="field-label">${escapeHtml(t.quickRiskAppetite)}</span>
           <select class="select" name="quickStart.riskAppetite">${renderOptions(["Low", "Moderate", "High", "Very high"], quick.riskAppetite, getRiskOptionLabels())}</select>
+        </label>
+        <label class="field-group">
+          <span class="field-label">${escapeHtml(t.quickAppMode)}</span>
+          <select class="select" name="quickStart.promptMode">${renderOptions(["basic", "pro"], quick.promptMode || "basic", { basic: t.basicMode, pro: t.proMode })}</select>
         </label>
       </div>
       <div class="quick-start-result">
@@ -1455,7 +1467,9 @@ function handleInputChange(event) {
     render();
     return;
   }
-  activePresetId = null;
+  if (name !== "outputLanguage") {
+    activePresetId = null;
+  }
   if (name.startsWith("asset:")) {
     if (isBasicMode() && name === "asset:equities" && !checked) {
       state.assetClasses.equities = true;
@@ -1581,8 +1595,8 @@ function handleClick(event) {
   }
   if (action === "reset") {
     activeStatusInfoKey = "";
-    activePresetId = defaultPresetId;
-    lastChosenPresetId = defaultPresetId;
+    activePresetId = sessionDefaultPresetId;
+    lastChosenPresetId = sessionDefaultPresetId;
     state = createDefaultState();
     state.builderStarted = true;
     render();
@@ -1652,8 +1666,11 @@ function applyQuickStart() {
   const preset = getQuickStartPreset(quick);
   if (preset) {
     applyPreset(preset.id);
+    sessionDefaultPresetId = preset.id;
   }
+  sessionDefaultBaseCurrency = quick.baseCurrency;
   state.baseCurrency = quick.baseCurrency;
+  state.promptMode = quick.promptMode === "pro" ? "pro" : "basic";
   state.exchangeManuallyAdjusted = false;
   applyExchangeForBaseCurrency(state.baseCurrency);
   if (isBasicMode()) {

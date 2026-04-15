@@ -66,7 +66,10 @@ function reset(context) {
       lastEquityAssetAlertKey = "";
       lastAdditionalLogicAlertKey = "";
       activePresetId = defaultPresetId;
+      lastChosenPresetId = defaultPresetId;
       window.__alerts = [];
+      sessionDefaultPresetId = defaultPresetId;
+      sessionDefaultBaseCurrency = defaultBaseCurrency;
     `
   );
 }
@@ -932,6 +935,8 @@ test("quick start recommends a coherent preset and applies it", () => {
         state.equityMin,
         state.equityMax,
         state.exchangeManuallyAdjusted,
+        getResetDefaultsLabel(),
+        state.promptMode,
       ];
     `
   );
@@ -947,6 +952,77 @@ test("quick start recommends a coherent preset and applies it", () => {
     40,
     60,
     false,
+    "Reset original strategy: Balanced EUR",
+    "basic",
+  ]);
+});
+
+test("quick start app mode controls the opened builder mode", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.quickStart = { baseCurrency: "CHF", investmentHorizon: ">=10 years", riskAppetite: "High", promptMode: "basic" };
+      applyQuickStart();
+      const basicResult = [
+        state.promptMode,
+        state.assetClasses.equities,
+        getSelectedSections().length,
+        state.includeLookThrough,
+      ];
+      state = createDefaultState();
+      activePresetId = defaultPresetId;
+      lastChosenPresetId = defaultPresetId;
+      state.quickStart = { baseCurrency: "CHF", investmentHorizon: ">=10 years", riskAppetite: "High", promptMode: "pro" };
+      applyQuickStart();
+      [basicResult, state.promptMode, state.equityMin, state.equityMax];
+    `
+  );
+
+  assert.deepEqual(Array.from(result[0]), ["basic", true, 7, true]);
+  assert.deepEqual(Array.from(result.slice(1)), ["pro", 60, 80]);
+});
+
+test("quick start strategy becomes the reset default for the builder session", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.quickStart = { baseCurrency: "EUR", investmentHorizon: ">=5 years", riskAppetite: "High" };
+      applyQuickStart();
+      state.baseCurrency = "USD";
+      state.riskAppetite = "Low";
+      state.exchange = "LSE London Stock Exchange";
+      state.equityMin = 20;
+      state.equityMax = 40;
+      activePresetId = null;
+      state = createDefaultState();
+      [
+        state.baseCurrency,
+        state.exchange,
+        activePresetId,
+        getDefaultPreset().id,
+        state.riskAppetite,
+        state.investmentHorizon,
+        state.equityMin,
+        state.equityMax,
+      ];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [
+    "EUR",
+    "XETRA Deutsche Börse",
+    null,
+    "balanced",
+    "Moderate",
+    ">=5 years",
+    40,
+    60,
   ]);
 });
 
@@ -965,12 +1041,13 @@ test("quick start defaults follow the configured default preset", () => {
         state.quickStart.baseCurrency,
         state.quickStart.riskAppetite,
         state.quickStart.investmentHorizon,
+        state.quickStart.promptMode,
         getQuickStartPreset().id,
       ];
     `
   );
 
-  assert.deepEqual(Array.from(result), ["EUR", "Moderate", ">=5 years", "EUR", "Moderate", ">=5 years", "balanced"]);
+  assert.deepEqual(Array.from(result), ["EUR", "Moderate", ">=5 years", "EUR", "Moderate", ">=5 years", "basic", "balanced"]);
 });
 
 test("basic mode auto-selects required defaults and locks equities", () => {
@@ -1131,7 +1208,27 @@ test("reset button label follows configured default preset and base currency", (
     `
   );
 
-  assert.deepEqual(Array.from(result), ["Reset defaults: Balanced EUR", "Zurücksetzen: Ausgewogen EUR"]);
+  assert.deepEqual(Array.from(result), ["Reset original strategy: Balanced EUR", "Originalstrategie zurücksetzen: Ausgewogen EUR"]);
+});
+
+test("language changes do not switch the current strategy to custom", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      applyPreset("growth");
+      const before = getPresetContextParts()[0];
+      handleInputChange({ target: { name: "outputLanguage", type: "select-one", value: "German" } });
+      const afterGerman = getPresetContextParts()[0];
+      handleInputChange({ target: { name: "outputLanguage", type: "select-one", value: "English" } });
+      const afterEnglish = getPresetContextParts()[0];
+      [before, afterGerman, afterEnglish];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), ["Growth:", "Wachstum:", "Growth:"]);
 });
 
 test("render includes presets, demo, and marketing sections", () => {
@@ -1188,7 +1285,7 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /Very high · &gt;=10 years ·/);
   assert.match(html, /80-100% equity/);
   assert.doesNotMatch(html, /show-preset-details/);
-  assert.equal(html.indexOf("preset-grid") < html.indexOf("strategy-context"), true);
+  assert.equal(html.indexOf("strategy-context") < html.indexOf("preset-grid"), true);
   assert.equal(html.indexOf("strategy-context") < html.indexOf("parameter-badges"), true);
   assert.equal(html.indexOf("parameter-badges") < html.indexOf('name="riskAppetite"'), true);
   assert.match(html, /Jump to prompt/);
@@ -1225,6 +1322,8 @@ test("initial render shows quick start before the builder", () => {
   assert.match(html, /name="quickStart\.baseCurrency"/);
   assert.match(html, /name="quickStart\.investmentHorizon"/);
   assert.match(html, /name="quickStart\.riskAppetite"/);
+  assert.match(html, /name="quickStart\.promptMode"/);
+  assert.match(html, /<option value="basic" selected>Basic<\/option>/);
   assert.doesNotMatch(html, /class="hero"/);
   assert.doesNotMatch(html, /hero-aside/);
   assert.doesNotMatch(html, /controls-panel/);
