@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">Allocation Compass logo</title>
+  <desc id="desc">A segmented portfolio circle with a compass pointer for the Portfolio Prompt Builder.</desc>
+  <defs>
+    <linearGradient id="logo-surface" x1="14" x2="50" y1="10" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f0ebe2" />
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="31" fill="url(#logo-surface)" stroke="rgba(24, 24, 24, 0.14)" stroke-width="1.5" />
+  <circle cx="32" cy="32" r="24" fill="none" stroke="#30302b" stroke-opacity="0.78" stroke-width="3.2" />
+  <path d="M32 8v24l17 17" fill="none" stroke="#8b6f47" stroke-opacity="0.72" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M32 32H8" fill="none" stroke="#181818" stroke-opacity="0.28" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M32 32l15-20" fill="none" stroke="#5e4b2f" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="32" cy="32" r="3.5" fill="#5e4b2f" />
+</svg>

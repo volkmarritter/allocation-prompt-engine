@@ -935,7 +935,7 @@ function render() {
       ${state.builderStarted ? `
       <section class="hero">
         <div class="hero-copy">
-          <span class="eyebrow">${escapeHtml(t.eyebrow)}</span>
+          <span class="eyebrow brand-eyebrow">${renderToolLogo("mini")}${escapeHtml(t.eyebrow)}</span>
           <h1>${escapeHtml(t.headline)}</h1>
           <p>${escapeHtml(t.heroCopy)}</p>
         </div>
@@ -1153,7 +1153,7 @@ function renderQuickStartPanel(introMode = false) {
   return `
     <section class="panel quick-start-panel ${introMode ? "quick-start-intro" : ""}" aria-label="${escapeAttribute(t.quickStartTitle)}">
       <div class="quick-start-copy">
-        <span class="panel-label">${escapeHtml(t.quickStartTitle)}</span>
+        <span class="tool-mark-row">${renderToolLogo()}<span class="panel-label">${escapeHtml(t.eyebrow)}</span></span>
         <h2>${escapeHtml(t.quickStartTitle)}</h2>
         <p>${escapeHtml(t.quickStartCopy)}</p>
       </div>
@@ -1187,6 +1187,20 @@ function renderQuickStartPanel(introMode = false) {
         <button class="button quick-start-button" type="button" data-action="apply-quick-start">${escapeHtml(t.quickStartButton)}</button>
       </div>
     </section>
+  `;
+}
+
+function renderToolLogo(size = "default") {
+  return `
+    <span class="tool-logo ${size === "mini" ? "tool-logo-mini" : ""}" aria-hidden="true">
+      <svg viewBox="0 0 64 64" focusable="false">
+        <circle class="tool-logo-ring" cx="32" cy="32" r="24"></circle>
+        <path class="tool-logo-segment" d="M32 8v24l17 17"></path>
+        <path class="tool-logo-segment tool-logo-soft" d="M32 32H8"></path>
+        <path class="tool-logo-pointer" d="M32 32l15-20"></path>
+        <circle class="tool-logo-dot" cx="32" cy="32" r="3.5"></circle>
+      </svg>
+    </span>
   `;
 }
 

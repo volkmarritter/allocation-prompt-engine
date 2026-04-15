@@ -73,6 +73,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".hero-aside")).toContainText("Maximum equity weight");
     await expect(page.locator(".hero-aside")).not.toContainText("Exchange focus");
     await expect(page.locator(".hero-aside")).not.toContainText("Prompt mode");
+    await expect(page.locator(".brand-eyebrow .tool-logo-mini")).toBeVisible();
 
     const prompt = await getPrompt(page);
     expect(prompt).toContain("Columns: Asset class | Target weight | ETF name | ISIN");
@@ -151,6 +152,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
 
     await expect(page.locator(".quick-start-panel")).toBeVisible();
     await expect(page.locator(".quick-start-panel")).toContainText("Quick start");
+    await expect(page.locator(".quick-start-panel .tool-logo")).toBeVisible();
     await expect(page.locator(".quick-start-panel").locator('select[name="outputLanguage"]')).toBeVisible();
     await expect(page.locator(".quick-start-panel").locator('select[name="quickStart.promptMode"]')).toHaveValue("basic");
     await page.locator(".quick-start-panel").locator('select[name="outputLanguage"]').selectOption("German");

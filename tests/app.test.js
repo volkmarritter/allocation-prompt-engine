@@ -8,6 +8,8 @@ const configCode = fs.readFileSync(path.join(projectRoot, "config.js"), "utf8");
 const appCode = fs.readFileSync(path.join(projectRoot, "app.js"), "utf8");
 const html = fs.readFileSync(path.join(projectRoot, "index.html"), "utf8");
 const css = fs.readFileSync(path.join(projectRoot, "styles.css"), "utf8");
+const logoSvg = fs.readFileSync(path.join(projectRoot, "allocation-compass-logo.svg"), "utf8");
+const logoWithNameSvg = fs.readFileSync(path.join(projectRoot, "allocation-compass-logo-with-name.svg"), "utf8");
 const packageJson = fs.readFileSync(path.join(projectRoot, "package.json"), "utf8");
 const workflow = fs.readFileSync(path.join(projectRoot, ".github", "workflows", "tests.yml"), "utf8");
 
@@ -87,11 +89,23 @@ test("static entry points are wired", () => {
   assert.match(html, /src="\.\/app\.js"/);
 });
 
+test("allocation compass logo file is available", () => {
+  assert.match(logoSvg, /<svg[^>]+viewBox="0 0 64 64"/);
+  assert.match(logoSvg, /Allocation Compass logo/);
+  assert.match(logoSvg, /M32 32l15-20/);
+  assert.match(logoWithNameSvg, /<svg[^>]+viewBox="0 0 420 96"/);
+  assert.match(logoWithNameSvg, /Portfolio Prompt Builder logo/);
+  assert.match(logoWithNameSvg, />Portfolio Prompt</);
+  assert.match(logoWithNameSvg, />BUILDER</);
+});
+
 test("source files have no replacement characters", () => {
   assert.equal(configCode.includes("\uFFFD"), false);
   assert.equal(appCode.includes("\uFFFD"), false);
   assert.equal(css.includes("\uFFFD"), false);
   assert.equal(html.includes("\uFFFD"), false);
+  assert.equal(logoSvg.includes("\uFFFD"), false);
+  assert.equal(logoWithNameSvg.includes("\uFFFD"), false);
 });
 
 test("source files have no mojibake markers", () => {
@@ -1259,6 +1273,8 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /not a guaranteed Meta AI chat/);
   assert.match(html, /data-info-key="installed-apps"/);
   assert.match(html, /data-app-link="true"/);
+  assert.match(html, /brand-eyebrow/);
+  assert.match(html, /tool-logo-mini/);
   assert.match(html, /class="status-info"/);
   assert.match(html, /Automatically derived from the selected parameters\./);
   assert.match(html, /asset-class-pill/);
@@ -1313,6 +1329,10 @@ test("initial render shows quick start before the builder", () => {
 
   assert.match(html, /class="workspace intro-workspace"/);
   assert.match(html, /class="panel quick-start-panel quick-start-intro"/);
+  assert.match(html, /tool-mark-row/);
+  assert.match(html, /tool-logo/);
+  assert.match(html, /tool-logo-pointer/);
+  assert.match(html, /Portfolio Prompt Builder/);
   assert.match(html, /Quick start/);
   assert.match(html, /data-action="apply-quick-start"/);
   assert.doesNotMatch(html, /data-action="open-builder"/);
