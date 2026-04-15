@@ -5,10 +5,15 @@ const { pathToFileURL } = require("node:url");
 
 const appUrl = pathToFileURL(path.resolve(__dirname, "..", "..", "index.html")).href;
 
-async function openApp(page) {
+async function openApp(page, { openBuilder = true } = {}) {
   await page.goto(appUrl);
   await expect(page.locator("#root")).not.toBeEmpty();
-  await expect(page.getByRole("heading", { name: /Shape the mandate|Mandat definieren/i })).toBeVisible();
+  await expect(page.locator(".quick-start-panel")).toBeVisible();
+  if (openBuilder) {
+    await page.locator('button[data-action="apply-quick-start"]').click();
+    await expect(page.locator(".controls-panel")).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Shape the mandate|Mandat definieren/i })).toBeVisible();
+  }
 }
 
 async function getPrompt(page) {
@@ -135,6 +140,37 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".strategy-context")).toContainText("Custom setup");
     await page.locator('button[data-action="reset"]').click();
     await expect(page.locator(".strategy-context")).toContainText("Growth");
+  });
+
+  test("quick start recommends and applies a coherent strategy", async ({ page }) => {
+    await openApp(page, { openBuilder: false });
+
+    await expect(page.locator(".quick-start-panel")).toBeVisible();
+    await expect(page.locator(".quick-start-panel")).toContainText("Quick start");
+    await expect(page.locator(".quick-start-panel").locator('select[name="outputLanguage"]')).toBeVisible();
+    await page.locator(".quick-start-panel").locator('select[name="outputLanguage"]').selectOption("German");
+    await expect(page.locator(".quick-start-panel")).toContainText("Schnellstart");
+    await expect(page.locator(".quick-start-panel")).toContainText("Übernehmen und Builder öffnen");
+    await page.locator(".quick-start-panel").locator('select[name="outputLanguage"]').selectOption("English");
+    await expect(page.locator(".controls-panel")).toHaveCount(0);
+    await expect(page.locator(".output-panel")).toHaveCount(0);
+    await expect(page.locator(".quick-start-result")).toContainText("Growth");
+
+    await page.locator('select[name="quickStart.baseCurrency"]').selectOption("EUR");
+    await page.locator('select[name="quickStart.investmentHorizon"]').selectOption(">=5 years");
+    await page.locator('select[name="quickStart.riskAppetite"]').selectOption("High");
+
+    await expect(page.locator(".quick-start-result")).toContainText("Balanced");
+    await page.locator('button[data-action="apply-quick-start"]').click();
+
+    await expect(page.locator(".quick-start-panel")).toHaveCount(0);
+    await expect(page.locator(".controls-panel")).toBeVisible();
+    await expect(page.locator('select[name="baseCurrency"]')).toHaveValue("EUR");
+    await expect(page.locator('select[name="exchange"]')).toHaveValue("XETRA Deutsche Börse");
+    await expect(page.locator('select[name="riskAppetite"]')).toHaveValue("Moderate");
+    await expect(page.locator('select[name="investmentHorizon"]')).toHaveValue(">=5 years");
+    await expect(page.locator(".range-group").first()).toContainText("40% to 60%");
+    await expect(page.locator(".strategy-context")).toContainText("Balanced");
   });
 
   test("basic mode collapses advanced controls and keeps required options selected", async ({ page }) => {

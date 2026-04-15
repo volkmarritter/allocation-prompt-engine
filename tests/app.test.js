@@ -535,6 +535,7 @@ test("equity region badge follows base currency and equity selection", () => {
     `
       const root = { innerHTML: "" };
       document.getElementById = () => root;
+      state.builderStarted = true;
       render();
       const chfHtml = root.innerHTML;
       state.baseCurrency = "EUR";
@@ -910,6 +911,68 @@ test("default state is the Growth CHF preset with its asset exclusions", () => {
   assert.deepEqual(Array.from(result), ["CHF", "High", ">=10 years", 60, 80, 7, 11, true, false, true, 5]);
 });
 
+test("quick start recommends a coherent preset and applies it", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.quickStart = { baseCurrency: "EUR", investmentHorizon: ">=5 years", riskAppetite: "High" };
+      const recommended = getQuickStartPreset().id;
+      applyQuickStart();
+      [
+        recommended,
+        state.baseCurrency,
+        state.exchange,
+        activePresetId,
+        lastChosenPresetId,
+        state.riskAppetite,
+        state.investmentHorizon,
+        state.equityMin,
+        state.equityMax,
+        state.exchangeManuallyAdjusted,
+      ];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [
+    "balanced",
+    "EUR",
+    "XETRA Deutsche Börse",
+    "balanced",
+    "balanced",
+    "Moderate",
+    ">=5 years",
+    40,
+    60,
+    false,
+  ]);
+});
+
+test("quick start defaults follow the configured default preset", () => {
+  const customConfig = configCode.replace('defaultPresetId: "growth"', 'defaultPresetId: "balanced"').replace('defaultBaseCurrency: "CHF"', 'defaultBaseCurrency: "EUR"');
+  const context = createContextWithConfig(customConfig);
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      [
+        state.baseCurrency,
+        state.riskAppetite,
+        state.investmentHorizon,
+        state.quickStart.baseCurrency,
+        state.quickStart.riskAppetite,
+        state.quickStart.investmentHorizon,
+        getQuickStartPreset().id,
+      ];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), ["EUR", "Moderate", ">=5 years", "EUR", "Moderate", ">=5 years", "balanced"]);
+});
+
 test("basic mode auto-selects required defaults and locks equities", () => {
   const context = createContext();
   reset(context);
@@ -1001,6 +1064,7 @@ test("basic mode render hides jump and auto logic while labeling summary pills",
     `
       const root = { innerHTML: "" };
       document.getElementById = () => root;
+      state.builderStarted = true;
       setPromptMode("basic");
       render();
       root.innerHTML;
@@ -1079,12 +1143,14 @@ test("render includes presets, demo, and marketing sections", () => {
     `
       const root = { innerHTML: "" };
       document.getElementById = () => root;
+      state.builderStarted = true;
       render();
       root.innerHTML;
     `
   );
 
   assert.match(html, /data-preset="conservative"/);
+  assert.doesNotMatch(html, /quick-start-panel/);
   assert.doesNotMatch(html, /Auto \/ Manual logic/);
   assert.match(html, /data-action="export-txt"/);
   assert.match(html, /data-action="export-md"/);
@@ -1124,7 +1190,7 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.doesNotMatch(html, /show-preset-details/);
   assert.equal(html.indexOf("preset-grid") < html.indexOf("strategy-context"), true);
   assert.equal(html.indexOf("strategy-context") < html.indexOf("parameter-badges"), true);
-  assert.equal(html.indexOf("parameter-badges") < html.indexOf("riskAppetite"), true);
+  assert.equal(html.indexOf("parameter-badges") < html.indexOf('name="riskAppetite"'), true);
   assert.match(html, /Jump to prompt/);
   assert.equal(html.indexOf("asset-section") < html.indexOf("mobile-jump"), true);
   assert.equal(html.indexOf("mobile-jump") < html.indexOf("output-section"), true);
@@ -1132,6 +1198,38 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.match(html, /Version 0\.7/);
   assert.match(html, /How to use the generated prompt/);
   assert.match(html, /Structured portfolio prompts for faster investment research/);
+});
+
+test("initial render shows quick start before the builder", () => {
+  const context = createContext();
+  reset(context);
+
+  const html = run(
+    context,
+    `
+      const root = { innerHTML: "" };
+      document.getElementById = () => root;
+      render();
+      root.innerHTML;
+    `
+  );
+
+  assert.match(html, /class="workspace intro-workspace"/);
+  assert.match(html, /class="panel quick-start-panel quick-start-intro"/);
+  assert.match(html, /Quick start/);
+  assert.match(html, /data-action="apply-quick-start"/);
+  assert.doesNotMatch(html, /data-action="open-builder"/);
+  assert.match(html, /name="outputLanguage"/);
+  assert.match(html, /English/);
+  assert.match(html, /German/);
+  assert.match(html, /name="quickStart\.baseCurrency"/);
+  assert.match(html, /name="quickStart\.investmentHorizon"/);
+  assert.match(html, /name="quickStart\.riskAppetite"/);
+  assert.doesNotMatch(html, /class="hero"/);
+  assert.doesNotMatch(html, /hero-aside/);
+  assert.doesNotMatch(html, /controls-panel/);
+  assert.doesNotMatch(html, /output-panel/);
+  assert.doesNotMatch(html, /support-section/);
 });
 
 test("installed app links ask for the disclaimer before opening", () => {
@@ -1219,6 +1317,7 @@ test("asset class pie badge follows selected asset classes", () => {
     `
       const root = { innerHTML: "" };
       document.getElementById = () => root;
+      state.builderStarted = true;
       render();
       const defaultHtml = root.innerHTML;
       Object.keys(state.assetClasses).forEach((key) => {

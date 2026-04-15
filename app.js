@@ -54,6 +54,13 @@ const uiText = {
     baseCurrency: "Base currency",
     exchangeFocus: "Exchange focus",
     parameters: "Parameters",
+    quickStartTitle: "Quick start",
+    quickStartCopy: "Answer three questions and start from a sensible strategy preset. You can refine everything afterwards.",
+    quickBaseCurrency: "1. Base currency",
+    quickInvestmentHorizon: "2. Investment horizon",
+    quickRiskAppetite: "3. Risk comfort",
+    quickRecommended: "Recommended strategy",
+    quickStartButton: "Apply and open builder",
     appMode: "App mode",
     basicMode: "Basic",
     proMode: "Pro",
@@ -151,6 +158,13 @@ const uiText = {
     baseCurrency: "Basiswährung",
     exchangeFocus: "Börsenfokus",
     parameters: "Parameter",
+    quickStartTitle: "Schnellstart",
+    quickStartCopy: "Beantworte drei Fragen und starte mit einem passenden Strategie-Preset. Danach kannst du alles verfeinern.",
+    quickBaseCurrency: "1. Basiswährung",
+    quickInvestmentHorizon: "2. Anlagehorizont",
+    quickRiskAppetite: "3. Risikokomfort",
+    quickRecommended: "Empfohlene Strategie",
+    quickStartButton: "Übernehmen und Builder öffnen",
     appMode: "App Mode",
     basicMode: "Basic",
     proMode: "Pro",
@@ -255,6 +269,12 @@ const defaults = {
   maxEtfs: defaultMaxEtfs,
   etfCountManuallyAdjusted: false,
   promptMode: "pro",
+  quickStart: {
+    baseCurrency: defaultBaseCurrency,
+    investmentHorizon: ">=10 years",
+    riskAppetite: "High",
+  },
+  builderStarted: false,
   outputLanguage: "English",
   includeHomeBiasGuidance: true,
   includeHedgingQuestion: true,
@@ -314,6 +334,11 @@ function createDefaultState() {
     next.minEtfs = minEtfs;
     next.maxEtfs = maxEtfs;
   }
+  next.quickStart = {
+    baseCurrency: next.baseCurrency,
+    investmentHorizon: next.investmentHorizon,
+    riskAppetite: next.riskAppetite,
+  };
   return next;
 }
 
@@ -899,6 +924,7 @@ function render() {
 
   root.innerHTML = `
     <main class="app-shell">
+      ${state.builderStarted ? `
       <section class="hero">
         <div class="hero-copy">
           <span class="eyebrow">${escapeHtml(t.eyebrow)}</span>
@@ -912,8 +938,11 @@ function render() {
           <div class="hero-stat"><span>${escapeHtml(t.maxEquity)}</span><strong>${escapeHtml(`${state.equityMax}%`)}</strong></div>
         </aside>
       </section>
+      ` : ""}
 
-      <section class="workspace">
+      <section class="workspace ${state.builderStarted ? "" : "intro-workspace"}">
+        ${state.builderStarted ? "" : renderQuickStartPanel(true)}
+        ${state.builderStarted ? `
         <section class="panel controls-panel">
           <div class="panel-header">
             <div class="panel-title">
@@ -1079,7 +1108,9 @@ function render() {
           <div class="app-disclaimer"><span class="disclaimer-mark">i</span><div><strong>${escapeHtml(t.disclaimerTitle)}</strong><span>${escapeHtml(t.disclaimerText)}</span></div></div>
 
         </section>
+        ` : ""}
       </section>
+      ${state.builderStarted ? `
       <section class="support-section">
         <article class="support-block demo-block">
           <div class="panel-label">${escapeHtml(t.demoTitle)}</div>
@@ -1092,6 +1123,7 @@ function render() {
           <ul>${t.marketingBullets.map((bullet) => `<li>${escapeHtml(bullet)}</li>`).join("")}</ul>
         </article>
       </section>
+      ` : ""}
       <div class="version-note">${escapeHtml(t.versionLabel)} ${escapeHtml(appVersion)} · ${escapeHtml(t.updatedLabel)} ${escapeHtml(appUpdated)}</div>
     </main>
   `;
@@ -1101,6 +1133,49 @@ function renderOptions(options, selected, labels = {}) {
   return options
     .map((option) => `<option value="${escapeAttribute(option)}" ${option === selected ? "selected" : ""}>${escapeHtml(labels[option] || option)}</option>`)
     .join("");
+}
+
+function renderQuickStartPanel(introMode = false) {
+  const t = uiText[state.outputLanguage];
+  const quick = state.quickStart || defaults.quickStart;
+  const preset = getQuickStartPreset(quick);
+  const presetLabel = preset ? (isGerman() ? preset.deLabel : preset.label) : t.customStrategy;
+  const equityRange = preset ? `${preset.equityMin}-${preset.equityMax}%` : "";
+
+  return `
+    <section class="panel quick-start-panel ${introMode ? "quick-start-intro" : ""}" aria-label="${escapeAttribute(t.quickStartTitle)}">
+      <div class="quick-start-copy">
+        <span class="panel-label">${escapeHtml(t.quickStartTitle)}</span>
+        <h2>${escapeHtml(t.quickStartTitle)}</h2>
+        <p>${escapeHtml(t.quickStartCopy)}</p>
+      </div>
+      <div class="quick-start-grid">
+        <label class="field-group quick-start-language">
+          <span class="field-label">${escapeHtml(t.language)}</span>
+          <select class="select" name="outputLanguage">${renderOptions(["English", "German"], state.outputLanguage, getLanguageOptionLabels())}</select>
+        </label>
+        <label class="field-group">
+          <span class="field-label">${escapeHtml(t.quickBaseCurrency)}</span>
+          <select class="select" name="quickStart.baseCurrency">${renderOptions(baseCurrencyOptions, quick.baseCurrency)}</select>
+        </label>
+        <label class="field-group">
+          <span class="field-label">${escapeHtml(t.quickInvestmentHorizon)}</span>
+          <select class="select" name="quickStart.investmentHorizon">${renderOptions([">=3 years", ">=5 years", ">=10 years"], quick.investmentHorizon, getHorizonOptionLabels())}</select>
+        </label>
+        <label class="field-group">
+          <span class="field-label">${escapeHtml(t.quickRiskAppetite)}</span>
+          <select class="select" name="quickStart.riskAppetite">${renderOptions(["Low", "Moderate", "High", "Very high"], quick.riskAppetite, getRiskOptionLabels())}</select>
+        </label>
+      </div>
+      <div class="quick-start-result">
+        <span>${escapeHtml(t.quickRecommended)}</span>
+        <strong>${escapeHtml(presetLabel)}${equityRange ? ` · ${escapeHtml(equityRange)}` : ""}</strong>
+      </div>
+      <div class="quick-start-actions">
+        <button class="button quick-start-button" type="button" data-action="apply-quick-start">${escapeHtml(t.quickStartButton)}</button>
+      </div>
+    </section>
+  `;
 }
 
 function renderModeSwitch() {
@@ -1374,6 +1449,12 @@ function handleInputChange(event) {
   const { name, type, value, checked } = event.target;
   if (!name) return;
   activeStatusInfoKey = "";
+  if (name.startsWith("quickStart.")) {
+    const key = name.slice("quickStart.".length);
+    state.quickStart = { ...(state.quickStart || defaults.quickStart), [key]: value };
+    render();
+    return;
+  }
   activePresetId = null;
   if (name.startsWith("asset:")) {
     if (isBasicMode() && name === "asset:equities" && !checked) {
@@ -1432,6 +1513,19 @@ function handleClick(event) {
   const presetId = event.target.closest("[data-preset]")?.getAttribute("data-preset");
   const stepTarget = event.target.getAttribute("data-step-target");
   const stepDirection = Number.parseInt(event.target.getAttribute("data-step-direction"), 10);
+  if (action === "apply-quick-start") {
+    applyQuickStart();
+    state.builderStarted = true;
+    activeStatusInfoKey = "";
+    render();
+    document.querySelector(".controls-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    maybeShowRiskHorizonAlert();
+    maybeShowEquityRiskAlert();
+    maybeShowDefensiveAssetAlert("riskAppetite");
+    maybeShowEquityAssetAlert("riskAppetite");
+    maybeShowAdditionalLogicAlerts("riskAppetite");
+    return;
+  }
   if (action === "set-mode") {
     const nextMode = actionTarget.getAttribute("data-mode") === "basic" ? "basic" : "pro";
     setPromptMode(nextMode);
@@ -1490,6 +1584,7 @@ function handleClick(event) {
     activePresetId = defaultPresetId;
     lastChosenPresetId = defaultPresetId;
     state = createDefaultState();
+    state.builderStarted = true;
     render();
   }
   if (action === "restore-equity-auto") {
@@ -1550,6 +1645,30 @@ function setPromptMode(mode) {
   if (isBasicMode()) {
     applyBasicModeDefaults();
   }
+}
+
+function applyQuickStart() {
+  const quick = state.quickStart || defaults.quickStart;
+  const preset = getQuickStartPreset(quick);
+  if (preset) {
+    applyPreset(preset.id);
+  }
+  state.baseCurrency = quick.baseCurrency;
+  state.exchangeManuallyAdjusted = false;
+  applyExchangeForBaseCurrency(state.baseCurrency);
+  if (isBasicMode()) {
+    applyBasicModeDefaults();
+  }
+}
+
+function getQuickStartPreset(quickStart = state.quickStart || defaults.quickStart) {
+  const riskScores = { Low: 0, Moderate: 1, High: 2, "Very high": 3 };
+  const horizonScores = { ">=3 years": 0, ">=5 years": 1, ">=10 years": 3 };
+  const score = Math.min(riskScores[quickStart.riskAppetite] ?? 2, horizonScores[quickStart.investmentHorizon] ?? 3);
+  const riskByScore = ["Low", "Moderate", "High", "Very high"];
+  return portfolioPresets.find((preset) => preset.riskAppetite === riskByScore[score])
+    || portfolioPresets[Math.min(score, portfolioPresets.length - 1)]
+    || null;
 }
 
 function applyBasicModeDefaults() {
