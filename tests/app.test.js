@@ -1172,7 +1172,8 @@ test("basic mode render hides jump and auto logic while labeling summary pills",
   assert.doesNotMatch(html, /logic-summary/);
   assert.doesNotMatch(html, /data-action="export-txt"/);
   assert.doesNotMatch(html, /data-action="export-md"/);
-  assert.doesNotMatch(html, /data-action="reset"/);
+  assert.match(html, /data-action="reset"/);
+  assert.match(html, /Reset original strategy: Growth CHF/);
 });
 
 test("current strategy follows explicit preset state instead of matching values", () => {
@@ -1309,6 +1310,8 @@ test("render includes presets, demo, and marketing sections", () => {
   assert.equal(html.indexOf("mobile-jump") < html.indexOf("output-section"), true);
   assert.doesNotMatch(html, /quality-card/);
   assert.match(html, /Version 2\.0/);
+  assert.match(html, /© BICon \| Business &amp; IT Consulting – Strategy\. Technology\. Financial Services\./);
+  assert.match(html, /href="https:\/\/bicon\.li\/en"/);
   assert.match(html, /How to use the generated prompt/);
   assert.match(html, /Structured portfolio prompts for faster investment research/);
 });
@@ -1349,6 +1352,28 @@ test("initial render shows quick start before the builder", () => {
   assert.doesNotMatch(html, /controls-panel/);
   assert.doesNotMatch(html, /output-panel/);
   assert.doesNotMatch(html, /support-section/);
+  assert.match(html, /© BICon \| Business &amp; IT Consulting – Strategy\. Technology\. Financial Services\./);
+  assert.match(html, /href="https:\/\/bicon\.li\/en"/);
+});
+
+test("footer link follows the selected language", () => {
+  const context = createContext();
+  reset(context);
+
+  const html = run(
+    context,
+    `
+      const root = { innerHTML: "" };
+      document.getElementById = () => root;
+      state.outputLanguage = "German";
+      render();
+      root.innerHTML;
+    `
+  );
+
+  assert.match(html, /© BICon \| Business &amp; IT Consulting – Strategy\. Technology\. Financial Services\./);
+  assert.match(html, /href="https:\/\/bicon\.li"/);
+  assert.doesNotMatch(html, /href="https:\/\/bicon\.li\/en"/);
 });
 
 test("installed app links ask for the disclaimer before opening", () => {

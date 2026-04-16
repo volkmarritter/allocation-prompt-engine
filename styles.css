@@ -1468,6 +1468,38 @@ button {
   text-align: center;
   text-transform: uppercase;
 }
+
+.app-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.footer-link-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.footer-link-button:hover,
+.footer-link-button:focus-visible {
+  border-color: rgba(139, 111, 71, 0.46);
+  background: var(--accent-soft);
+}
+
 .footer-note {
   margin-top: 18px;
   color: var(--muted);

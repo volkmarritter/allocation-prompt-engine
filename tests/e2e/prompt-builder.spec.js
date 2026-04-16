@@ -65,6 +65,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator('.ai-tool-link[href="whatsapp://send"]')).toHaveText("WhatsApp");
     await expect(page.locator(".app-disclaimer")).toContainText("Disclaimer");
     await expect(page.locator(".version-note")).toContainText("Version 2.0");
+    await expect(page.locator(".app-footer")).toContainText("© BICon | Business & IT Consulting – Strategy. Technology. Financial Services.");
+    await expect(page.locator(".footer-link-button")).toHaveAttribute("href", "https://bicon.li/en");
     await page.locator('select[name="baseCurrency"]').selectOption("EUR");
     await expect(page.locator(".equity-region-pill")).toContainText("4 equity regions");
     await expect(page.locator(".equity-region-pill .region-sparkline i")).toHaveCount(4);
@@ -90,6 +92,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
 
     await expect(page.locator(".mode-switch-wrap")).toContainText("App Mode");
     await expect(page.locator(".strategy-context")).toContainText("Wachstum");
+    await expect(page.locator(".footer-link-button")).toHaveAttribute("href", "https://bicon.li");
     await expect(page.locator(".strategy-context")).not.toContainText("Custom setup");
     await expect(page.locator(".field-label", { hasText: /^Risikoappetit$/ })).toBeVisible();
     await expect(page.locator(".field-label", { hasText: /^Anlagehorizont$/ })).toBeVisible();
@@ -241,7 +244,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".mobile-jump")).toHaveCount(0);
     await expect(page.locator('button[data-action="export-txt"]')).toHaveCount(0);
     await expect(page.locator('button[data-action="export-md"]')).toHaveCount(0);
-    await expect(page.locator('button[data-action="reset"]')).toHaveCount(0);
+    await expect(page.locator('button[data-action="reset"]')).toBeVisible();
+    await expect(page.locator('button[data-action="reset"]')).toContainText("Reset original strategy: Growth CHF");
 
     await page.locator('button[data-action="set-mode"][data-mode="pro"]').click();
     await expect(page.locator('select[name="riskAppetite"]')).toHaveValue("Moderate");

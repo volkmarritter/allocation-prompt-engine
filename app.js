@@ -85,6 +85,8 @@ const uiText = {
     hideDetails: "Hide details",
     versionLabel: "Version",
     updatedLabel: "Updated",
+    copyrightText: "© BICon | Business & IT Consulting – Strategy. Technology. Financial Services.",
+    biconLinkLabel: "bicon.li",
     language: "Language",
     riskAppetite: "Risk appetite",
     investmentHorizon: "Investment horizon",
@@ -190,6 +192,8 @@ const uiText = {
     hideDetails: "Details ausblenden",
     versionLabel: "Version",
     updatedLabel: "Aktualisiert",
+    copyrightText: "© BICon | Business & IT Consulting – Strategy. Technology. Financial Services.",
+    biconLinkLabel: "bicon.li",
     language: "Sprache",
     riskAppetite: "Risikoappetit",
     investmentHorizon: "Anlagehorizont",
@@ -1103,7 +1107,7 @@ function render() {
             <button class="button" type="button" data-action="copy">${escapeHtml(t.copyPrompt)}</button>
             ${basicMode ? "" : `<button class="button-ghost" type="button" data-action="export-txt">${escapeHtml(t.exportTxt)}</button>`}
             ${basicMode ? "" : `<button class="button-ghost" type="button" data-action="export-md">${escapeHtml(t.exportMd)}</button>`}
-            ${basicMode ? "" : `<button class="button-ghost" type="button" data-action="reset">${escapeHtml(getResetDefaultsLabel())}</button>`}
+            <button class="button-ghost" type="button" data-action="reset">${escapeHtml(getResetDefaultsLabel())}</button>
           </div>
           ${renderAiToolLinks(t)}
           <div class="output-meta">${escapeHtml(t.promptOutput)}</div>
@@ -1133,7 +1137,18 @@ function render() {
       </section>
       ` : ""}
       <div class="version-note">${escapeHtml(t.versionLabel)} ${escapeHtml(appVersion)} · ${escapeHtml(t.updatedLabel)} ${escapeHtml(appUpdated)}</div>
+      ${renderFooter(t)}
     </main>
+  `;
+}
+
+function renderFooter(t) {
+  const biconUrl = isGerman() ? "https://bicon.li" : "https://bicon.li/en";
+  return `
+    <footer class="app-footer">
+      <span>${escapeHtml(t.copyrightText)}</span>
+      <a class="footer-link-button" href="${escapeAttribute(biconUrl)}" target="_blank" rel="noopener noreferrer">${escapeHtml(t.biconLinkLabel)}</a>
+    </footer>
   `;
 }
 
