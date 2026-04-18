@@ -17,7 +17,8 @@ function createContext() {
   return createContextWithConfig(configCode);
 }
 
-function createContextWithConfig(configSource) {
+function createContextWithConfig(configSource, initialStorage = {}) {
+  const storage = new Map(Object.entries(initialStorage));
   const context = {
     console,
     setTimeout,
@@ -40,6 +41,17 @@ function createContextWithConfig(configSource) {
       __alerts: [],
       alert(message) {
         this.__alerts.push(String(message));
+      },
+      localStorage: {
+        getItem(key) {
+          return storage.has(key) ? storage.get(key) : null;
+        },
+        setItem(key, value) {
+          storage.set(key, String(value));
+        },
+        removeItem(key) {
+          storage.delete(key);
+        },
       },
       clearTimeout,
       setTimeout,
@@ -1070,6 +1082,67 @@ test("quick start defaults follow the configured default preset", () => {
   assert.deepEqual(Array.from(result), ["EUR", "Moderate", ">=5 years", "EUR", "Moderate", ">=5 years", "basic", "balanced"]);
 });
 
+test("quick start selection is restored from localStorage", () => {
+  const context = createContextWithConfig(configCode, {
+    "allocationPromptBuilder.quickStart.v1": JSON.stringify({
+      outputLanguage: "German",
+      quickStart: {
+        baseCurrency: "GBP",
+        investmentHorizon: ">=5 years",
+        riskAppetite: "Moderate",
+        promptMode: "pro",
+      },
+    }),
+  });
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      [
+        state.outputLanguage,
+        state.quickStart.baseCurrency,
+        state.quickStart.investmentHorizon,
+        state.quickStart.riskAppetite,
+        state.quickStart.promptMode,
+        getQuickStartPreset().id,
+        getEducationUrl(),
+      ];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [
+    "German",
+    "GBP",
+    ">=5 years",
+    "Moderate",
+    "pro",
+    "balanced",
+    "https://bicon.li/prompt-builder/bicon-why-invest-journey-de.html",
+  ]);
+});
+
+test("quick start changes are saved to localStorage", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      handleInputChange({ target: { name: "quickStart.baseCurrency", type: "select-one", value: "EUR" } });
+      handleInputChange({ target: { name: "quickStart.riskAppetite", type: "select-one", value: "Moderate" } });
+      handleInputChange({ target: { name: "outputLanguage", type: "select-one", value: "German" } });
+      JSON.parse(window.localStorage.getItem("allocationPromptBuilder.quickStart.v1"));
+    `
+  );
+
+  assert.equal(result.outputLanguage, "German");
+  assert.equal(result.quickStart.baseCurrency, "EUR");
+  assert.equal(result.quickStart.riskAppetite, "Moderate");
+  assert.equal(result.quickStart.investmentHorizon, ">=10 years");
+  assert.equal(result.quickStart.promptMode, "basic");
+});
+
 test("basic mode auto-selects required defaults and locks equities", () => {
   const context = createContext();
   reset(context);
@@ -1388,7 +1461,7 @@ test("initial render shows quick start before the builder", () => {
   assert.match(html, /Portfolio Prompt Builder/);
   assert.match(html, /Quick start/);
   assert.match(html, /Why this works — a 5-min read/);
-  assert.match(html, /href="https:\/\/bicon\.li\/wp-content\/uploads\/2026\/04\/bicon-why-invest-journey-en\.html"/);
+  assert.match(html, /href="https:\/\/bicon\.li\/prompt-builder\/bicon-why-invest-journey-en\.html"/);
   assert.match(html, /target="_blank"/);
   assert.match(html, /rel="noopener noreferrer"/);
   assert.match(html, /data-action="apply-quick-start"/);
@@ -1425,8 +1498,8 @@ test("quick start education link follows the selected language", () => {
   );
 
   assert.deepEqual(Array.from(result), [
-    "https://bicon.li/wp-content/uploads/2026/04/bicon-why-invest-journey-en.html",
-    "https://bicon.li/wp-content/uploads/2026/04/bicon-why-invest-journey-de.html",
+    "https://bicon.li/prompt-builder/bicon-why-invest-journey-en.html",
+    "https://bicon.li/prompt-builder/bicon-why-invest-journey-de.html",
   ]);
 });
 

@@ -157,13 +157,13 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".quick-start-panel")).toContainText("Quick start");
     await expect(page.locator(".quick-start-panel .tool-logo")).toBeVisible();
     await expect(page.locator(".quick-education-button")).toHaveText("Why this works — a 5-min read");
-    await expect(page.locator(".quick-education-button")).toHaveAttribute("href", "https://bicon.li/wp-content/uploads/2026/04/bicon-why-invest-journey-en.html");
+    await expect(page.locator(".quick-education-button")).toHaveAttribute("href", "https://bicon.li/prompt-builder/bicon-why-invest-journey-en.html");
     await expect(page.locator(".quick-start-panel").locator('select[name="outputLanguage"]')).toBeVisible();
     await expect(page.locator(".quick-start-panel").locator('select[name="quickStart.promptMode"]')).toHaveValue("basic");
     await page.locator(".quick-start-panel").locator('select[name="outputLanguage"]').selectOption("German");
     await expect(page.locator(".quick-start-panel")).toContainText("Schnellstart");
     await expect(page.locator(".quick-education-button")).toContainText("Warum so investieren?");
-    await expect(page.locator(".quick-education-button")).toHaveAttribute("href", "https://bicon.li/wp-content/uploads/2026/04/bicon-why-invest-journey-de.html");
+    await expect(page.locator(".quick-education-button")).toHaveAttribute("href", "https://bicon.li/prompt-builder/bicon-why-invest-journey-de.html");
     await expect(page.locator(".quick-start-panel")).toContainText("Übernehmen und Builder öffnen");
     await page.locator(".quick-start-panel").locator('select[name="outputLanguage"]').selectOption("English");
     await expect(page.locator(".controls-panel")).toHaveCount(0);
@@ -176,6 +176,12 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await page.locator('select[name="quickStart.riskAppetite"]').selectOption("High");
     await page.locator('select[name="quickStart.promptMode"]').selectOption("pro");
 
+    await page.reload();
+    await expect(page.locator(".quick-start-panel")).toBeVisible();
+    await expect(page.locator('select[name="quickStart.baseCurrency"]')).toHaveValue("EUR");
+    await expect(page.locator('select[name="quickStart.investmentHorizon"]')).toHaveValue(">=5 years");
+    await expect(page.locator('select[name="quickStart.riskAppetite"]')).toHaveValue("High");
+    await expect(page.locator('select[name="quickStart.promptMode"]')).toHaveValue("pro");
     await expect(page.locator(".quick-start-result")).toContainText("Balanced");
     await expect(page.locator(".quick-start-result")).toContainText("40-60% equity");
     await page.locator('button[data-action="apply-quick-start"]').click();

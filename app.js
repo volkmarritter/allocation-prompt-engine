@@ -307,6 +307,7 @@ const installedAiAppLinks = [
   { label: "Claude app", url: "claude://" },
   { label: "WhatsApp", url: "whatsapp://send" },
 ];
+const quickStartStorageKey = "allocationPromptBuilder.quickStart.v1";
 
 let sessionDefaultPresetId = defaultPresetId;
 let sessionDefaultBaseCurrency = defaultBaseCurrency;
@@ -353,7 +354,56 @@ function createDefaultState() {
     riskAppetite: next.riskAppetite,
     promptMode: "basic",
   };
+  const savedQuickStart = getStoredQuickStartSelection();
+  if (savedQuickStart) {
+    next.outputLanguage = savedQuickStart.outputLanguage || next.outputLanguage;
+    next.quickStart = { ...next.quickStart, ...savedQuickStart.quickStart };
+  }
   return next;
+}
+
+function getStoredQuickStartSelection() {
+  try {
+    const storage = window?.localStorage;
+    if (!storage) return null;
+    const rawValue = storage.getItem(quickStartStorageKey);
+    if (!rawValue) return null;
+    return normalizeQuickStartSelection(JSON.parse(rawValue));
+  } catch {
+    return null;
+  }
+}
+
+function normalizeQuickStartSelection(saved) {
+  if (!saved || typeof saved !== "object") return null;
+  const quickStart = saved.quickStart && typeof saved.quickStart === "object" ? saved.quickStart : {};
+  const normalized = {};
+  if (baseCurrencyOptions.includes(quickStart.baseCurrency)) normalized.baseCurrency = quickStart.baseCurrency;
+  if ([">=3 years", ">=5 years", ">=10 years"].includes(quickStart.investmentHorizon)) normalized.investmentHorizon = quickStart.investmentHorizon;
+  if (["Low", "Moderate", "High", "Very high"].includes(quickStart.riskAppetite)) normalized.riskAppetite = quickStart.riskAppetite;
+  if (["basic", "pro"].includes(quickStart.promptMode)) normalized.promptMode = quickStart.promptMode;
+  const outputLanguage = ["English", "German"].includes(saved.outputLanguage) ? saved.outputLanguage : "";
+  if (!outputLanguage && Object.keys(normalized).length === 0) return null;
+  return { outputLanguage, quickStart: normalized };
+}
+
+function saveQuickStartSelection() {
+  try {
+    const storage = window?.localStorage;
+    if (!storage) return;
+    const quickStart = state.quickStart || defaults.quickStart;
+    storage.setItem(quickStartStorageKey, JSON.stringify({
+      outputLanguage: state.outputLanguage,
+      quickStart: {
+        baseCurrency: quickStart.baseCurrency,
+        investmentHorizon: quickStart.investmentHorizon,
+        riskAppetite: quickStart.riskAppetite,
+        promptMode: quickStart.promptMode,
+      },
+    }));
+  } catch {
+    // Storage can be unavailable in private modes or restrictive embeds.
+  }
 }
 
 function isGerman() {
@@ -1209,8 +1259,9 @@ function renderQuickStartPanel(introMode = false) {
 }
 
 function getEducationUrl(language = state.outputLanguage) {
-  const slug = language === "German" ? "bicon-why-invest-journey-de.html" : "bicon-why-invest-journey-en.html";
-  return `https://bicon.li/wp-content/uploads/2026/04/${slug}`;
+  return language === "German"
+    ? "https://bicon.li/prompt-builder/bicon-why-invest-journey-de.html"
+    : "https://bicon.li/prompt-builder/bicon-why-invest-journey-en.html";
 }
 
 function renderToolLogo(size = "default") {
@@ -1513,6 +1564,7 @@ function handleInputChange(event) {
   if (name.startsWith("quickStart.")) {
     const key = name.slice("quickStart.".length);
     state.quickStart = { ...(state.quickStart || defaults.quickStart), [key]: value };
+    saveQuickStartSelection();
     render();
     return;
   }
@@ -1539,6 +1591,9 @@ function handleInputChange(event) {
     state[name] = checked;
   } else {
     state[name] = value;
+    if (name === "outputLanguage") {
+      saveQuickStartSelection();
+    }
     if (name === "riskAppetite") {
       lastEquityRiskAlertKey = "";
       state.equityRangeManuallyAdjusted = false;
@@ -1718,6 +1773,7 @@ function setPromptMode(mode) {
 function applyQuickStart() {
   const quick = state.quickStart || defaults.quickStart;
   const preset = getQuickStartPreset(quick);
+  saveQuickStartSelection();
   if (preset) {
     applyPreset(preset.id);
     sessionDefaultPresetId = preset.id;
