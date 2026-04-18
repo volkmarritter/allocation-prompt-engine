@@ -499,6 +499,12 @@ test("ETF count frame and section color hooks are present", () => {
   assert.match(css, /\.instruction-section/);
 });
 
+test("quick start recommendation and action buttons align cleanly", () => {
+  assert.match(css, /\.quick-start-intro \.quick-start-result\s*{[^}]*align-self: start;/s);
+  assert.match(css, /\.quick-start-intro \.quick-start-actions\s*{[^}]*align-self: start;[^}]*grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/s);
+  assert.match(css, /\.quick-start-intro \.quick-start-button,\s*\.quick-start-intro \.quick-education-button\s*{[^}]*width: 100%;[^}]*min-height: 54px;/s);
+});
+
 test("base currency controls home-bias and equity region logic", () => {
   const context = createContext();
   reset(context);
@@ -1146,6 +1152,50 @@ test("basic mode restores the last chosen strategy", () => {
   assert.deepEqual(Array.from(result[1]), ["conservative", "conservative", "Low", ">=3 years", 20, 40, "basic"]);
 });
 
+test("reset keeps the builder in basic mode", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      const root = { innerHTML: "" };
+      document.getElementById = () => root;
+      state.builderStarted = true;
+      applyPreset("balanced");
+      setPromptMode("basic");
+      handleClick({
+        target: {
+          closest(selector) {
+            if (selector === "[data-action]") {
+              return { getAttribute: () => "reset" };
+            }
+            return null;
+          },
+          getAttribute() {
+            return null;
+          },
+        },
+      });
+      [
+        state.promptMode,
+        activePresetId,
+        lastChosenPresetId,
+        state.builderStarted,
+        state.riskAppetite,
+        state.investmentHorizon,
+        state.equityMin,
+        state.equityMax,
+        getSelectedSections().length,
+        root.innerHTML.includes('data-mode="basic" aria-pressed="true"'),
+        root.innerHTML.includes('name="riskAppetite"'),
+      ];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), ["basic", "growth", "growth", true, "High", ">=10 years", 60, 80, 7, true, false]);
+});
+
 test("basic mode render hides jump and auto logic while labeling summary pills", () => {
   const context = createContext();
   reset(context);
@@ -1337,6 +1387,10 @@ test("initial render shows quick start before the builder", () => {
   assert.match(html, /tool-logo-pointer/);
   assert.match(html, /Portfolio Prompt Builder/);
   assert.match(html, /Quick start/);
+  assert.match(html, /Why this works — a 5-min read/);
+  assert.match(html, /href="https:\/\/bicon\.li\/wp-content\/uploads\/2026\/04\/bicon-why-invest-journey-en\.html"/);
+  assert.match(html, /target="_blank"/);
+  assert.match(html, /rel="noopener noreferrer"/);
   assert.match(html, /data-action="apply-quick-start"/);
   assert.doesNotMatch(html, /data-action="open-builder"/);
   assert.match(html, /name="outputLanguage"/);
@@ -1354,6 +1408,26 @@ test("initial render shows quick start before the builder", () => {
   assert.doesNotMatch(html, /support-section/);
   assert.match(html, /© BICon \| Business &amp; IT Consulting – Strategy\. Technology\. Financial Services\./);
   assert.match(html, /href="https:\/\/bicon\.li\/en"/);
+});
+
+test("quick start education link follows the selected language", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      [
+        getEducationUrl("English"),
+        getEducationUrl("German"),
+      ];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [
+    "https://bicon.li/wp-content/uploads/2026/04/bicon-why-invest-journey-en.html",
+    "https://bicon.li/wp-content/uploads/2026/04/bicon-why-invest-journey-de.html",
+  ]);
 });
 
 test("footer link follows the selected language", () => {

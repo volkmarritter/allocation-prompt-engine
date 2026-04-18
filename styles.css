@@ -331,18 +331,21 @@ button {
 }
 
 .quick-start-intro .quick-start-result {
-  align-self: end;
+  align-self: start;
   grid-column: 1 / 2;
   min-height: 72px;
 }
 
 .quick-start-intro .quick-start-actions {
-  align-self: end;
+  align-self: start;
   justify-self: stretch;
   grid-column: 2 / 3;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.quick-start-intro .quick-start-button {
+.quick-start-intro .quick-start-button,
+.quick-start-intro .quick-education-button {
   width: 100%;
   min-height: 54px;
   padding-inline: 24px;
@@ -396,6 +399,10 @@ button {
 }
 
 .quick-start-button {
+  white-space: nowrap;
+}
+
+.quick-education-button {
   white-space: nowrap;
 }
 
@@ -1198,8 +1205,12 @@ button {
 .button,
 .button-ghost {
   min-height: 46px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 999px;
   padding: 0 18px;
+  text-decoration: none;
   transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
 }
 
@@ -1602,6 +1613,10 @@ button {
 
   .quick-start-intro .quick-start-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quick-start-intro .quick-start-actions {
+    grid-template-columns: 1fr;
   }
 
   .quick-start-button {

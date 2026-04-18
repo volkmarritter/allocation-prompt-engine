@@ -156,10 +156,14 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".quick-start-panel")).toBeVisible();
     await expect(page.locator(".quick-start-panel")).toContainText("Quick start");
     await expect(page.locator(".quick-start-panel .tool-logo")).toBeVisible();
+    await expect(page.locator(".quick-education-button")).toHaveText("Why this works — a 5-min read");
+    await expect(page.locator(".quick-education-button")).toHaveAttribute("href", "https://bicon.li/wp-content/uploads/2026/04/bicon-why-invest-journey-en.html");
     await expect(page.locator(".quick-start-panel").locator('select[name="outputLanguage"]')).toBeVisible();
     await expect(page.locator(".quick-start-panel").locator('select[name="quickStart.promptMode"]')).toHaveValue("basic");
     await page.locator(".quick-start-panel").locator('select[name="outputLanguage"]').selectOption("German");
     await expect(page.locator(".quick-start-panel")).toContainText("Schnellstart");
+    await expect(page.locator(".quick-education-button")).toContainText("Warum so investieren?");
+    await expect(page.locator(".quick-education-button")).toHaveAttribute("href", "https://bicon.li/wp-content/uploads/2026/04/bicon-why-invest-journey-de.html");
     await expect(page.locator(".quick-start-panel")).toContainText("Übernehmen und Builder öffnen");
     await page.locator(".quick-start-panel").locator('select[name="outputLanguage"]').selectOption("English");
     await expect(page.locator(".controls-panel")).toHaveCount(0);
@@ -247,9 +251,15 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator('button[data-action="reset"]')).toBeVisible();
     await expect(page.locator('button[data-action="reset"]')).toContainText("Reset original strategy: Growth CHF");
 
+    await page.locator('button[data-action="reset"]').click();
+    await expect(page.locator('button[data-action="set-mode"][data-mode="basic"]')).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".strategy-context")).toContainText("Growth");
+    await expect(page.locator('select[name="riskAppetite"]')).toHaveCount(0);
+    await expect(page.locator(".basic-auto-summary")).toContainText("High");
+
     await page.locator('button[data-action="set-mode"][data-mode="pro"]').click();
-    await expect(page.locator('select[name="riskAppetite"]')).toHaveValue("Moderate");
-    await expect(page.locator(".range-group").first()).toContainText("40% to 60%");
+    await expect(page.locator('select[name="riskAppetite"]')).toHaveValue("High");
+    await expect(page.locator(".range-group").first()).toContainText("60% to 80%");
     await expect(page.locator(".range-group").first().locator(".status-pill")).toHaveText("Auto");
     await expect(page.locator('input[name="asset:equities"]')).toBeEnabled();
     await expect(page.locator(".logic-summary")).toContainText("Auto logic");

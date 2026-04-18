@@ -62,6 +62,7 @@ const uiText = {
     quickAppMode: "4. App mode",
     quickRecommended: "Recommended strategy",
     quickStartButton: "Apply and open builder",
+    educationButton: "Why this works — a 5-min read",
     appMode: "App mode",
     basicMode: "Basic",
     proMode: "Pro",
@@ -169,6 +170,7 @@ const uiText = {
     quickAppMode: "4. App Mode",
     quickRecommended: "Empfohlene Strategie",
     quickStartButton: "Übernehmen und Builder öffnen",
+    educationButton: "Warum so investieren? — 5 Min. lesen",
     appMode: "App Mode",
     basicMode: "Basic",
     proMode: "Pro",
@@ -1200,9 +1202,15 @@ function renderQuickStartPanel(introMode = false) {
       </div>
       <div class="quick-start-actions">
         <button class="button quick-start-button" type="button" data-action="apply-quick-start">${escapeHtml(t.quickStartButton)}</button>
+        <a class="button-ghost quick-education-button" href="${escapeAttribute(getEducationUrl())}" target="_blank" rel="noopener noreferrer">${escapeHtml(t.educationButton)}</a>
       </div>
     </section>
   `;
+}
+
+function getEducationUrl(language = state.outputLanguage) {
+  const slug = language === "German" ? "bicon-why-invest-journey-de.html" : "bicon-why-invest-journey-en.html";
+  return `https://bicon.li/wp-content/uploads/2026/04/${slug}`;
 }
 
 function renderToolLogo(size = "default") {
@@ -1635,12 +1643,17 @@ function handleClick(event) {
     return;
   }
   if (action === "reset") {
+    const keepBasicMode = isBasicMode();
     activeStatusInfoKey = "";
     activePresetId = sessionDefaultPresetId;
     lastChosenPresetId = sessionDefaultPresetId;
     state = createDefaultState();
     state.builderStarted = true;
+    if (keepBasicMode) {
+      applyBasicModeDefaults();
+    }
     render();
+    return;
   }
   if (action === "restore-equity-auto") {
     activeStatusInfoKey = "";
