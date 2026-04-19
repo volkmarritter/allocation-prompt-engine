@@ -196,6 +196,9 @@ test("English prompt includes current Table 2 and instruction requirements", () 
 
   const prompt = run(context, "buildPrompt()");
 
+  assert.match(prompt, /Columns: Group: Cash, Bonds, Equities, Commodities, Satellites \| Asset class \| Target weight \| Purpose \/ role in the portfolio/);
+  assert.match(prompt, /After Table 1, add a short "Percentage allocation per group" overview/);
+  assert.match(prompt, /Ensure the group totals reconcile with the target allocation and add up to 100%/);
   assert.match(prompt, /Columns: Asset class \| Target weight \| ETF name \| ISIN/);
   assert.match(prompt, /Where relevant, perform a look-through/);
   assert.match(prompt, /If relevant, include a look-through asset allocation overview after Table 1/);
@@ -203,6 +206,8 @@ test("English prompt includes current Table 2 and instruction requirements", () 
   assert.match(prompt, /US equity exposure/);
   assert.match(prompt, /13\. Write the full answer in clear English\./);
   assert.match(prompt, /Closing instruction:\nAdd an investment disclaimer at the end of the answer according to recognized best-practice standards\./);
+  assert.match(prompt, /Core Asset Classes:[\s\S]*- Cash \/ Money Market[\s\S]*- Bonds[\s\S]*- Equities by region[\s\S]*- Commodities \/ Precious Metals/);
+  assert.match(prompt, /Satellites:[\s\S]*- Crypto Assets/);
 });
 
 test("German prompt includes current Table 2 and instruction requirements", () => {
@@ -217,11 +222,16 @@ test("German prompt includes current Table 2 and instruction requirements", () =
     `
   );
 
+  assert.match(prompt, /Spalten: Gruppe: Cash, Anleihen, Aktien, Rohstoffe, Satelliten \| Anlageklasse \| Zielgewicht \| Zweck \/ Rolle im Portfolio/);
+  assert.match(prompt, /Füge nach Tabelle 1 eine kurze Übersicht "Prozentuale Allokation je Gruppe" ein/);
+  assert.match(prompt, /Stelle sicher, dass die Gruppensummen mit der Zielallokation übereinstimmen und zusammen 100% ergeben/);
   assert.match(prompt, /Spalten: Anlageklasse \| Zielgewicht \| ETF-Name \| ISIN/);
   assert.match(prompt, /12\. Beziehe synthetische ETFs ein/);
   assert.match(prompt, /US-Aktienexposure/);
   assert.match(prompt, /Abschluss:[\s\S]*Anlagehinweis nach anerkannten Best-Practice-Standards/);
   assert.match(prompt, /13\. Schreibe die vollständige Antwort in klarem Deutsch\./);
+  assert.match(prompt, /Kernanlageklassen:[\s\S]*- Cash \/ Geldmarkt[\s\S]*- Anleihen[\s\S]*- Aktien nach Regionen[\s\S]*- Rohstoffe \/ Edelmetalle/);
+  assert.match(prompt, /Satelliten:[\s\S]*- Krypto-Assets/);
 });
 
 test("prompt instruction checkbox copy is user-facing and neutral", () => {
@@ -229,6 +239,28 @@ test("prompt instruction checkbox copy is user-facing and neutral", () => {
   assert.equal(appCode.includes("Fügt eine nummerierte Anforderung"), false);
   assert.match(appCode, /US tax withholding efficiency/);
   assert.match(appCode, /US-Steuereffizienz/);
+});
+
+test("asset class controls show core and satellite group headers", () => {
+  const context = createContext();
+  reset(context);
+
+  const html = run(
+    context,
+    `
+      const root = { innerHTML: "" };
+      document.getElementById = () => root;
+      state.builderStarted = true;
+      render();
+      root.innerHTML;
+    `
+  );
+
+  assert.match(html, /asset-toggle-grid/);
+  assert.match(html, /asset-group-header">Core Asset Classes/);
+  assert.match(html, /Core Asset Classes[\s\S]*Cash \/ Money Market[\s\S]*Bonds[\s\S]*Equities by region[\s\S]*Commodities \/ Precious Metals/);
+  assert.match(html, /asset-group-header">Satellites/);
+  assert.match(html, /Satellites[\s\S]*Listed Real Estate[\s\S]*Crypto Assets/);
 });
 
 test("equity allocation range follows risk appetite", () => {

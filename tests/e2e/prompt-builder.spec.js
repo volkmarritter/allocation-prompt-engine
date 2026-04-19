@@ -37,6 +37,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".asset-class-pill")).toContainText("5 asset classes");
     await expect(page.locator(".asset-pie")).toBeVisible();
     await expect(page.locator(".asset-pie")).toHaveAttribute("style", /conic-gradient/);
+    await expect(page.locator(".asset-section .asset-group-header").nth(0)).toHaveText("Core Asset Classes");
+    await expect(page.locator(".asset-section .asset-group-header").nth(1)).toHaveText("Satellites");
     await expect(page.locator(".equity-region-pill")).toContainText("5 equity regions");
     await expect(page.locator(".equity-region-pill .region-sparkline i")).toHaveCount(5);
     await expect(page.locator(".equity-region-pill .region-sparkline").locator("xpath=following-sibling::*[1]")).toHaveText("5 equity regions");
@@ -78,6 +80,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".brand-eyebrow .tool-logo-mini")).toBeVisible();
 
     const prompt = await getPrompt(page);
+    expect(prompt).toContain("Columns: Group: Cash, Bonds, Equities, Commodities, Satellites | Asset class | Target weight");
+    expect(prompt).toContain('After Table 1, add a short "Percentage allocation per group" overview');
     expect(prompt).toContain("Columns: Asset class | Target weight | ETF name | ISIN");
     expect(prompt).toContain("12. Include synthetic ETFs where they provide structural advantages");
     expect(prompt).toContain("13. Write the full answer in clear English.");
@@ -102,6 +106,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator('select[name="investmentHorizon"]')).toContainText(">=10 Jahre");
 
     const prompt = await getPrompt(page);
+    expect(prompt).toContain("Spalten: Gruppe: Cash, Anleihen, Aktien, Rohstoffe, Satelliten | Anlageklasse | Zielgewicht");
+    expect(prompt).toContain('Füge nach Tabelle 1 eine kurze Übersicht "Prozentuale Allokation je Gruppe" ein');
     expect(prompt).toContain("Spalten: Anlageklasse | Zielgewicht | ETF-Name | ISIN");
     expect(prompt).toContain("12. Beziehe synthetische ETFs ein");
     expect(prompt).toContain("Abschluss:");

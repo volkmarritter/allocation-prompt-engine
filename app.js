@@ -7,6 +7,11 @@ const assetClassOptions = [
   { id: "crypto", label: "Crypto Assets", description: "High-volatility satellite allocation if justified.", deLabel: "Krypto-Assets", deDescription: "Volatile Satellitenallokation, falls begründbar." },
 ];
 
+const assetClassGroups = [
+  { id: "core", assetIds: ["cash", "bonds", "equities", "commodities"], label: "Core Asset Classes", deLabel: "Kernanlageklassen" },
+  { id: "satellites", assetIds: ["realEstate", "crypto"], label: "Satellites", deLabel: "Satelliten" },
+];
+
 const outputSections = [
   { id: "a" },
   { id: "b" },
@@ -836,11 +841,7 @@ function buildPrompt() {
   const disclaimerInstruction = german
     ? "Füge am Ende der Antwort einen Anlagehinweis nach anerkannten Best-Practice-Standards hinzu."
     : "Add an investment disclaimer at the end of the answer according to recognized best-practice standards.";
-  const assetClassLines = selectedAssetClasses.length
-    ? selectedAssetClasses.map((option) => `- ${getAssetClassPromptLabel(option, german)}`).join("\n")
-    : german
-      ? "- Keine Anlageklassen ausgewählt. Wähle mindestens eine zulässige Anlageklasse aus."
-      : "- No asset classes selected. Add at least one eligible asset class.";
+  const assetClassLines = renderAssetClassPromptLines(selectedAssetClasses, german);
   const sectionLines = selectedSections.length
     ? selectedSections.map((section, index) => renderSectionInstruction(section, german, index)).join("\n\n")
     : german
@@ -1011,7 +1012,7 @@ function renderSectionInstruction(section, german, index = outputSections.findIn
 
   switch (section.id) {
     case "a":
-      return german ? `${prefix}) Tabelle 1: Zielallokation\nSpalten: Anlageklasse | Zielgewicht | Zweck / Rolle im Portfolio (1-2 Sätze).` : `${prefix}) Table 1: Target allocation\nColumns: Asset class | Target weight | Purpose / role in the portfolio (1-2 sentences).`;
+      return german ? `${prefix}) Tabelle 1: Zielallokation\nSpalten: Gruppe: Cash, Anleihen, Aktien, Rohstoffe, Satelliten | Anlageklasse | Zielgewicht | Zweck / Rolle im Portfolio (1-2 Sätze).\nFüge nach Tabelle 1 eine kurze Übersicht "Prozentuale Allokation je Gruppe" ein, welche die Zielgewichte nach Gruppe aufsummiert: Cash, Anleihen, Aktien, Rohstoffe und Satelliten. Stelle sicher, dass die Gruppensummen mit der Zielallokation übereinstimmen und zusammen 100% ergeben.` : `${prefix}) Table 1: Target allocation\nColumns: Group: Cash, Bonds, Equities, Commodities, Satellites | Asset class | Target weight | Purpose / role in the portfolio (1-2 sentences).\nAfter Table 1, add a short "Percentage allocation per group" overview that sums the target weights by group: Cash, Bonds, Equities, Commodities, and Satellites. Ensure the group totals reconcile with the target allocation and add up to 100%.`;
     case "b":
       return german ? `${prefix}) Tabelle 2: Umsetzung mit ETFs (pro Position)\nSpalten: Anlageklasse | Zielgewicht | ETF-Name | ISIN | Ticker (Börse) | TER | Domizil | Replikation | Ausschüttung / Thesaurierung | Anteilsklassenwährung | Kurzkommentar (1 Satz zu Passung, Liquidität oder Tracking).` : `${prefix}) Table 2: ETF implementation (for each position)\nColumns: Asset class | Target weight | ETF name | ISIN | Ticker (exchange) | TER | Domicile | Replication | Distribution / accumulation | Share class currency | Short comment (1 sentence on fit, liquidity, or tracking quality).`;
     case "c":
@@ -1178,7 +1179,7 @@ function render() {
               </div>
             </div>`}
 
-            <div class="field-group option-section asset-section"><span class="field-label">${escapeHtml(t.eligibleAssetClasses)}</span><div class="toggle-grid">${assetClassOptions.map(renderAssetClassToggle).join("")}</div></div>
+            <div class="field-group option-section asset-section"><span class="field-label">${escapeHtml(t.eligibleAssetClasses)}</span><div class="toggle-grid asset-toggle-grid">${renderAssetClassToggleGrid()}</div></div>
             ${basicMode ? "" : `<a class="mobile-jump" href="#prompt-output">${escapeHtml(t.jumpToPrompt)}</a>`}
             ${basicMode
               ? renderCollapsedOptionSection("output-section", t.requiredOutputSections, `${outputSections.length} ${t.allSelected}`)
@@ -1477,6 +1478,51 @@ function renderAssetClassToggle(option) {
     getAssetClassDescription(option, german),
     isBasicMode() && option.id === "equities"
   );
+}
+
+function renderAssetClassToggleGrid() {
+  const renderedGroups = new Set();
+  return assetClassOptions
+    .map((option) => {
+      const group = getAssetClassGroupForOption(option.id);
+      const groupHeader = group && !renderedGroups.has(group.id)
+        ? renderAssetClassGroupHeader(group, isGerman(), renderedGroups)
+        : "";
+      return `${groupHeader}${renderAssetClassToggle(option)}`;
+    })
+    .join("");
+}
+
+function renderAssetClassGroupHeader(group, german, renderedGroups) {
+  renderedGroups.add(group.id);
+  const label = german ? group.deLabel : group.label;
+  return `<div class="asset-group-header">${escapeHtml(label)}</div>`;
+}
+
+function getAssetClassGroupForOption(optionId) {
+  return assetClassGroups.find((group) => group.assetIds.includes(optionId)) || null;
+}
+
+function renderAssetClassPromptLines(selectedAssetClasses, german) {
+  if (!selectedAssetClasses.length) {
+    return german
+      ? "- Keine Anlageklassen ausgewählt. Wähle mindestens eine zulässige Anlageklasse aus."
+      : "- No asset classes selected. Add at least one eligible asset class.";
+  }
+
+  const renderedGroups = new Set();
+  return selectedAssetClasses
+    .flatMap((option) => {
+      const group = getAssetClassGroupForOption(option.id);
+      const lines = [];
+      if (group && !renderedGroups.has(group.id)) {
+        renderedGroups.add(group.id);
+        lines.push(`${german ? group.deLabel : group.label}:`);
+      }
+      lines.push(`- ${getAssetClassPromptLabel(option, german)}`);
+      return lines;
+    })
+    .join("\n");
 }
 
 function renderStrategyContextValue() {
