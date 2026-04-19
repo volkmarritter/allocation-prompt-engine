@@ -208,6 +208,29 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".range-group").first()).toContainText("40% to 60%");
   });
 
+  test("why-journey URL parameters prefill quick start with quiz answers", async ({ page }) => {
+    await page.goto(`${appUrl}?src=why-journey&profile=aggressive&horizon=2&risk=2&lang=de`);
+    await expect(page.locator("#root")).not.toBeEmpty();
+
+    await expect(page.locator(".quick-start-panel")).toBeVisible();
+    await expect(page.locator(".controls-panel")).toHaveCount(0);
+    await expect(page.locator(".quick-start-panel")).toContainText("Schnellstart");
+    await expect(page.locator('select[name="outputLanguage"]')).toHaveValue("German");
+    await expect(page.locator('select[name="quickStart.riskAppetite"]')).toHaveValue("Moderate");
+    await expect(page.locator('select[name="quickStart.investmentHorizon"]')).toHaveValue(">=5 years");
+    await expect(page.locator(".quick-start-result")).toContainText("Ausgewogen");
+
+    await page.locator('button[data-action="apply-quick-start"]').click();
+    await expect(page.locator(".quick-start-panel")).toHaveCount(0);
+    await expect(page.locator(".controls-panel")).toBeVisible();
+    await expect(page.locator('button[data-action="set-mode"][data-mode="basic"]')).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".strategy-context")).toContainText("Ausgewogen");
+    await expect(page.locator(".output-box")).toContainText("Risikoappetit: moderat");
+    await expect(page.locator(".output-box")).toContainText("Anlagehorizont: >=5 Jahre");
+    await expect(page.locator(".output-box")).toContainText("Aktienquote zwischen 40% und 60%");
+    await expect(page.locator(".output-box")).toContainText("klarem Deutsch.");
+  });
+
   test("quick start opens basic mode by default", async ({ page }) => {
     await openApp(page, { openBuilder: false });
 

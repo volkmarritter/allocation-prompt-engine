@@ -325,6 +325,7 @@ let activePresetId = defaultPresetId;
 let lastChosenPresetId = defaultPresetId;
 
 document.addEventListener("DOMContentLoaded", () => {
+  applyUrlParams();
   render();
   bindEvents();
 });
@@ -404,6 +405,56 @@ function saveQuickStartSelection() {
   } catch {
     // Storage can be unavailable in private modes or restrictive embeds.
   }
+}
+
+function applyUrlParams() {
+  const search = window?.location?.search || "";
+  const params = new URLSearchParams(search);
+  if (params.get("src") !== "why-journey") return false;
+
+  const nextQuickStart = {
+    ...(state.quickStart || defaults.quickStart),
+  };
+  const profile = params.get("profile");
+  const preset = portfolioPresets.find((item) => item.id === profile);
+  if (preset) {
+    sessionDefaultPresetId = preset.id;
+    lastChosenPresetId = preset.id;
+    activePresetId = preset.id;
+    nextQuickStart.riskAppetite = preset.riskAppetite;
+    nextQuickStart.investmentHorizon = preset.investmentHorizon;
+  }
+
+  const horizonMap = {
+    1: ">=3 years",
+    2: ">=5 years",
+    3: ">=10 years",
+    4: ">=10 years",
+  };
+  const horizon = horizonMap[params.get("horizon")];
+  if (horizon) {
+    nextQuickStart.investmentHorizon = horizon;
+  }
+
+  const riskMap = {
+    1: "Low",
+    2: "Moderate",
+    3: "High",
+    4: "Very high",
+  };
+  const risk = riskMap[params.get("risk")];
+  if (risk) {
+    nextQuickStart.riskAppetite = risk;
+  }
+
+  const lang = params.get("lang");
+  if (lang === "de") state.outputLanguage = "German";
+  if (lang === "en") state.outputLanguage = "English";
+
+  state.quickStart = nextQuickStart;
+  state.builderStarted = false;
+  saveQuickStartSelection();
+  return true;
 }
 
 function isGerman() {

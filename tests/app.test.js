@@ -39,6 +39,9 @@ function createContextWithConfig(configSource, initialStorage = {}) {
     },
     window: {
       __alerts: [],
+      location: {
+        search: "",
+      },
       alert(message) {
         this.__alerts.push(String(message));
       },
@@ -56,6 +59,7 @@ function createContextWithConfig(configSource, initialStorage = {}) {
       clearTimeout,
       setTimeout,
     },
+    URLSearchParams,
   };
 
   vm.createContext(context);
@@ -1141,6 +1145,72 @@ test("quick start changes are saved to localStorage", () => {
   assert.equal(result.quickStart.riskAppetite, "Moderate");
   assert.equal(result.quickStart.investmentHorizon, ">=10 years");
   assert.equal(result.quickStart.promptMode, "basic");
+});
+
+test("why-journey URL parameters prefill quick start without opening the builder", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      window.location.search = "?src=why-journey&profile=aggressive&horizon=2&risk=2&lang=de";
+      const applied = applyUrlParams();
+      const saved = JSON.parse(window.localStorage.getItem("allocationPromptBuilder.quickStart.v1"));
+      [
+        applied,
+        activePresetId,
+        sessionDefaultPresetId,
+        lastChosenPresetId,
+        state.outputLanguage,
+        state.builderStarted,
+        state.quickStart.riskAppetite,
+        state.quickStart.investmentHorizon,
+        getQuickStartPreset().id,
+        saved.outputLanguage,
+        saved.quickStart.riskAppetite,
+        saved.quickStart.investmentHorizon,
+      ];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [
+    true,
+    "aggressive",
+    "aggressive",
+    "aggressive",
+    "German",
+    false,
+    "Moderate",
+    ">=5 years",
+    "balanced",
+    "German",
+    "Moderate",
+    ">=5 years",
+  ]);
+});
+
+test("URL parameters are ignored without why-journey source", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      window.location.search = "?profile=aggressive&horizon=1&risk=1&lang=de";
+      const applied = applyUrlParams();
+      [
+        applied,
+        activePresetId,
+        state.outputLanguage,
+        state.riskAppetite,
+        state.investmentHorizon,
+        state.builderStarted,
+      ];
+    `
+  );
+
+  assert.deepEqual(Array.from(result), [false, "growth", "English", "High", ">=10 years", false]);
 });
 
 test("basic mode auto-selects required defaults and locks equities", () => {
