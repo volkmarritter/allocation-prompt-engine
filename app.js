@@ -61,8 +61,9 @@ const uiText = {
     quickRiskAppetite: "3. Risk appetite",
     quickAppMode: "4. App mode",
     quickRecommended: "Recommended strategy",
-    quickStartButton: "Apply and open builder",
-    educationButton: "Why this works — a 5-min read",
+    quickStartButton: "Open builder directly",
+    educationButton: "Start with the 5-minute guide",
+    educationHint: "New here? Start with the guide. Know your profile? Open the builder directly.",
     appMode: "App mode",
     basicMode: "Basic",
     proMode: "Pro",
@@ -169,8 +170,9 @@ const uiText = {
     quickRiskAppetite: "3. Risikoappetit",
     quickAppMode: "4. App Mode",
     quickRecommended: "Empfohlene Strategie",
-    quickStartButton: "Übernehmen und Builder öffnen",
-    educationButton: "Warum so investieren? — 5 Min. lesen",
+    quickStartButton: "Builder direkt öffnen",
+    educationButton: "Mit dem 5-Minuten-Guide starten",
+    educationHint: "Neu hier? Starte mit dem Guide. Profil bekannt? Öffne den Builder direkt.",
     appMode: "App Mode",
     basicMode: "Basic",
     proMode: "Pro",
@@ -1302,10 +1304,35 @@ function renderQuickStartPanel(introMode = false) {
         <strong>${escapeHtml(presetLabel)}${equityRange ? ` · ${escapeHtml(equityRange)}` : ""}</strong>
       </div>
       <div class="quick-start-actions">
-        <button class="button quick-start-button" type="button" data-action="apply-quick-start">${escapeHtml(t.quickStartButton)}</button>
-        <a class="button-ghost quick-education-button" href="${escapeAttribute(getEducationUrl())}">${escapeHtml(t.educationButton)}</a>
+        <a class="button-ghost quick-education-button" href="${escapeAttribute(getEducationUrl())}">${renderCtaIcon("compass")}${escapeHtml(t.educationButton)}</a>
+        <button class="button quick-start-button" type="button" data-action="apply-quick-start">${renderCtaIcon("sliders")}${escapeHtml(t.quickStartButton)}</button>
+        <p class="quick-education-note">${escapeHtml(t.educationHint)}</p>
       </div>
     </section>
+  `;
+}
+
+function renderCtaIcon(type) {
+  if (type === "sliders") {
+    return `
+      <svg class="cta-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M4 7h4" />
+        <path d="M14 7h6" />
+        <circle cx="11" cy="7" r="2.5" />
+        <path d="M4 17h8" />
+        <path d="M18 17h2" />
+        <circle cx="15" cy="17" r="2.5" />
+      </svg>
+    `;
+  }
+
+  return `
+    <svg class="cta-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="8" />
+      <path d="M14.8 9.2l-2 5.6-3.6-2 5.6-3.6z" />
+      <path d="M12 2.8v2" />
+      <path d="M12 19.2v2" />
+    </svg>
   `;
 }
 

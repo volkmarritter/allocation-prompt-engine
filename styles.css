@@ -342,6 +342,7 @@ button {
   grid-column: 2 / 3;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
 }
 
 .quick-start-intro .quick-start-button,
@@ -404,6 +405,33 @@ button {
 
 .quick-education-button {
   white-space: nowrap;
+  background: linear-gradient(135deg, rgba(247, 245, 240, 0.96), rgba(231, 221, 204, 0.96));
+  border-color: rgba(95, 78, 52, 0.32);
+  box-shadow: 0 10px 24px rgba(95, 78, 52, 0.12);
+}
+
+.cta-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 9px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.quick-education-button .cta-icon {
+  color: #7a633f;
+}
+
+.quick-education-note {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
 .panel {

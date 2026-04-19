@@ -1530,7 +1530,12 @@ test("initial render shows quick start before the builder", () => {
   assert.match(html, /tool-logo-pointer/);
   assert.match(html, /Portfolio Prompt Builder/);
   assert.match(html, /Quick start/);
-  assert.match(html, /Why this works — a 5-min read/);
+  assert.match(html, /Start with the 5-minute guide/);
+  assert.match(html, /Open builder directly/);
+  assert.match(html, /New here\? Start with the guide\. Know your profile\? Open the builder directly\./);
+  assert.match(html, /class="cta-icon"/);
+  assert.match(html, /circle cx="12" cy="12" r="8"/);
+  assert.match(html, /circle cx="11" cy="7" r="2\.5"/);
   assert.match(html, /href="https:\/\/bicon\.li\/prompt-builder\/bicon-why-invest-journey-en\.html"/);
   assert.doesNotMatch(html, /quick-education-button"[^>]*target=/);
   assert.doesNotMatch(html, /quick-education-button"[^>]*rel=/);
