@@ -1303,7 +1303,7 @@ function renderQuickStartPanel(introMode = false) {
       </div>
       <div class="quick-start-actions">
         <button class="button quick-start-button" type="button" data-action="apply-quick-start">${escapeHtml(t.quickStartButton)}</button>
-        <a class="button-ghost quick-education-button" href="${escapeAttribute(getEducationUrl())}" target="_blank" rel="noopener noreferrer">${escapeHtml(t.educationButton)}</a>
+        <a class="button-ghost quick-education-button" href="${escapeAttribute(getEducationUrl())}">${escapeHtml(t.educationButton)}</a>
       </div>
     </section>
   `;

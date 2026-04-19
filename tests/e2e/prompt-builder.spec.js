@@ -158,6 +158,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".quick-start-panel .tool-logo")).toBeVisible();
     await expect(page.locator(".quick-education-button")).toHaveText("Why this works — a 5-min read");
     await expect(page.locator(".quick-education-button")).toHaveAttribute("href", "https://bicon.li/prompt-builder/bicon-why-invest-journey-en.html");
+    await expect(page.locator(".quick-education-button")).not.toHaveAttribute("target", "_blank");
     await expect(page.locator(".quick-start-panel").locator('select[name="outputLanguage"]')).toBeVisible();
     await expect(page.locator(".quick-start-panel").locator('select[name="quickStart.promptMode"]')).toHaveValue("basic");
     await page.locator(".quick-start-panel").locator('select[name="outputLanguage"]').selectOption("German");

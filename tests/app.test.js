@@ -1532,8 +1532,8 @@ test("initial render shows quick start before the builder", () => {
   assert.match(html, /Quick start/);
   assert.match(html, /Why this works — a 5-min read/);
   assert.match(html, /href="https:\/\/bicon\.li\/prompt-builder\/bicon-why-invest-journey-en\.html"/);
-  assert.match(html, /target="_blank"/);
-  assert.match(html, /rel="noopener noreferrer"/);
+  assert.doesNotMatch(html, /quick-education-button"[^>]*target=/);
+  assert.doesNotMatch(html, /quick-education-button"[^>]*rel=/);
   assert.match(html, /data-action="apply-quick-start"/);
   assert.doesNotMatch(html, /data-action="open-builder"/);
   assert.match(html, /name="outputLanguage"/);
