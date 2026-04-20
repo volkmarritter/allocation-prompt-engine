@@ -1659,7 +1659,7 @@ test("installed app links ask for the disclaimer before opening", () => {
 
   assert.equal(result[0], true);
   assert.deepEqual(Array.from(result[1]), [
-    "This does not constitute investment advice, an investment recommendation, or a solicitation to buy or sell financial instruments.",
+    "The Portfolio Prompt Builder is a tool for generating structured prompts for use with AI language models. It does not constitute investment advice, investment recommendations, or a solicitation to buy or sell any financial instrument. All outputs should be reviewed by qualified financial professionals before use with clients.",
   ]);
 });
 

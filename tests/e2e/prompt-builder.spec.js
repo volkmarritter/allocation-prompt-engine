@@ -66,6 +66,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator('.ai-tool-link[href="claude://"]')).toHaveText("Claude app");
     await expect(page.locator('.ai-tool-link[href="whatsapp://send"]')).toHaveText("WhatsApp");
     await expect(page.locator(".app-disclaimer")).toContainText("Disclaimer");
+    await expect(page.locator(".app-disclaimer")).toContainText("generating structured prompts");
+    await expect(page.locator(".app-disclaimer")).toContainText("reviewed by qualified financial professionals");
     await expect(page.locator(".version-note")).toContainText("Version 2.0");
     await expect(page.locator(".app-footer")).toContainText("© BICon | Business & IT Consulting – Strategy. Technology. Financial Services.");
     await expect(page.locator(".footer-link-button")).toHaveAttribute("href", "https://bicon.li/en");
