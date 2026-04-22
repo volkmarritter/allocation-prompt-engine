@@ -120,9 +120,12 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     expect(prompt).toContain("Spalten: Gruppe: Cash, Anleihen, Aktien, Rohstoffe, Satelliten | Anlageklasse | Zielgewicht");
     expect(prompt).toContain('Füge nach Tabelle 1 eine kurze Übersicht "Prozentuale Allokation je Gruppe" ein');
     expect(prompt).toContain("Begründungsdisziplin (VERPFLICHTEND):");
+    expect(prompt).toContain("springe nicht direkt zur finalen Allokation");
     expect(prompt).toContain("Interne Validierung (VERPFLICHTEND vor der finalen Antwort):");
+    expect(prompt).toContain("Umsetzungsrobustheit wesentlich zu reduzieren");
     expect(prompt).toContain("PORTFOLIO-KONSTRUKTIONSMETHODIK (VERPFLICHTEND)");
     expect(prompt).toContain("Mean-Variance-Optimierungslogik");
+    expect(prompt).toContain("Erkläre, warum die resultierende Allokation unter realen Restriktionen nahe an einem effizienten Portfolio liegt.");
     expect(prompt).toContain("Spalten: Anlageklasse | Zielgewicht | ETF-Name | ISIN");
     expect(prompt).toContain("12. Beziehe synthetische ETFs ein");
     expect(prompt).toContain("Abschluss:");

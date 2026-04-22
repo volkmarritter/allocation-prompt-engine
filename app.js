@@ -978,7 +978,6 @@ Konstruiere das Portfolio mit einer Mean-Variance-Optimierungslogik, die mit der
 - Beziehe eine Anlageklasse nur ein, wenn sie das Risiko-Rendite-Profil des Portfolios verbessert.
 - Stelle sicher, dass die Allokationen Diversifikationsvorteile und den Beitrag zum Gesamtrisiko des Portfolios widerspiegeln.
 - Nähere die Optimierung konzeptionell an, indem du niedrig korrelierte Anlageklassen kombinierst, redundante Exposures vermeidest und Risikobeiträge über Anlageklassen ausbalancierst.
-- Erkläre, warum die resultierende Allokation unter realen Restriktionen nahe an einem effizienten Portfolio liegt.
 - Wende die Logik konzeptionell an: Risiko für eine gegebene Rendite minimieren und Rendite für ein gegebenes Risikoniveau maximieren.`
     : `Portfolio construction methodology (MANDATORY):
 Construct the portfolio using a mean-variance optimisation logic consistent with the efficient frontier.
@@ -986,7 +985,6 @@ Construct the portfolio using a mean-variance optimisation logic consistent with
 - Include each asset class only if it improves the portfolio's risk-return profile.
 - Ensure allocations reflect diversification benefits and contribution to total portfolio risk.
 - Approximate optimisation by combining low-correlated assets, avoiding redundant exposures, and balancing risk contributions across asset classes.
-- Explain why the resulting allocation is close to an efficient portfolio, given real-world constraints.
 - Apply the following logic conceptually: minimise risk for a given return and maximise return for a given level of risk.`;
 }
 
@@ -1038,56 +1036,42 @@ function getExecutionModeInstruction(german) {
   return german
     ? `Ausführungsmodus:
 Begründungsdisziplin (VERPFLICHTEND):
-
 - Folge allen Schritten der Portfolio-Konstruktion in der vorgegebenen Reihenfolge.
-- Überspringe keine Schritte und ziehe keine voreiligen Schlüsse.
-- Jede Allokationsentscheidung muss begründet werden durch:
+- Überspringe keine Schritte und springe nicht direkt zur finalen Allokation.
+- Begründe jede Allokationsentscheidung mit mindestens einem der folgenden Punkte:
   - Diversifikationsbeitrag
-  - Auswirkung auf den Risikobeitrag
+  - Auswirkung auf den Risikobeitrag des Portfolios
   - Umsetzungseffizienz
-
-- Vermeide generische oder rein erzählerische Erklärungen.
 - Halte die Begründung strukturiert, explizit und entscheidungsorientiert.
+- Vermeide generische, repetitive oder rein erzählerische Erklärungen.
 
 Interne Validierung (VERPFLICHTEND vor der finalen Antwort):
-
-- Prüfe:
-  - Gesamtallokation = 100%
-  - Konsistenz über alle Tabellen hinweg
-  - keine redundanten Exposures
-  - Mindestpositionsgrössen eingehalten
-  - Diversifikation ist substanziell und nicht nur oberflächlich
-
-- Stelle sicher, dass das Portfolio nicht vereinfacht werden kann, ohne die Diversifikationsqualität zu reduzieren.
-
-- Falls Inkonsistenzen oder Schwächen erkannt werden:
-  → korrigiere sie, bevor das finale Ergebnis präsentiert wird.`
+- Prüfe, dass:
+  - alle Tabellen intern konsistent sind
+  - keine redundanten Exposures ohne Begründung enthalten sind
+  - Mindestpositionsgrössen eingehalten werden, sofern Abweichungen nicht explizit begründet sind
+  - Diversifikation substanziell und nicht nur oberflächlich ist
+- Stelle sicher, dass das Portfolio nicht weiter vereinfacht werden kann, ohne die Diversifikationsqualität oder Umsetzungsrobustheit wesentlich zu reduzieren.
+- Falls Inkonsistenzen, Redundanzen oder Schwächen erkannt werden, korrigiere sie, bevor die finale Antwort präsentiert wird.`
     : `Execution mode:
 Reasoning discipline (MANDATORY):
-
-- Follow all portfolio construction steps in order.
-- Do not skip steps or jump to conclusions.
-- Each allocation decision must be justified by:
+- Follow the portfolio construction steps in the defined order.
+- Do not skip steps and do not jump directly to the final allocation.
+- Justify each allocation decision using at least one of the following:
   - diversification benefit
-  - risk contribution impact
+  - impact on portfolio risk contribution
   - implementation efficiency
-
-- Avoid generic or narrative explanations.
 - Keep reasoning structured, explicit, and decision-oriented.
+- Avoid generic, repetitive, or purely narrative explanations.
 
 Internal validation (MANDATORY before final answer):
-
-- Verify:
-  - total allocation = 100%
-  - consistency across all tables
-  - no redundant exposures
-  - minimum position sizes respected
-  - diversification is meaningful (not superficial)
-
-- Ensure the portfolio cannot be simplified without reducing diversification quality.
-
-- If inconsistencies or weaknesses are detected:
-  → correct them before presenting the final result.`;
+- Verify that:
+  - all tables are internally consistent
+  - no redundant exposures are included without justification
+  - minimum position sizes are respected unless explicitly justified
+  - diversification is meaningful and not only superficial
+- Ensure the portfolio cannot be simplified further without materially reducing diversification quality or implementation robustness.
+- If inconsistencies, redundancies, or weaknesses are detected, correct them before presenting the final answer.`;
 }
 
 function formatEquityAllocationLine(minWeight, maxWeight, german) {
@@ -1186,8 +1170,8 @@ function renderSectionInstruction(section, german, index = outputSections.findIn
           ? `${prefix}) Portfolio-Konstruktionslogik (kurz)\nGib eine kurze Erklärung, wie Diversifikation das gesamte Risiko-Rendite-Profil des Portfolios verbessert.`
           : `${prefix}) Portfolio rationale (brief)\nProvide a short explanation of how diversification improves the portfolio's overall risk-return profile.`
         : german
-          ? `${prefix}) Portfolio-Konstruktionslogik (Efficient-Frontier-Perspektive)\nGib eine strukturierte Erklärung zu qualitativen relativen Renditeerwartungen, Volatilitätsbeziehungen, Korrelationsstruktur, zentralen Diversifikationstreibern, der Verbesserung risikoadjustierter Renditen und den Trade-offs gegenüber einem rein theoretisch optimalen Portfolio.`
-          : `${prefix}) Portfolio construction rationale (Efficient Frontier perspective)\nProvide a structured explanation covering relative return expectations (qualitative), volatility relationships, correlation structure, key diversification drivers, how the allocation improves risk-adjusted returns, and trade-offs versus a purely theoretical optimal portfolio.`;
+          ? `${prefix}) Portfolio-Konstruktionslogik (Efficient-Frontier-Perspektive)\nGib eine strukturierte Erklärung zu qualitativen relativen Renditeerwartungen, Volatilitätsbeziehungen, Korrelationsstruktur, zentralen Diversifikationstreibern, der Verbesserung risikoadjustierter Renditen und den Trade-offs gegenüber einem rein theoretisch optimalen Portfolio.\nErkläre, warum die resultierende Allokation unter realen Restriktionen nahe an einem effizienten Portfolio liegt.`
+          : `${prefix}) Portfolio construction rationale (Efficient Frontier perspective)\nProvide a structured explanation covering relative return expectations (qualitative), volatility relationships, correlation structure, key diversification drivers, how the allocation improves risk-adjusted returns, and trade-offs versus a purely theoretical optimal portfolio.\nExplain why the resulting allocation is close to an efficient portfolio, given real-world constraints.`;
     default:
       return "";
   }
