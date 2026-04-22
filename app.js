@@ -955,7 +955,7 @@ ${disclaimerInstruction}`;
 }
 
 function getPortfolioConstructionMethodology(german) {
-  if (isBasicMode()) {
+  if (getEffectiveExecutionMode() === "fast") {
     return german
       ? `Portfolio-Konstruktionsansatz:
 Konstruiere ein gut diversifiziertes Portfolio mit soliden Portfolio-Design-Prinzipien.
@@ -991,7 +991,7 @@ Construct the portfolio using a mean-variance optimisation logic consistent with
 }
 
 function getEfficientFrontierRequirement(german) {
-  if (isBasicMode()) {
+  if (getEffectiveExecutionMode() === "fast") {
     return german
       ? "Stelle sicher, dass das Portfolio über Anlageklassen und Risikotreiber gut diversifiziert ist, und vermeide Konzentration in einer einzelnen Risikoquelle."
       : "Ensure the portfolio is well diversified across asset classes and risk drivers, and avoid concentration in a single source of risk.";
@@ -1181,7 +1181,7 @@ function renderSectionInstruction(section, german, index = outputSections.findIn
     case "g":
       return german ? `${prefix}) Grobe Kostenschätzung als gewichtete TER für das Gesamtportfolio.` : `${prefix}) Rough cost estimate expressed as weighted TER for the full portfolio.`;
     case "h":
-      return isBasicMode()
+      return getEffectiveExecutionMode() === "fast"
         ? german
           ? `${prefix}) Portfolio-Konstruktionslogik (kurz)\nGib eine kurze Erklärung, wie Diversifikation das gesamte Risiko-Rendite-Profil des Portfolios verbessert.`
           : `${prefix}) Portfolio rationale (brief)\nProvide a short explanation of how diversification improves the portfolio's overall risk-return profile.`

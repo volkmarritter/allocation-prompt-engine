@@ -257,6 +257,13 @@ test("Pro prompt execution mode can switch from strict to fast", () => {
 
   assert.match(prompt, /Execution mode:\n- Focus on speed and clarity\./);
   assert.match(prompt, /Apply a pragmatic, heuristic portfolio construction approach\./);
+  assert.match(prompt, /Portfolio construction approach:/);
+  assert.match(prompt, /Construct a well-diversified portfolio using sound portfolio design principles\./);
+  assert.match(prompt, /Ensure the portfolio is well diversified across asset classes and risk drivers/);
+  assert.match(prompt, /Portfolio rationale \(brief\)/);
+  assert.doesNotMatch(prompt, /Portfolio construction methodology \(MANDATORY\):/);
+  assert.doesNotMatch(prompt, /Assess the contribution of each asset class to overall portfolio risk/);
+  assert.doesNotMatch(prompt, /Portfolio construction rationale \(Efficient Frontier perspective\)/);
   assert.doesNotMatch(prompt, /Internal validation \(MANDATORY before final answer\)/);
 });
 

@@ -295,6 +295,10 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
 
     await expect(page.locator('button[data-action="set-execution-mode"][data-execution-mode="fast"]')).toHaveAttribute("aria-pressed", "true");
     await expect(page.locator(".output-box")).toContainText("Focus on speed and clarity.");
+    await expect(page.locator(".output-box")).toContainText("Portfolio construction approach");
+    await expect(page.locator(".output-box")).toContainText("Portfolio rationale (brief)");
+    await expect(page.locator(".output-box")).not.toContainText("Portfolio construction methodology (MANDATORY)");
+    await expect(page.locator(".output-box")).not.toContainText("Portfolio construction rationale (Efficient Frontier perspective)");
     await expect(page.locator(".output-box")).not.toContainText("Internal validation (MANDATORY before final answer):");
   });
 

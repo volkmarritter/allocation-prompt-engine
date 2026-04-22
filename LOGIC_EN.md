@@ -173,10 +173,10 @@ Optional prompt instructions:
 - Look-through exposure assessment
 - Synthetic ETF assessment
 
-Execution mode controls the reasoning depth in the generated prompt:
+Execution mode controls reasoning depth and portfolio-construction logic in the generated prompt:
 
-- `Fast`: focuses on speed, clarity, and pragmatic portfolio construction.
-- `Strict`: requires structured reasoning discipline, ordered decision steps, and internal validation before the final answer.
+- `Fast`: focuses on speed, clarity, and pragmatic portfolio construction. The prompt uses the short portfolio construction approach, the short diversification requirement, and the brief portfolio construction rationale output section.
+- `Strict`: requires structured reasoning discipline, ordered decision steps, and internal validation before the final answer. The prompt uses the full Efficient Frontier methodology, the Pro risk-contribution requirement, and the Efficient Frontier perspective in the output section.
 
 In Basic mode, the prompt-instructions area is collapsed and execution mode is always written into the prompt as `Fast`.
 In Pro mode, execution mode can be switched between `Fast` and `Strict` in the prompt-instructions area; the default is `Strict`.

@@ -173,10 +173,10 @@ Folgende Prompt-Instruktionen sind optional:
 - Look-through exposure assessment
 - Synthetic ETF assessment
 
-Der Ausführungsmodus steuert die Begründungstiefe im generierten Prompt:
+Der Ausführungsmodus steuert die Begründungstiefe und die Portfolio-Konstruktionslogik im generierten Prompt:
 
-- `Schnell`: fokussiert auf Geschwindigkeit, Klarheit und pragmatische Portfolio-Konstruktion.
-- `Strikt`: verlangt strukturierte Begründungsdisziplin, Entscheidungsschritte in Reihenfolge und interne Validierung vor der finalen Antwort.
+- `Schnell`: fokussiert auf Geschwindigkeit, Klarheit und pragmatische Portfolio-Konstruktion. Der Prompt verwendet den kurzen Portfolio-Konstruktionsansatz, die kurze Diversifikationsanforderung und die kurze Portfolio-Konstruktionslogik als Ausgabeabschnitt.
+- `Strikt`: verlangt strukturierte Begründungsdisziplin, Entscheidungsschritte in Reihenfolge und interne Validierung vor der finalen Antwort. Der Prompt verwendet die ausführliche Efficient-Frontier-Methodik, die Pro-Anforderung zur Risikobeitragsanalyse und die Efficient-Frontier-Perspektive im Ausgabeabschnitt.
 
 In Basic Mode ist der Prompt-Instruktionsbereich geschlossen und der Ausführungsmodus wird immer als `Schnell` in den Prompt geschrieben.
 In Pro Mode ist der Ausführungsmodus im Prompt-Instruktionsbereich zwischen `Schnell` und `Strikt` umschaltbar; Default ist `Strikt`.
