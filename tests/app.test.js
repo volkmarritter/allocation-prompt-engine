@@ -156,7 +156,7 @@ test("portfolio strategy and exchange defaults are loaded from config", () => {
   assert.deepEqual(Array.from(result), [
     4,
     true,
-    "SIX Swiss Exchange|XETRA Deutsche Börse|NYSE American Stock Exchange|LSE London Stock Exchange",
+    "SIX Swiss Exchange|XETRA Deutsche Börse|LSE London Stock Exchange",
     "CHF",
     "XETRA Deutsche Börse",
     "growth",
@@ -200,9 +200,13 @@ test("English prompt includes current Table 2 and instruction requirements", () 
   assert.match(prompt, /After Table 1, add a short "Percentage allocation per group" overview/);
   assert.match(prompt, /Ensure the group totals reconcile with the target allocation and add up to 100%/);
   assert.match(prompt, /Columns: Asset class \| Target weight \| ETF name \| ISIN/);
+  assert.match(prompt, /After Table 2, add a short regulatory and tax suitability note/);
+  assert.match(prompt, /ETF selections are preliminary implementation examples only/);
+  assert.match(prompt, /Final product eligibility and suitability must be checked/);
   assert.match(prompt, /Do not override the stated constraints/);
   assert.match(prompt, /closest feasible alternative/);
-  assert.match(prompt, /Prefer liquid, low-cost, broad, UCITS-compliant ETFs where available/);
+  assert.match(prompt, /Prefer liquid, low-cost, broad ETFs/);
+  assert.match(prompt, /Prefer UCITS-compliant ETFs where they are available and consistent with the selected exchange/);
   assert.match(prompt, /Make sensible, explicit, and minimal standard assumptions/);
   assert.match(prompt, /Use as few ETFs as practical within the target range/);
   assert.match(prompt, /Do not make tactical market forecasts, market-timing calls, or short-term return predictions/);
@@ -301,9 +305,13 @@ test("German prompt includes current Table 2 and instruction requirements", () =
   assert.match(prompt, /Füge nach Tabelle 1 eine kurze Übersicht "Prozentuale Allokation je Gruppe" ein/);
   assert.match(prompt, /Stelle sicher, dass die Gruppensummen mit der Zielallokation übereinstimmen und zusammen 100% ergeben/);
   assert.match(prompt, /Spalten: Anlageklasse \| Zielgewicht \| ETF-Name \| ISIN/);
+  assert.match(prompt, /Füge nach Tabelle 2 einen kurzen Hinweis zur regulatorischen und steuerlichen Eignung ein/);
+  assert.match(prompt, /ETF-Auswahlen sind nur vorläufige Umsetzungsbeispiele/);
+  assert.match(prompt, /Finale Produkteignung und Zulässigkeit müssen vor Ausführung/);
   assert.match(prompt, /Überschreibe die angegebenen Restriktionen nicht/);
   assert.match(prompt, /nächstbeste praktikable Alternative/);
-  assert.match(prompt, /Bevorzuge liquide, kostengünstige, breit diversifizierte und, wo verfügbar, UCITS-konforme ETFs/);
+  assert.match(prompt, /Bevorzuge liquide, kostengünstige und breit diversifizierte ETFs/);
+  assert.match(prompt, /Bevorzuge UCITS-konforme ETFs, sofern sie verfügbar und mit dem gewählten Börsenplatz vereinbar sind/);
   assert.match(prompt, /sinnvolle, explizite und minimale Standardannahmen/);
   assert.match(prompt, /Verwende so wenige ETFs wie praktikabel innerhalb der Zielbandbreite/);
   assert.match(prompt, /Keine taktischen Marktprognosen, kein Market-Timing und keine kurzfristigen Renditeprognosen/);
@@ -379,7 +387,9 @@ test("English and German prompts keep aligned strict structure and formatting", 
   const alignedPairs = [
     [/Do not override the stated constraints/, /Überschreibe die angegebenen Restriktionen nicht/],
     [/closest feasible alternative/, /nächstbeste praktikable Alternative/],
-    [/Prefer liquid, low-cost, broad, UCITS-compliant ETFs where available/, /Bevorzuge liquide, kostengünstige, breit diversifizierte und, wo verfügbar, UCITS-konforme ETFs/],
+    [/After Table 2, add a short regulatory and tax suitability note/, /Füge nach Tabelle 2 einen kurzen Hinweis zur regulatorischen und steuerlichen Eignung ein/],
+    [/ETF selections are preliminary implementation examples only/, /ETF-Auswahlen sind nur vorläufige Umsetzungsbeispiele/],
+    [/Prefer UCITS-compliant ETFs where they are available and consistent with the selected exchange/, /Bevorzuge UCITS-konforme ETFs, sofern sie verfügbar und mit dem gewählten Börsenplatz vereinbar sind/],
     [/Make sensible, explicit, and minimal standard assumptions/, /sinnvolle, explizite und minimale Standardannahmen/],
     [/Do not skip steps and do not jump directly to the final allocation/, /Überspringe keine Schritte und springe nicht direkt zur finalen Allokation/],
     [/impact on portfolio risk contribution/, /Auswirkung auf den Risikobeitrag des Portfolios/],
@@ -822,7 +832,7 @@ test("base currency sets the preferred exchange for every currency change", () =
     `
   );
 
-  assert.deepEqual(Array.from(result), ["XETRA Deutsche Börse", "LSE London Stock Exchange", "SIX Swiss Exchange", "NYSE American Stock Exchange"]);
+  assert.deepEqual(Array.from(result), ["XETRA Deutsche Börse", "LSE London Stock Exchange", "SIX Swiss Exchange", "LSE London Stock Exchange"]);
 });
 
 test("preferred exchange stays fixed while manual and restores to currency default", () => {

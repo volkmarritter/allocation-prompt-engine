@@ -4,13 +4,12 @@ window.PROMPT_BUILDER_CONFIG = {
   exchanges: [
     "SIX Swiss Exchange",
     "XETRA Deutsche Börse",
-    "NYSE American Stock Exchange",
     "LSE London Stock Exchange",
   ],
   defaultExchangeByCurrency: {
     CHF: "SIX Swiss Exchange",
     EUR: "XETRA Deutsche Börse",
-    USD: "NYSE American Stock Exchange",
+    USD: "LSE London Stock Exchange",
     GBP: "LSE London Stock Exchange",
   },
   etfCountBase: {

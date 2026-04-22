@@ -130,7 +130,7 @@ Die Börse wird im Auto-Modus aus der Basiswährung abgeleitet:
 | --- | --- |
 | `CHF` | `SIX Swiss Exchange` |
 | `EUR` | `XETRA Deutsche Börse` |
-| `USD` | `SIX Swiss Exchange` |
+| `USD` | `LSE London Stock Exchange` |
 | `GBP` | `LSE London Stock Exchange` |
 
 Wenn der Nutzer `Preferred exchange` manuell ändert:
@@ -197,10 +197,11 @@ Die Synthetic-ETF-Instruktion erwähnt strukturelle Vorteile, insbesondere Markt
 Die generierten Requirements enthalten zusätzlich sprachunabhängig:
 
 - Restriktionen dürfen nicht überschrieben werden; nicht erfüllbare Restriktionen müssen erklärt und mit der nächstbesten praktikablen Alternative beantwortet werden.
-- ETF-Auswahl priorisiert liquide, kostengünstige, breit diversifizierte und, wo verfügbar, UCITS-konforme ETFs.
+- ETF-Auswahl priorisiert liquide, kostengünstige und breit diversifizierte ETFs. UCITS-konforme ETFs werden bevorzugt, sofern sie verfügbar und mit dem gewählten Börsenplatz vereinbar sind.
 - Die ETF-Zielanzahl wird als praktikable Zielbandbreite formuliert, ohne Diversifikation oder Umsetzungsrobustheit zu opfern.
 - Taktische Marktprognosen, Market-Timing und kurzfristige Renditeprognosen werden ausgeschlossen.
 - Annahmen sollen sinnvoll, explizit und minimal sein.
+- Output Section B verlangt nach Tabelle 2 einen Hinweis zur regulatorischen und steuerlichen Eignung, der klarstellt, dass ETF-Auswahlen vorläufige Umsetzungsbeispiele sind und die finale Produkteignung vor Ausführung geprüft werden muss.
 - Output Section C verlangt 6-10 knappe Bullet Points.
 - Output Section E verlangt die aktuell verfügbaren ETF-Holdings oder Index-Factsheets für die Look-through-Analyse und eine Erklärung, falls die aktuelle Marktkapitalisierungs-Rangfolge von der gezeigten Rangfolge abweicht.
 - Output Section H soll knapp bleiben, sich auf die tatsächliche Allokation beziehen und keine generische Efficient-Frontier-Theorie liefern.

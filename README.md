@@ -38,7 +38,7 @@ Default exchange by currency:
 | --- | --- |
 | CHF | SIX Swiss Exchange |
 | EUR | XETRA Deutsche Boerse |
-| USD | NYSE American Stock Exchange |
+| USD | LSE London Stock Exchange |
 | GBP | LSE London Stock Exchange |
 
 Strategy presets:

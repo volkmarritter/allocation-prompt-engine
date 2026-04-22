@@ -130,7 +130,7 @@ In Auto mode, the preferred exchange is derived from the base currency:
 | --- | --- |
 | `CHF` | `SIX Swiss Exchange` |
 | `EUR` | `XETRA Deutsche Börse` |
-| `USD` | `SIX Swiss Exchange` |
+| `USD` | `LSE London Stock Exchange` |
 | `GBP` | `LSE London Stock Exchange` |
 
 If the user manually changes `Preferred exchange`:
@@ -197,10 +197,11 @@ The synthetic ETF instruction mentions structural advantages, especially market 
 The generated requirements also include, in both languages:
 
 - Stated constraints must not be overridden; infeasible constraints must be explained and answered with the closest feasible alternative.
-- ETF selection prioritizes liquid, low-cost, broad, UCITS-compliant ETFs where available.
+- ETF selection prioritizes liquid, low-cost, broad ETFs. UCITS-compliant ETFs are preferred where available and consistent with the selected exchange.
 - ETF target count is phrased as a practical target range without sacrificing diversification or implementation robustness.
 - Tactical market forecasts, market-timing calls, and short-term return predictions are excluded.
 - Assumptions should be sensible, explicit, and minimal.
+- Output section B asks for a regulatory and tax suitability note after Table 2, clarifying that ETF selections are preliminary implementation examples and final product eligibility must be checked before execution.
 - Output section C asks for 6-10 concise bullet points.
 - Output section E asks for the latest available ETF holdings or index factsheets for look-through analysis and requires an explanation if current market-cap leadership differs from the shown ranking.
 - Output section H should stay concise, stay linked to the actual allocation, and avoid generic Efficient Frontier theory.

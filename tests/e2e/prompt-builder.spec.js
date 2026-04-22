@@ -92,13 +92,16 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     expect(prompt).toContain("Internal validation (MANDATORY before final answer):");
     expect(prompt).toContain("mean-variance optimisation logic consistent with the efficient frontier");
     expect(prompt).toContain("Do not override the stated constraints");
-    expect(prompt).toContain("Prefer liquid, low-cost, broad, UCITS-compliant ETFs where available");
+    expect(prompt).toContain("Prefer liquid, low-cost, broad ETFs");
+    expect(prompt).toContain("Prefer UCITS-compliant ETFs where they are available and consistent with the selected exchange");
     expect(prompt).toContain("Use as few ETFs as practical within the target range");
     expect(prompt).toContain("Do not make tactical market forecasts, market-timing calls, or short-term return predictions");
     expect(prompt).toContain("Compare the portfolio to a simple global benchmark");
     expect(prompt).toContain("Portfolio construction rationale (Efficient Frontier perspective)");
     expect(prompt).toContain("Do not describe Efficient Frontier theory generically; explain the actual allocation choices.");
     expect(prompt).toContain("Columns: Asset class | Target weight | ETF name | ISIN");
+    expect(prompt).toContain("After Table 2, add a short regulatory and tax suitability note");
+    expect(prompt).toContain("ETF selections are preliminary implementation examples only");
     expect(prompt).toContain("13. Include synthetic ETFs where they provide structural advantages");
     expect(prompt).toContain("15. Write the full answer in clear English.");
     expect(prompt).toContain("Closing instruction:\nAdd an investment disclaimer at the end of the answer according to recognized best-practice standards.");
@@ -129,7 +132,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     expect(prompt).toContain("Interne Validierung (VERPFLICHTEND vor der finalen Antwort):");
     expect(prompt).toContain("Umsetzungsrobustheit wesentlich zu reduzieren");
     expect(prompt).toContain("Überschreibe die angegebenen Restriktionen nicht");
-    expect(prompt).toContain("Bevorzuge liquide, kostengünstige, breit diversifizierte und, wo verfügbar, UCITS-konforme ETFs");
+    expect(prompt).toContain("Bevorzuge liquide, kostengünstige und breit diversifizierte ETFs");
+    expect(prompt).toContain("Bevorzuge UCITS-konforme ETFs, sofern sie verfügbar und mit dem gewählten Börsenplatz vereinbar sind");
     expect(prompt).toContain("Verwende so wenige ETFs wie praktikabel innerhalb der Zielbandbreite");
     expect(prompt).toContain("Keine taktischen Marktprognosen, kein Market-Timing und keine kurzfristigen Renditeprognosen");
     expect(prompt).toContain("PORTFOLIO-KONSTRUKTIONSMETHODIK (VERPFLICHTEND)");
@@ -137,6 +141,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     expect(prompt).toContain("Erkläre, warum die resultierende Allokation unter realen Restriktionen nahe an einem effizienten Portfolio liegt.");
     expect(prompt).toContain("Beschreibe die Efficient-Frontier-Theorie nicht allgemein, sondern erkläre die tatsächlichen Allokationsentscheidungen.");
     expect(prompt).toContain("Spalten: Anlageklasse | Zielgewicht | ETF-Name | ISIN");
+    expect(prompt).toContain("Füge nach Tabelle 2 einen kurzen Hinweis zur regulatorischen und steuerlichen Eignung ein");
+    expect(prompt).toContain("ETF-Auswahlen sind nur vorläufige Umsetzungsbeispiele");
     expect(prompt).toContain("13. Beziehe synthetische ETFs ein");
     expect(prompt).toContain("Abschluss:");
     expect(prompt).toContain("Anlagehinweis nach anerkannten Best-Practice-Standards");
@@ -435,6 +441,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     const prompt = await getPrompt(page);
     expect(prompt).not.toContain("Address Swiss home bias");
     expect(prompt).toContain("- Base currency: USD");
+    expect(prompt).toContain("Prefer ETFs tradable on LSE London Stock Exchange");
   });
 
   test("updates preferred exchange in the prompt", async ({ page }) => {
