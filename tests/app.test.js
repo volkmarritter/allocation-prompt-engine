@@ -200,8 +200,17 @@ test("English prompt includes current Table 2 and instruction requirements", () 
   assert.match(prompt, /After Table 1, add a short "Percentage allocation per group" overview/);
   assert.match(prompt, /Ensure the group totals reconcile with the target allocation and add up to 100%/);
   assert.match(prompt, /Columns: Asset class \| Target weight \| ETF name \| ISIN/);
+  assert.match(prompt, /Do not override the stated constraints/);
+  assert.match(prompt, /closest feasible alternative/);
+  assert.match(prompt, /Prefer liquid, low-cost, broad, UCITS-compliant ETFs where available/);
+  assert.match(prompt, /Make sensible, explicit, and minimal standard assumptions/);
+  assert.match(prompt, /Use as few ETFs as practical within the target range/);
+  assert.match(prompt, /Do not make tactical market forecasts, market-timing calls, or short-term return predictions/);
+  assert.match(prompt, /Brief summary \(6-10 concise bullet points\)/);
   assert.match(prompt, /Where relevant, perform a look-through/);
   assert.match(prompt, /If relevant, include a look-through asset allocation overview after Table 1/);
+  assert.match(prompt, /Use the latest available ETF holdings or index factsheets for the look-through analysis/);
+  assert.match(prompt, /If current market-cap leadership differs from the ranking shown/);
   assert.match(prompt, /Portfolio construction methodology \(MANDATORY\):/);
   assert.match(prompt, /Execution mode:\nReasoning discipline \(MANDATORY\):/);
   assert.match(prompt, /Do not skip steps and do not jump directly to the final allocation\./);
@@ -219,9 +228,10 @@ test("English prompt includes current Table 2 and instruction requirements", () 
   assert.match(prompt, /Portfolio construction rationale \(Efficient Frontier perspective\)/);
   assert.match(prompt, /risk-adjusted returns/);
   assert.match(prompt, /Portfolio construction rationale \(Efficient Frontier perspective\)[\s\S]*Explain why the resulting allocation is close to an efficient portfolio, given real-world constraints\./);
-  assert.match(prompt, /12\. Include synthetic ETFs where they provide structural advantages/);
+  assert.match(prompt, /Portfolio construction rationale \(Efficient Frontier perspective\)[\s\S]*Do not describe Efficient Frontier theory generically; explain the actual allocation choices\./);
+  assert.match(prompt, /13\. Include synthetic ETFs where they provide structural advantages/);
   assert.match(prompt, /US equity exposure/);
-  assert.match(prompt, /14\. Write the full answer in clear English\./);
+  assert.match(prompt, /15\. Write the full answer in clear English\./);
   assert.match(prompt, /Closing instruction:\nAdd an investment disclaimer at the end of the answer according to recognized best-practice standards\./);
   assert.match(prompt, /Core Asset Classes:[\s\S]*- Cash \/ Money Market[\s\S]*- Bonds[\s\S]*- Equities by region[\s\S]*- Commodities \/ Precious Metals/);
   assert.match(prompt, /Satellites:[\s\S]*- Crypto Assets/);
@@ -291,6 +301,15 @@ test("German prompt includes current Table 2 and instruction requirements", () =
   assert.match(prompt, /Füge nach Tabelle 1 eine kurze Übersicht "Prozentuale Allokation je Gruppe" ein/);
   assert.match(prompt, /Stelle sicher, dass die Gruppensummen mit der Zielallokation übereinstimmen und zusammen 100% ergeben/);
   assert.match(prompt, /Spalten: Anlageklasse \| Zielgewicht \| ETF-Name \| ISIN/);
+  assert.match(prompt, /Überschreibe die angegebenen Restriktionen nicht/);
+  assert.match(prompt, /nächstbeste praktikable Alternative/);
+  assert.match(prompt, /Bevorzuge liquide, kostengünstige, breit diversifizierte und, wo verfügbar, UCITS-konforme ETFs/);
+  assert.match(prompt, /sinnvolle, explizite und minimale Standardannahmen/);
+  assert.match(prompt, /Verwende so wenige ETFs wie praktikabel innerhalb der Zielbandbreite/);
+  assert.match(prompt, /Keine taktischen Marktprognosen, kein Market-Timing und keine kurzfristigen Renditeprognosen/);
+  assert.match(prompt, /Kurze Zusammenfassung \(6-10 knappe Bullet Points\)/);
+  assert.match(prompt, /Nutze dafür die aktuell verfügbaren ETF-Holdings oder Index-Factsheets/);
+  assert.match(prompt, /Falls die aktuelle Marktkapitalisierungs-Rangfolge von der gezeigten Rangfolge abweicht/);
   assert.match(prompt, /Ausführungsmodus:\nBegründungsdisziplin \(VERPFLICHTEND\):/);
   assert.match(prompt, /springe nicht direkt zur finalen Allokation/);
   assert.match(prompt, /Auswirkung auf den Risikobeitrag des Portfolios/);
@@ -305,12 +324,89 @@ test("German prompt includes current Table 2 and instruction requirements", () =
   assert.match(prompt, /Beurteile den Beitrag jeder Anlageklasse zum Gesamtrisiko/);
   assert.match(prompt, /Portfolio-Konstruktionslogik \(Efficient-Frontier-Perspektive\)/);
   assert.match(prompt, /Portfolio-Konstruktionslogik \(Efficient-Frontier-Perspektive\)[\s\S]*Erkläre, warum die resultierende Allokation unter realen Restriktionen nahe an einem effizienten Portfolio liegt\./);
-  assert.match(prompt, /12\. Beziehe synthetische ETFs ein/);
+  assert.match(prompt, /Portfolio-Konstruktionslogik \(Efficient-Frontier-Perspektive\)[\s\S]*Beschreibe die Efficient-Frontier-Theorie nicht allgemein, sondern erkläre die tatsächlichen Allokationsentscheidungen\./);
+  assert.match(prompt, /13\. Beziehe synthetische ETFs ein/);
   assert.match(prompt, /US-Aktienexposure/);
   assert.match(prompt, /Abschluss:[\s\S]*Anlagehinweis nach anerkannten Best-Practice-Standards/);
-  assert.match(prompt, /14\. Schreibe die vollständige Antwort in klarem Deutsch\./);
+  assert.match(prompt, /15\. Schreibe die vollständige Antwort in klarem Deutsch\./);
   assert.match(prompt, /Kernanlageklassen:[\s\S]*- Cash \/ Geldmarkt[\s\S]*- Anleihen[\s\S]*- Aktien nach Regionen[\s\S]*- Rohstoffe \/ Edelmetalle/);
   assert.match(prompt, /Satelliten:[\s\S]*- Krypto-Assets/);
+});
+
+test("English and German prompts keep aligned strict structure and formatting", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      state.outputLanguage = "English";
+      const englishPrompt = buildPrompt();
+      const englishHeadings = getPromptPreviewSections(englishPrompt).map((section) => section.heading);
+      state.outputLanguage = "German";
+      const germanPrompt = buildPrompt();
+      const germanHeadings = getPromptPreviewSections(germanPrompt).map((section) => section.heading);
+      state.outputLanguage = "English";
+      state.executionMode = "fast";
+      const englishFastPrompt = buildPrompt();
+      state.outputLanguage = "German";
+      const germanFastPrompt = buildPrompt();
+      [englishPrompt, germanPrompt, englishHeadings, germanHeadings, englishFastPrompt, germanFastPrompt];
+    `
+  );
+  const [englishPrompt, germanPrompt, englishHeadings, germanHeadings, englishFastPrompt, germanFastPrompt] = Array.from(result);
+
+  assert.deepEqual(Array.from(englishHeadings).length, Array.from(germanHeadings).length);
+  assert.deepEqual(Array.from(englishHeadings), [
+    "Role",
+    "Objective",
+    "Execution mode",
+    "Portfolio construction methodology (MANDATORY)",
+    "Eligible asset classes",
+    "Requirements and constraints",
+    "Output format",
+  ]);
+  assert.deepEqual(Array.from(germanHeadings), [
+    "Rolle",
+    "Ziel",
+    "Ausführungsmodus",
+    "Portfolio-Konstruktionsmethodik (VERPFLICHTEND)",
+    "Zulässige Anlageklassen",
+    "Vorgaben und Restriktionen",
+    "Ausgabeformat",
+  ]);
+
+  const alignedPairs = [
+    [/Do not override the stated constraints/, /Überschreibe die angegebenen Restriktionen nicht/],
+    [/closest feasible alternative/, /nächstbeste praktikable Alternative/],
+    [/Prefer liquid, low-cost, broad, UCITS-compliant ETFs where available/, /Bevorzuge liquide, kostengünstige, breit diversifizierte und, wo verfügbar, UCITS-konforme ETFs/],
+    [/Make sensible, explicit, and minimal standard assumptions/, /sinnvolle, explizite und minimale Standardannahmen/],
+    [/Do not skip steps and do not jump directly to the final allocation/, /Überspringe keine Schritte und springe nicht direkt zur finalen Allokation/],
+    [/impact on portfolio risk contribution/, /Auswirkung auf den Risikobeitrag des Portfolios/],
+    [/Avoid generic, repetitive, or purely narrative explanations/, /Vermeide generische, repetitive oder rein erzählerische Erklärungen/],
+    [/all tables are internally consistent/, /alle Tabellen intern konsistent sind/],
+    [/minimum position sizes are respected unless explicitly justified/, /Mindestpositionsgrössen eingehalten werden, sofern Abweichungen nicht explizit begründet sind/],
+    [/implementation robustness/, /Umsetzungsrobustheit/],
+    [/balancing risk contributions across asset classes\.\n- Apply the following logic conceptually/, /Risikobeiträge über Anlageklassen ausbalancierst\.\n- Wende die Logik konzeptionell an/],
+    [/Explain why the resulting allocation is close to an efficient portfolio, given real-world constraints/, /Erkläre, warum die resultierende Allokation unter realen Restriktionen nahe an einem effizienten Portfolio liegt/],
+    [/Do not make tactical market forecasts, market-timing calls, or short-term return predictions/, /Keine taktischen Marktprognosen, kein Market-Timing und keine kurzfristigen Renditeprognosen/],
+    [/Brief summary \(6-10 concise bullet points\)/, /Kurze Zusammenfassung \(6-10 knappe Bullet Points\)/],
+    [/Use the latest available ETF holdings or index factsheets/, /Nutze dafür die aktuell verfügbaren ETF-Holdings oder Index-Factsheets/],
+    [/If current market-cap leadership differs from the ranking shown/, /Falls die aktuelle Marktkapitalisierungs-Rangfolge von der gezeigten Rangfolge abweicht/],
+    [/Do not describe Efficient Frontier theory generically; explain the actual allocation choices/, /Beschreibe die Efficient-Frontier-Theorie nicht allgemein, sondern erkläre die tatsächlichen Allokationsentscheidungen/],
+  ];
+
+  for (const [englishPattern, germanPattern] of alignedPairs) {
+    assert.match(englishPrompt, englishPattern);
+    assert.match(germanPrompt, germanPattern);
+  }
+
+  assert.doesNotMatch(englishPrompt, /Reasoning discipline \(MANDATORY\):\n\n-/);
+  assert.doesNotMatch(germanPrompt, /Begründungsdisziplin \(VERPFLICHTEND\):\n\n-/);
+  assert.doesNotMatch(englishPrompt, /Internal validation \(MANDATORY before final answer\):\n\n-/);
+  assert.doesNotMatch(germanPrompt, /Interne Validierung \(VERPFLICHTEND vor der finalen Antwort\):\n\n-/);
+  assert.doesNotMatch(englishFastPrompt, /Check that all allocation tables reconcile to 100%/);
+  assert.doesNotMatch(germanFastPrompt, /Prüfe, dass alle Allokationstabellen zu 100% aufgehen/);
 });
 
 test("prompt instruction checkbox copy is user-facing and neutral", () => {
@@ -876,6 +972,109 @@ test("ETF count keeps a coverage floor when equities are deselected from strateg
   ]);
 });
 
+test("prompt generation preserves app auto-rule invariants", () => {
+  const context = createContext();
+  reset(context);
+
+  const result = run(
+    context,
+    `
+      const allAssetClasses = Object.fromEntries(assetClassOptions.map((option) => [option.id, true]));
+      const noCash = { ...allAssetClasses, cash: false };
+      const noCashBonds = { ...noCash, bonds: false };
+      const noCashBondsEquities = { ...noCashBonds, equities: false };
+      const growthWithoutEquities = { ...portfolioPresets.find((preset) => preset.id === "growth").assetClasses, equities: false };
+
+      const autoCountsBefore = [
+        ["all-chf", ...getAutomaticEtfCount(allAssetClasses, "CHF")],
+        ["all-usd", ...getAutomaticEtfCount(allAssetClasses, "USD")],
+        ["no-cash-chf", ...getAutomaticEtfCount(noCash, "CHF")],
+        ["no-cash-bonds-chf", ...getAutomaticEtfCount(noCashBonds, "CHF")],
+        ["no-cash-bonds-equities-chf", ...getAutomaticEtfCount(noCashBondsEquities, "CHF")],
+        ["growth-without-equities-chf", ...getAutomaticEtfCount(growthWithoutEquities, "CHF")],
+      ];
+
+      const equityRangesBefore = ["Low", "Moderate", "High", "Very high"].map((risk) => [risk, ...getEquityRangeForRisk(risk)]);
+
+      const presetRowsBefore = portfolioPresets.map((preset) => {
+        applyPreset(preset.id);
+        return [
+          preset.id,
+          state.riskAppetite,
+          state.investmentHorizon,
+          state.equityMin,
+          state.equityMax,
+          state.minEtfs,
+          state.maxEtfs,
+          state.etfCountManuallyAdjusted,
+          state.assetClasses.cash,
+          state.assetClasses.bonds,
+          state.assetClasses.equities,
+          state.assetClasses.commodities,
+          state.assetClasses.realEstate,
+          state.assetClasses.crypto,
+        ];
+      });
+
+      state = createDefaultState();
+      activePresetId = defaultPresetId;
+      lastChosenPresetId = defaultPresetId;
+      const snapshotBefore = JSON.stringify({ state, activePresetId, lastChosenPresetId });
+      const originalLanguage = state.outputLanguage;
+      const originalExecutionMode = state.executionMode;
+
+      ["English", "German"].forEach((language) => {
+        ["fast", "strict"].forEach((executionMode) => {
+          state.outputLanguage = language;
+          state.executionMode = executionMode;
+          buildPrompt();
+          getPromptPreviewSections(buildPrompt());
+        });
+      });
+
+      state.outputLanguage = originalLanguage;
+      state.executionMode = originalExecutionMode;
+      const snapshotAfter = JSON.stringify({ state, activePresetId, lastChosenPresetId });
+
+      const autoCountsAfter = [
+        ["all-chf", ...getAutomaticEtfCount(allAssetClasses, "CHF")],
+        ["all-usd", ...getAutomaticEtfCount(allAssetClasses, "USD")],
+        ["no-cash-chf", ...getAutomaticEtfCount(noCash, "CHF")],
+        ["no-cash-bonds-chf", ...getAutomaticEtfCount(noCashBonds, "CHF")],
+        ["no-cash-bonds-equities-chf", ...getAutomaticEtfCount(noCashBondsEquities, "CHF")],
+        ["growth-without-equities-chf", ...getAutomaticEtfCount(growthWithoutEquities, "CHF")],
+      ];
+      const equityRangesAfter = ["Low", "Moderate", "High", "Very high"].map((risk) => [risk, ...getEquityRangeForRisk(risk)]);
+
+      [autoCountsBefore, autoCountsAfter, equityRangesBefore, equityRangesAfter, presetRowsBefore, snapshotBefore === snapshotAfter];
+    `
+  );
+
+  assert.deepEqual(Array.from(result[0], (row) => Array.from(row)), [
+    ["all-chf", 8, 12],
+    ["all-usd", 8, 12],
+    ["no-cash-chf", 7, 11],
+    ["no-cash-bonds-chf", 6, 10],
+    ["no-cash-bonds-equities-chf", 3, 5],
+    ["growth-without-equities-chf", 4, 6],
+  ]);
+  assert.deepEqual(Array.from(result[1], (row) => Array.from(row)), Array.from(result[0], (row) => Array.from(row)));
+  assert.deepEqual(Array.from(result[2], (row) => Array.from(row)), [
+    ["Low", 20, 40],
+    ["Moderate", 40, 60],
+    ["High", 60, 80],
+    ["Very high", 80, 100],
+  ]);
+  assert.deepEqual(Array.from(result[3], (row) => Array.from(row)), Array.from(result[2], (row) => Array.from(row)));
+  assert.deepEqual(Array.from(result[4], (row) => Array.from(row)), [
+    ["conservative", "Low", ">=3 years", 20, 40, 6, 10, false, true, true, true, true, false, false],
+    ["balanced", "Moderate", ">=5 years", 40, 60, 6, 10, false, true, true, true, true, false, false],
+    ["growth", "High", ">=10 years", 60, 80, 7, 11, false, true, true, true, true, false, true],
+    ["aggressive", "Very high", ">=10 years", 80, 100, 7, 11, false, true, false, true, true, true, true],
+  ]);
+  assert.equal(result[5], true);
+});
+
 test("min and max equity weights are bounded against each other", () => {
   const context = createContext();
   reset(context);
@@ -945,7 +1144,7 @@ test("equal equity and ETF targets use exact wording in prompts", () => {
 
   assert.match(englishPrompt, /- Equity allocation: 75%/);
   assert.doesNotMatch(englishPrompt, /Equity allocation between 75% and 75%/);
-  assert.match(englishPrompt, /Target exactly 8 positions in total/);
+  assert.match(englishPrompt, /Target exactly 8 positions in total without sacrificing diversification or implementation robustness/);
   assert.doesNotMatch(englishPrompt, /Target 8-8 positions/);
 
   const germanPrompt = run(

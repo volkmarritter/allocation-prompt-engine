@@ -868,16 +868,21 @@ function buildPrompt() {
       ? "Kein Ausgabeabschnitt ausgewählt. Wähle mindestens einen Abschnitt für die Antwort aus."
       : "No output sections selected. Specify at least one section in the response.";
   const numberedRequirements = [
-    german ? "Die Zielgewichte müssen in Summe genau 100% ergeben." : "Target weights must add up to exactly 100%.",
     german ? "Verwende ausschliesslich ETFs zur Umsetzung." : "Use ETFs only for implementation.",
+    german
+      ? "Überschreibe die angegebenen Restriktionen nicht. Falls eine Restriktion nicht erfüllbar ist, erkläre warum und nenne die nächstbeste praktikable Alternative."
+      : "Do not override the stated constraints. If a constraint cannot be met, explain why and propose the closest feasible alternative.",
     german
       ? `Bevorzuge ETFs, die an ${state.exchange} handelbar sind. Falls dies nicht möglich ist, nenne die nächstbeste Alternative und begründe die Ausnahme.`
       : `Prefer ETFs tradable on ${state.exchange}. If this is not possible, name the next-best alternative and explain the exception.`,
+    german
+      ? "Bevorzuge liquide, kostengünstige, breit diversifizierte und, wo verfügbar, UCITS-konforme ETFs. Vermeide Nischenprodukte, sofern sie nicht klar begründet sind."
+      : "Prefer liquid, low-cost, broad, UCITS-compliant ETFs where available, and avoid niche products unless clearly justified.",
     etfTargetRequirement,
     german ? "Priorisiere Kosteneffizienz, Diversifikation und praktische Umsetzbarkeit." : "Prioritize cost efficiency, diversification, and practical implementability.",
-    german ? "Keine Prognosen, kein Market-Timing und keine kurzfristigen Marktausblicke." : "Do not make forecasts, do not market-time, and do not include short-term market views.",
+    german ? "Keine taktischen Marktprognosen, kein Market-Timing und keine kurzfristigen Renditeprognosen." : "Do not make tactical market forecasts, market-timing calls, or short-term return predictions.",
     german ? "Entscheide regelbasiert anhand von Diversifikation, Risikokontrolle, Kosten und Umsetzbarkeit." : "Decide using rules and portfolio design principles such as diversification, risk control, costs, and implementability.",
-    german ? "Triff sinnvolle Standardannahmen, falls Informationen fehlen, und kennzeichne Unsicherheiten transparent statt Scheingenauigkeit zu erzeugen." : "Make sensible standard assumptions if information is missing, and flag uncertainty transparently instead of pretending to be precise.",
+    german ? "Triff sinnvolle, explizite und minimale Standardannahmen, falls Informationen fehlen, und kennzeichne Unsicherheiten transparent statt Scheingenauigkeit zu erzeugen." : "Make sensible, explicit, and minimal standard assumptions if information is missing, and flag uncertainty transparently instead of pretending to be precise.",
     getHomeBiasInstruction(german),
     state.includeHedgingQuestion
       ? german
@@ -891,8 +896,8 @@ function buildPrompt() {
       : null,
     state.includeSyntheticEtfs
       ? german
-        ? "Beziehe synthetische ETFs ein, wenn sie strukturelle Vorteile bieten, insbesondere in Bezug auf Markteffizienz und reduzierte Quellensteuer-Leakage (z. B. bei US-Aktienexposure), und stelle dabei Transparenz und Robustheit sicher. Reflektiere und erkläre deren Einsatz klar in Abschnitt C) Zusammenfassung der wichtigsten Design-Entscheidungen, z. B. wo sie eingesetzt werden und warum."
-        : "Include synthetic ETFs where they provide structural advantages, particularly in terms of market efficiency and reduced withholding tax leakage (e.g., for US equity exposure), while ensuring transparency and robustness. Reflect and explain their use clearly in section C) Summary of Key Design Decisions (e.g., where they are applied and why)."
+        ? "Beziehe synthetische ETFs ein, wenn sie strukturelle Vorteile bieten, insbesondere in Bezug auf Markteffizienz und reduzierte Quellensteuer-Leakage (z. B. bei US-Aktienexposure). Stelle dabei Transparenz und Robustheit sicher. Reflektiere und erkläre ihren Einsatz klar in Abschnitt C) Zusammenfassung der wichtigsten Design-Entscheidungen, z. B. wo sie eingesetzt werden und warum."
+        : "Include synthetic ETFs where they provide structural advantages, particularly in terms of market efficiency and reduced withholding tax leakage (e.g., for US equity exposure). Ensure transparency and robustness. Reflect and explain their use clearly in section C) Summary of Key Design Decisions (e.g., where they are applied and why)."
       : null,
     getEfficientFrontierRequirement(german),
     languageInstruction,
@@ -1089,13 +1094,13 @@ function formatEquityAllocationLine(minWeight, maxWeight, german) {
 function formatEtfTargetRequirement(minEtfs, maxEtfs, german) {
   if (minEtfs === maxEtfs) {
     return german
-      ? `Verwende möglichst wenige ETFs. Ziel: genau ${minEtfs} Positionen insgesamt, ohne Diversifikation unnötig zu opfern.`
-      : `Use as few ETFs as possible. Target exactly ${minEtfs} positions in total without sacrificing diversification unnecessarily.`;
+      ? `Verwende so wenige ETFs wie praktikabel. Ziel: genau ${minEtfs} Positionen insgesamt, ohne Diversifikation oder Umsetzungsrobustheit zu opfern.`
+      : `Use as few ETFs as practical. Target exactly ${minEtfs} positions in total without sacrificing diversification or implementation robustness.`;
   }
 
   return german
-    ? `Verwende möglichst wenige ETFs. Ziel: ${minEtfs}-${maxEtfs} Positionen insgesamt, ohne Diversifikation unnötig zu opfern.`
-    : `Use as few ETFs as possible. Target ${minEtfs}-${maxEtfs} positions in total without sacrificing diversification unnecessarily.`;
+    ? `Verwende so wenige ETFs wie praktikabel innerhalb der Zielbandbreite von ${minEtfs}-${maxEtfs} Positionen insgesamt, ohne Diversifikation oder Umsetzungsrobustheit zu opfern.`
+    : `Use as few ETFs as practical within the target range of ${minEtfs}-${maxEtfs} positions in total without sacrificing diversification or implementation robustness.`;
 }
 
 function getHomeBiasInstruction(german) {
@@ -1153,12 +1158,14 @@ function renderSectionInstruction(section, german, index = outputSections.findIn
     case "b":
       return german ? `${prefix}) Tabelle 2: Umsetzung mit ETFs (pro Position)\nSpalten: Anlageklasse | Zielgewicht | ETF-Name | ISIN | Ticker (Börse) | TER | Domizil | Replikation | Ausschüttung / Thesaurierung | Anteilsklassenwährung | Kurzkommentar (1 Satz zu Passung, Liquidität oder Tracking).` : `${prefix}) Table 2: ETF implementation (for each position)\nColumns: Asset class | Target weight | ETF name | ISIN | Ticker (exchange) | TER | Domicile | Replication | Distribution / accumulation | Share class currency | Short comment (1 sentence on fit, liquidity, or tracking quality).`;
     case "c":
-      return german ? `${prefix}) Kurze Zusammenfassung (ca. 10 Bullet Points) zu den wichtigsten Annahmen und Design-Entscheidungen, inklusive Aktienquote, Regionalmix, Konzentrationsrisiken, Home Bias, ausgeschlossene Anlageklassen, Rohstoffe / Edelmetalle, Immobilien und Krypto-Assets, wo relevant.` : `${prefix}) Brief summary (around 10 bullet points) covering the key assumptions and design decisions, including equity exposure, regional mix, concentration risks, home bias, excluded asset classes, commodities / precious metals, listed real estate, and crypto assets where relevant.`;
+      return german ? `${prefix}) Kurze Zusammenfassung (6-10 knappe Bullet Points) zu den wichtigsten Annahmen und Design-Entscheidungen, inklusive Aktienquote, Regionalmix, Konzentrationsrisiken, Home Bias, ausgeschlossene Anlageklassen, Rohstoffe / Edelmetalle, Immobilien und Krypto-Assets, wo relevant.` : `${prefix}) Brief summary (6-10 concise bullet points) covering the key assumptions and design decisions, including equity exposure, regional mix, concentration risks, home bias, excluded asset classes, commodities / precious metals, listed real estate, and crypto assets where relevant.`;
     case "d":
       return german ? `${prefix}) Konsolidierte Währungsübersicht des Gesamtportfolios nach Hedging.` : `${prefix}) Consolidated currency overview of the total portfolio after hedging.`;
     case "e":
       return state.includeLookThrough
-        ? german ? `${prefix}) Die zehn grössten Aktienpositionen auf Look-through-Basis und deren Gewichte.` : `${prefix}) The ten largest equity holdings on a look-through basis and their portfolio weights.`
+        ? german
+          ? `${prefix}) Die zehn grössten Aktienpositionen auf Look-through-Basis und deren Gewichte. Nutze dafür die aktuell verfügbaren ETF-Holdings oder Index-Factsheets und verlasse dich nicht auf veraltete Modellannahmen. Falls die aktuelle Marktkapitalisierungs-Rangfolge von der gezeigten Rangfolge abweicht, erkläre den Grund, z. B. ETF-Mix, regionale Allokation, Faktor-Tilt oder Datenstand.`
+          : `${prefix}) The ten largest equity holdings on a look-through basis and their portfolio weights. Use the latest available ETF holdings or index factsheets for the look-through analysis and do not rely on stale model memory. If current market-cap leadership differs from the ranking shown, explain the reason, for example ETF mix, regional allocation, factor tilt, or data date.`
         : german ? `${prefix}) Grösste zugrunde liegende Aktienpositionen, falls die gewählte Umsetzung eine sinnvolle Look-through-Sicht erlaubt.` : `${prefix}) Largest underlying equity holdings if the selected implementation allows a meaningful look-through view.`;
     case "f":
       return german ? `${prefix}) Rebalancing-Konzept inklusive Trigger, Frequenz und Bandbreiten.` : `${prefix}) Rebalancing concept including trigger, frequency, and tolerance bands.`;
@@ -1170,8 +1177,8 @@ function renderSectionInstruction(section, german, index = outputSections.findIn
           ? `${prefix}) Portfolio-Konstruktionslogik (kurz)\nGib eine kurze Erklärung, wie Diversifikation das gesamte Risiko-Rendite-Profil des Portfolios verbessert.`
           : `${prefix}) Portfolio rationale (brief)\nProvide a short explanation of how diversification improves the portfolio's overall risk-return profile.`
         : german
-          ? `${prefix}) Portfolio-Konstruktionslogik (Efficient-Frontier-Perspektive)\nGib eine strukturierte Erklärung zu qualitativen relativen Renditeerwartungen, Volatilitätsbeziehungen, Korrelationsstruktur, zentralen Diversifikationstreibern, der Verbesserung risikoadjustierter Renditen und den Trade-offs gegenüber einem rein theoretisch optimalen Portfolio.\nErkläre, warum die resultierende Allokation unter realen Restriktionen nahe an einem effizienten Portfolio liegt.`
-          : `${prefix}) Portfolio construction rationale (Efficient Frontier perspective)\nProvide a structured explanation covering relative return expectations (qualitative), volatility relationships, correlation structure, key diversification drivers, how the allocation improves risk-adjusted returns, and trade-offs versus a purely theoretical optimal portfolio.\nExplain why the resulting allocation is close to an efficient portfolio, given real-world constraints.`;
+          ? `${prefix}) Portfolio-Konstruktionslogik (Efficient-Frontier-Perspektive)\nGib eine strukturierte Erklärung zu qualitativen relativen Renditeerwartungen, Volatilitätsbeziehungen, Korrelationsstruktur, zentralen Diversifikationstreibern, der Verbesserung risikoadjustierter Renditen und den Trade-offs gegenüber einem rein theoretisch optimalen Portfolio.\nErkläre, warum die resultierende Allokation unter realen Restriktionen nahe an einem effizienten Portfolio liegt.\nHalte diesen Abschnitt knapp und beziehe ihn auf die tatsächliche Allokation. Beschreibe die Efficient-Frontier-Theorie nicht allgemein, sondern erkläre die tatsächlichen Allokationsentscheidungen.`
+          : `${prefix}) Portfolio construction rationale (Efficient Frontier perspective)\nProvide a structured explanation covering relative return expectations (qualitative), volatility relationships, correlation structure, key diversification drivers, how the allocation improves risk-adjusted returns, and trade-offs versus a purely theoretical optimal portfolio.\nExplain why the resulting allocation is close to an efficient portfolio, given real-world constraints.\nKeep this section concise and linked to the actual allocation. Do not describe Efficient Frontier theory generically; explain the actual allocation choices.`;
     default:
       return "";
   }

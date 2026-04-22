@@ -185,6 +185,17 @@ Die Home-Bias-Instruktion wird bei `USD` ausgeblendet.
 
 Die Synthetic-ETF-Instruktion erwähnt strukturelle Vorteile, insbesondere Markteffizienz und reduzierte Quellensteuer-Leakage bei US-Aktienexposure, und verlangt Erklärung in der Zusammenfassung.
 
+Die generierten Requirements enthalten zusätzlich sprachunabhängig:
+
+- Restriktionen dürfen nicht überschrieben werden; nicht erfüllbare Restriktionen müssen erklärt und mit der nächstbesten praktikablen Alternative beantwortet werden.
+- ETF-Auswahl priorisiert liquide, kostengünstige, breit diversifizierte und, wo verfügbar, UCITS-konforme ETFs.
+- Die ETF-Zielanzahl wird als praktikable Zielbandbreite formuliert, ohne Diversifikation oder Umsetzungsrobustheit zu opfern.
+- Taktische Marktprognosen, Market-Timing und kurzfristige Renditeprognosen werden ausgeschlossen.
+- Annahmen sollen sinnvoll, explizit und minimal sein.
+- Output Section C verlangt 6-10 knappe Bullet Points.
+- Output Section E verlangt die aktuell verfügbaren ETF-Holdings oder Index-Factsheets für die Look-through-Analyse und eine Erklärung, falls die aktuelle Marktkapitalisierungs-Rangfolge von der gezeigten Rangfolge abweicht.
+- Output Section H soll knapp bleiben, sich auf die tatsächliche Allokation beziehen und keine generische Efficient-Frontier-Theorie liefern.
+
 ## Plausibilitätsprüfungen und Popups
 
 Alle Popups sind Warnungen, keine Blockaden.

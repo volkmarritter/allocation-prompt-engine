@@ -91,11 +91,16 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     expect(prompt).toContain("Reasoning discipline (MANDATORY):");
     expect(prompt).toContain("Internal validation (MANDATORY before final answer):");
     expect(prompt).toContain("mean-variance optimisation logic consistent with the efficient frontier");
+    expect(prompt).toContain("Do not override the stated constraints");
+    expect(prompt).toContain("Prefer liquid, low-cost, broad, UCITS-compliant ETFs where available");
+    expect(prompt).toContain("Use as few ETFs as practical within the target range");
+    expect(prompt).toContain("Do not make tactical market forecasts, market-timing calls, or short-term return predictions");
     expect(prompt).toContain("Compare the portfolio to a simple global benchmark");
     expect(prompt).toContain("Portfolio construction rationale (Efficient Frontier perspective)");
+    expect(prompt).toContain("Do not describe Efficient Frontier theory generically; explain the actual allocation choices.");
     expect(prompt).toContain("Columns: Asset class | Target weight | ETF name | ISIN");
-    expect(prompt).toContain("12. Include synthetic ETFs where they provide structural advantages");
-    expect(prompt).toContain("14. Write the full answer in clear English.");
+    expect(prompt).toContain("13. Include synthetic ETFs where they provide structural advantages");
+    expect(prompt).toContain("15. Write the full answer in clear English.");
     expect(prompt).toContain("Closing instruction:\nAdd an investment disclaimer at the end of the answer according to recognized best-practice standards.");
   });
 
@@ -123,14 +128,19 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     expect(prompt).toContain("springe nicht direkt zur finalen Allokation");
     expect(prompt).toContain("Interne Validierung (VERPFLICHTEND vor der finalen Antwort):");
     expect(prompt).toContain("Umsetzungsrobustheit wesentlich zu reduzieren");
+    expect(prompt).toContain("Überschreibe die angegebenen Restriktionen nicht");
+    expect(prompt).toContain("Bevorzuge liquide, kostengünstige, breit diversifizierte und, wo verfügbar, UCITS-konforme ETFs");
+    expect(prompt).toContain("Verwende so wenige ETFs wie praktikabel innerhalb der Zielbandbreite");
+    expect(prompt).toContain("Keine taktischen Marktprognosen, kein Market-Timing und keine kurzfristigen Renditeprognosen");
     expect(prompt).toContain("PORTFOLIO-KONSTRUKTIONSMETHODIK (VERPFLICHTEND)");
     expect(prompt).toContain("Mean-Variance-Optimierungslogik");
     expect(prompt).toContain("Erkläre, warum die resultierende Allokation unter realen Restriktionen nahe an einem effizienten Portfolio liegt.");
+    expect(prompt).toContain("Beschreibe die Efficient-Frontier-Theorie nicht allgemein, sondern erkläre die tatsächlichen Allokationsentscheidungen.");
     expect(prompt).toContain("Spalten: Anlageklasse | Zielgewicht | ETF-Name | ISIN");
-    expect(prompt).toContain("12. Beziehe synthetische ETFs ein");
+    expect(prompt).toContain("13. Beziehe synthetische ETFs ein");
     expect(prompt).toContain("Abschluss:");
     expect(prompt).toContain("Anlagehinweis nach anerkannten Best-Practice-Standards");
-    expect(prompt).toContain("14. Schreibe die vollständige Antwort in klarem Deutsch.");
+    expect(prompt).toContain("15. Schreibe die vollständige Antwort in klarem Deutsch.");
   });
 
   test("updates equity allocation range when risk appetite changes", async ({ page }) => {
@@ -285,6 +295,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".execution-mode-control")).toHaveCount(0);
     await expect(page.locator(".output-box")).toContainText("Execution mode");
     await expect(page.locator(".output-box")).toContainText("Focus on speed and clarity.");
+    await expect(page.locator(".output-box")).not.toContainText("Check that all allocation tables reconcile to 100%.");
     await expect(page.locator(".output-box")).not.toContainText("Internal validation (MANDATORY before final answer):");
   });
 
@@ -500,7 +511,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     }
 
     await expect(page.locator(".etf-count-group")).toContainText("7 to 7");
-    await expect(page.locator(".output-box")).toContainText("Target exactly 7 positions");
+    await expect(page.locator(".output-box")).toContainText("Target exactly 7 positions in total without sacrificing diversification or implementation robustness");
 
     await page.locator('button[data-step-target="minEtfs"][data-step-direction="1"]').click();
     await expect(page.locator(".etf-count-group")).toContainText("7 to 7");
@@ -511,15 +522,15 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
 
     await page.locator('input[name="asset:cash"]').click();
     await expect(page.locator(".etf-count-group")).toContainText("6 to 10");
-    await expect(page.locator(".output-box")).toContainText("Target 6-10 positions");
+    await expect(page.locator(".output-box")).toContainText("target range of 6-10 positions");
 
     await page.locator('input[name="asset:bonds"]').click();
     await expect(page.locator(".etf-count-group")).toContainText("5 to 9");
-    await expect(page.locator(".output-box")).toContainText("Target 5-9 positions");
+    await expect(page.locator(".output-box")).toContainText("target range of 5-9 positions");
 
     await page.locator('input[name="asset:equities"]').click();
     await expect(page.locator(".etf-count-group")).toContainText("2 to 4");
-    await expect(page.locator(".output-box")).toContainText("Target 2-4 positions");
+    await expect(page.locator(".output-box")).toContainText("target range of 2-4 positions");
 
     await page.locator('button[data-step-target="minEtfs"][data-step-direction="1"]').click();
     await expect(page.locator(".etf-count-group")).toContainText("3 to 4");
