@@ -84,9 +84,13 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     const prompt = await getPrompt(page);
     expect(prompt).toContain("Columns: Group: Cash, Bonds, Equities, Commodities, Satellites | Asset class | Target weight");
     expect(prompt).toContain('After Table 1, add a short "Percentage allocation per group" overview');
+    expect(prompt).toContain("PORTFOLIO CONSTRUCTION METHODOLOGY (MANDATORY)");
+    expect(prompt).toContain("mean-variance optimisation logic consistent with the efficient frontier");
+    expect(prompt).toContain("Compare the portfolio to a simple global benchmark");
+    expect(prompt).toContain("Portfolio construction rationale (Efficient Frontier perspective)");
     expect(prompt).toContain("Columns: Asset class | Target weight | ETF name | ISIN");
     expect(prompt).toContain("12. Include synthetic ETFs where they provide structural advantages");
-    expect(prompt).toContain("13. Write the full answer in clear English.");
+    expect(prompt).toContain("14. Write the full answer in clear English.");
     expect(prompt).toContain("Closing instruction:\nAdd an investment disclaimer at the end of the answer according to recognized best-practice standards.");
   });
 
@@ -110,11 +114,13 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     const prompt = await getPrompt(page);
     expect(prompt).toContain("Spalten: Gruppe: Cash, Anleihen, Aktien, Rohstoffe, Satelliten | Anlageklasse | Zielgewicht");
     expect(prompt).toContain('Füge nach Tabelle 1 eine kurze Übersicht "Prozentuale Allokation je Gruppe" ein');
+    expect(prompt).toContain("PORTFOLIO-KONSTRUKTIONSMETHODIK (VERPFLICHTEND)");
+    expect(prompt).toContain("Mean-Variance-Optimierungslogik");
     expect(prompt).toContain("Spalten: Anlageklasse | Zielgewicht | ETF-Name | ISIN");
     expect(prompt).toContain("12. Beziehe synthetische ETFs ein");
     expect(prompt).toContain("Abschluss:");
     expect(prompt).toContain("Anlagehinweis nach anerkannten Best-Practice-Standards");
-    expect(prompt).toContain("13. Schreibe die vollständige Antwort in klarem Deutsch.");
+    expect(prompt).toContain("14. Schreibe die vollständige Antwort in klarem Deutsch.");
   });
 
   test("updates equity allocation range when risk appetite changes", async ({ page }) => {
@@ -156,6 +162,17 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".strategy-context")).toContainText("Custom setup");
     await page.locator('button[data-action="reset"]').click();
     await expect(page.locator(".strategy-context")).toContainText("Growth");
+  });
+
+  test("Pro mode hides portfolio construction rationale when deselected", async ({ page }) => {
+    await openApp(page);
+
+    await page.locator('input[name="section:h"]').click();
+
+    const prompt = await getPrompt(page);
+    expect(prompt).toContain("PORTFOLIO CONSTRUCTION METHODOLOGY (MANDATORY)");
+    expect(prompt).toContain("Assess the contribution of each asset class to overall portfolio risk");
+    expect(prompt).not.toContain("Portfolio construction rationale (Efficient Frontier perspective)");
   });
 
   test("quick start recommends and applies a coherent strategy", async ({ page }) => {
@@ -282,7 +299,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".basic-auto-summary")).toContainText("Investment horizon");
     await expect(page.locator(".basic-auto-summary")).toContainText("Equity");
     await expect(page.locator(".basic-auto-summary")).toContainText("ETFs");
-    await expect(page.locator(".collapsed-option-section.output-section")).toContainText("7 All selected");
+    await expect(page.locator(".collapsed-option-section.output-section")).toContainText("8 All selected");
     await expect(page.locator(".collapsed-option-section.instruction-section")).toContainText("All selected");
     await expect(page.locator('input[name="asset:equities"]')).toBeChecked();
     await expect(page.locator('input[name="asset:equities"]')).toBeDisabled();

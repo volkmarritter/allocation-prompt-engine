@@ -20,6 +20,7 @@ const outputSections = [
   { id: "e" },
   { id: "f" },
   { id: "g" },
+  { id: "h" },
 ];
 
 const appVersion = "2.0";
@@ -158,6 +159,7 @@ const uiText = {
       e: { label: "Top 10 look-through holdings", description: "Largest equity positions across the full portfolio." },
       f: { label: "Rebalancing concept", description: "Trigger rules, review frequency, and drift bands." },
       g: { label: "Weighted TER estimate", description: "Rough blended portfolio cost estimate." },
+      h: { label: "Portfolio construction rationale", description: "Efficient Frontier perspective on diversification and risk-return trade-offs." },
     },
   },
   German: {
@@ -267,6 +269,7 @@ const uiText = {
       e: { label: "Top-10-Look-through-Positionen", description: "Grösste Aktienpositionen über das Gesamtportfolio hinweg." },
       f: { label: "Rebalancing-Konzept", description: "Trigger, Frequenz und Bandbreiten." },
       g: { label: "Gewichtete TER-Schätzung", description: "Grobe Kostenindikation für das Gesamtportfolio." },
+      h: { label: "Portfolio-Konstruktionslogik", description: "Efficient-Frontier-Perspektive auf Diversifikation und Risiko-Rendite-Abwägungen." },
     },
   },
 };
@@ -480,6 +483,10 @@ function getSelectedSections() {
   return outputSections.filter((section) => state.sections[section.id]);
 }
 
+function getPromptOutputSections() {
+  return getSelectedSections();
+}
+
 function getEquityRegions(german = isGerman()) {
   if (state.baseCurrency === "CHF") {
     return german
@@ -496,7 +503,7 @@ function getPromptStats(prompt) {
   return {
     assetClasses: getSelectedAssetClasses().length,
     equityRegions: state.assetClasses.equities ? getEquityRegions().length : 0,
-    sections: getSelectedSections().length,
+    sections: getPromptOutputSections().length,
     words: prompt.trim().split(/\s+/).filter(Boolean).length,
   };
 }
@@ -825,7 +832,7 @@ function maybeShowSelectionAlert(changedName) {
 function buildPrompt() {
   const german = isGerman();
   const selectedAssetClasses = getSelectedAssetClasses();
-  const selectedSections = getSelectedSections();
+  const selectedSections = getPromptOutputSections();
   const clampedMin = Math.min(state.equityMin, state.equityMax);
   const clampedMax = Math.max(state.equityMin, state.equityMax);
   const minEtfs = Math.min(state.minEtfs, state.maxEtfs);
@@ -842,6 +849,7 @@ function buildPrompt() {
     ? "Füge am Ende der Antwort einen Anlagehinweis nach anerkannten Best-Practice-Standards hinzu."
     : "Add an investment disclaimer at the end of the answer according to recognized best-practice standards.";
   const assetClassLines = renderAssetClassPromptLines(selectedAssetClasses, german);
+  const constructionMethodology = getPortfolioConstructionMethodology(german);
   const sectionLines = selectedSections.length
     ? selectedSections.map((section, index) => renderSectionInstruction(section, german, index)).join("\n\n")
     : german
@@ -874,6 +882,7 @@ function buildPrompt() {
         ? "Beziehe synthetische ETFs ein, wenn sie strukturelle Vorteile bieten, insbesondere in Bezug auf Markteffizienz und reduzierte Quellensteuer-Leakage (z. B. bei US-Aktienexposure), und stelle dabei Transparenz und Robustheit sicher. Reflektiere und erkläre deren Einsatz klar in Abschnitt C) Zusammenfassung der wichtigsten Design-Entscheidungen, z. B. wo sie eingesetzt werden und warum."
         : "Include synthetic ETFs where they provide structural advantages, particularly in terms of market efficiency and reduced withholding tax leakage (e.g., for US equity exposure), while ensuring transparency and robustness. Reflect and explain their use clearly in section C) Summary of Key Design Decisions (e.g., where they are applied and why)."
       : null,
+    getEfficientFrontierRequirement(german),
     languageInstruction,
   ].filter(Boolean);
   const requirementsLines = numberedRequirements.map((line, index) => `${index + 1}. ${line}`).join("\n");
@@ -888,6 +897,8 @@ Erstelle ein ${portfolioStyle} für einen Investor mit:
 - Risikoappetit: ${translateRisk(state.riskAppetite, true)}
 - Anlagehorizont: ${translateHorizon(state.investmentHorizon, true)}
 ${equityAllocationLine}
+
+${constructionMethodology}
 
 Zulässige Anlageklassen:
 ${assetClassLines}
@@ -912,6 +923,8 @@ Create a ${portfolioStyle} for an investor with:
 - Investment horizon: ${translateHorizon(state.investmentHorizon, false)}
 ${equityAllocationLine}
 
+${constructionMethodology}
+
 Eligible asset classes:
 ${assetClassLines}
 
@@ -923,6 +936,54 @@ ${sectionLines}
 
 Closing instruction:
 ${disclaimerInstruction}`;
+}
+
+function getPortfolioConstructionMethodology(german) {
+  if (isBasicMode()) {
+    return german
+      ? `Portfolio-Konstruktionsansatz:
+Konstruiere ein gut diversifiziertes Portfolio mit soliden Portfolio-Design-Prinzipien.
+- Kombiniere Anlageklassen mit unterschiedlichen Risiko- und Renditeeigenschaften.
+- Nutze Diversifikation, um das gesamte Risiko-Rendite-Profil zu verbessern.
+- Vermeide unnötige Überschneidungen und Konzentrationen.
+- Strebe eine ausgewogene Mischung aus Wachstumstreibern und stabilisierenden Elementen an.`
+      : `Portfolio construction approach:
+Construct a well-diversified portfolio using sound portfolio design principles.
+- Combine asset classes with different risk and return characteristics.
+- Use diversification to improve the overall risk-return profile.
+- Avoid unnecessary overlap and concentration.
+- Aim for a balanced mix of growth drivers and stabilising elements.`;
+  }
+
+  return german
+    ? `Portfolio-Konstruktionsmethodik (VERPFLICHTEND):
+Konstruiere das Portfolio mit einer Mean-Variance-Optimierungslogik, die mit der Efficient Frontier vereinbar ist.
+- Stütze die Allokation auf langfristige Annahmen zu erwarteter Rendite (qualitativ), Volatilität und Korrelation zwischen Anlageklassen.
+- Beziehe eine Anlageklasse nur ein, wenn sie das Risiko-Rendite-Profil des Portfolios verbessert.
+- Stelle sicher, dass die Allokationen Diversifikationsvorteile und den Beitrag zum Gesamtrisiko des Portfolios widerspiegeln.
+- Nähere die Optimierung konzeptionell an, indem du niedrig korrelierte Anlageklassen kombinierst, redundante Exposures vermeidest und Risikobeiträge über Anlageklassen ausbalancierst.
+- Erkläre, warum die resultierende Allokation unter realen Restriktionen nahe an einem effizienten Portfolio liegt.
+- Wende die Logik konzeptionell an: Risiko für eine gegebene Rendite minimieren und Rendite für ein gegebenes Risikoniveau maximieren.`
+    : `Portfolio construction methodology (MANDATORY):
+Construct the portfolio using a mean-variance optimisation logic consistent with the efficient frontier.
+- Base the allocation on long-term assumptions for expected return (qualitative), volatility, and correlation between asset classes.
+- Include each asset class only if it improves the portfolio's risk-return profile.
+- Ensure allocations reflect diversification benefits and contribution to total portfolio risk.
+- Approximate optimisation by combining low-correlated assets, avoiding redundant exposures, and balancing risk contributions across asset classes.
+- Explain why the resulting allocation is close to an efficient portfolio, given real-world constraints.
+- Apply the following logic conceptually: minimise risk for a given return and maximise return for a given level of risk.`;
+}
+
+function getEfficientFrontierRequirement(german) {
+  if (isBasicMode()) {
+    return german
+      ? "Stelle sicher, dass das Portfolio über Anlageklassen und Risikotreiber gut diversifiziert ist, und vermeide Konzentration in einer einzelnen Risikoquelle."
+      : "Ensure the portfolio is well diversified across asset classes and risk drivers, and avoid concentration in a single source of risk.";
+  }
+
+  return german
+    ? "Beurteile den Beitrag jeder Anlageklasse zum Gesamtrisiko des Portfolios und vermeide Konzentration in einem einzelnen dominanten Risikofaktor. Vergleiche das Portfolio mit einer einfachen globalen Benchmark und erkläre Abweichungen kurz mit Blick auf Risiko-Rendite-Verbesserung."
+    : "Assess the contribution of each asset class to overall portfolio risk and avoid concentration in a single dominant risk factor. Compare the portfolio to a simple global benchmark, and briefly explain deviations in terms of risk-return improvement.";
 }
 
 function translateRisk(risk, german) {
@@ -1027,6 +1088,14 @@ function renderSectionInstruction(section, german, index = outputSections.findIn
       return german ? `${prefix}) Rebalancing-Konzept inklusive Trigger, Frequenz und Bandbreiten.` : `${prefix}) Rebalancing concept including trigger, frequency, and tolerance bands.`;
     case "g":
       return german ? `${prefix}) Grobe Kostenschätzung als gewichtete TER für das Gesamtportfolio.` : `${prefix}) Rough cost estimate expressed as weighted TER for the full portfolio.`;
+    case "h":
+      return isBasicMode()
+        ? german
+          ? `${prefix}) Portfolio-Rationale (kurz)\nGib eine kurze Erklärung, wie Diversifikation das gesamte Risiko-Rendite-Profil des Portfolios verbessert.`
+          : `${prefix}) Portfolio rationale (brief)\nProvide a short explanation of how diversification improves the portfolio's overall risk-return profile.`
+        : german
+          ? `${prefix}) Portfolio-Konstruktionslogik (Efficient-Frontier-Perspektive)\nGib eine strukturierte Erklärung zu qualitativen relativen Renditeerwartungen, Volatilitätsbeziehungen, Korrelationsstruktur, zentralen Diversifikationstreibern, der Verbesserung risikoadjustierter Renditen und den Trade-offs gegenüber einem rein theoretisch optimalen Portfolio.`
+          : `${prefix}) Portfolio construction rationale (Efficient Frontier perspective)\nProvide a structured explanation covering relative return expectations (qualitative), volatility relationships, correlation structure, key diversification drivers, how the allocation improves risk-adjusted returns, and trade-offs versus a purely theoretical optimal portfolio.`;
     default:
       return "";
   }
@@ -1664,11 +1733,15 @@ function isPromptTopLevelHeading(line) {
   return [
     /^Role:$/,
     /^Objective:$/,
+    /^Portfolio construction approach:$/,
+    /^Portfolio construction methodology \(MANDATORY\):$/,
     /^Eligible asset classes:$/,
     /^Requirements and constraints:$/,
     /^Output format:$/,
     /^Rolle:$/,
     /^Ziel:$/,
+    /^Portfolio-Konstruktionsansatz:$/,
+    /^Portfolio-Konstruktionsmethodik \(VERPFLICHTEND\):$/,
     /^Zul.+ Anlageklassen:$/,
     /^Vorgaben und Restriktionen:$/,
     /^Ausgabeformat:$/,

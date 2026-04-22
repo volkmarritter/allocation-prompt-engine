@@ -202,12 +202,39 @@ test("English prompt includes current Table 2 and instruction requirements", () 
   assert.match(prompt, /Columns: Asset class \| Target weight \| ETF name \| ISIN/);
   assert.match(prompt, /Where relevant, perform a look-through/);
   assert.match(prompt, /If relevant, include a look-through asset allocation overview after Table 1/);
+  assert.match(prompt, /Portfolio construction methodology \(MANDATORY\):/);
+  assert.match(prompt, /mean-variance optimisation logic consistent with the efficient frontier/);
+  assert.match(prompt, /Assess the contribution of each asset class to overall portfolio risk/);
+  assert.match(prompt, /Compare the portfolio to a simple global benchmark/);
+  assert.match(prompt, /Portfolio construction rationale \(Efficient Frontier perspective\)/);
+  assert.match(prompt, /risk-adjusted returns/);
   assert.match(prompt, /12\. Include synthetic ETFs where they provide structural advantages/);
   assert.match(prompt, /US equity exposure/);
-  assert.match(prompt, /13\. Write the full answer in clear English\./);
+  assert.match(prompt, /14\. Write the full answer in clear English\./);
   assert.match(prompt, /Closing instruction:\nAdd an investment disclaimer at the end of the answer according to recognized best-practice standards\./);
   assert.match(prompt, /Core Asset Classes:[\s\S]*- Cash \/ Money Market[\s\S]*- Bonds[\s\S]*- Equities by region[\s\S]*- Commodities \/ Precious Metals/);
   assert.match(prompt, /Satellites:[\s\S]*- Crypto Assets/);
+});
+
+test("basic prompt uses a light portfolio construction approach", () => {
+  const context = createContext();
+  reset(context);
+
+  const prompt = run(
+    context,
+    `
+      setPromptMode("basic");
+      buildPrompt();
+    `
+  );
+
+  assert.match(prompt, /Portfolio construction approach:/);
+  assert.match(prompt, /sound portfolio design principles/);
+  assert.match(prompt, /Use diversification to improve the overall risk-return profile/);
+  assert.match(prompt, /Ensure the portfolio is well diversified across asset classes and risk drivers/);
+  assert.match(prompt, /Portfolio rationale \(brief\)/);
+  assert.match(prompt, /how diversification improves the portfolio's overall risk-return profile/);
+  assert.doesNotMatch(prompt, /Portfolio construction methodology \(MANDATORY\)/);
 });
 
 test("German prompt includes current Table 2 and instruction requirements", () => {
@@ -226,10 +253,14 @@ test("German prompt includes current Table 2 and instruction requirements", () =
   assert.match(prompt, /Füge nach Tabelle 1 eine kurze Übersicht "Prozentuale Allokation je Gruppe" ein/);
   assert.match(prompt, /Stelle sicher, dass die Gruppensummen mit der Zielallokation übereinstimmen und zusammen 100% ergeben/);
   assert.match(prompt, /Spalten: Anlageklasse \| Zielgewicht \| ETF-Name \| ISIN/);
+  assert.match(prompt, /Portfolio-Konstruktionsmethodik \(VERPFLICHTEND\):/);
+  assert.match(prompt, /Mean-Variance-Optimierungslogik/);
+  assert.match(prompt, /Beurteile den Beitrag jeder Anlageklasse zum Gesamtrisiko/);
+  assert.match(prompt, /Portfolio-Konstruktionslogik \(Efficient-Frontier-Perspektive\)/);
   assert.match(prompt, /12\. Beziehe synthetische ETFs ein/);
   assert.match(prompt, /US-Aktienexposure/);
   assert.match(prompt, /Abschluss:[\s\S]*Anlagehinweis nach anerkannten Best-Practice-Standards/);
-  assert.match(prompt, /13\. Schreibe die vollständige Antwort in klarem Deutsch\./);
+  assert.match(prompt, /14\. Schreibe die vollständige Antwort in klarem Deutsch\./);
   assert.match(prompt, /Kernanlageklassen:[\s\S]*- Cash \/ Geldmarkt[\s\S]*- Anleihen[\s\S]*- Aktien nach Regionen[\s\S]*- Rohstoffe \/ Edelmetalle/);
   assert.match(prompt, /Satelliten:[\s\S]*- Krypto-Assets/);
 });
@@ -691,9 +722,27 @@ test("selected output sections are re-lettered alphabetically", () => {
   assert.match(prompt, /B\) Brief summary/);
   assert.match(prompt, /C\) The ten largest equity holdings/);
   assert.match(prompt, /D\) Rough cost estimate/);
+  assert.match(prompt, /E\) Portfolio construction rationale \(Efficient Frontier perspective\)/);
   assert.doesNotMatch(prompt, /ETF implementation/);
   assert.doesNotMatch(prompt, /Consolidated currency overview/);
   assert.doesNotMatch(prompt, /Rebalancing concept/);
+});
+
+test("pro prompt hides construction rationale when the output section is disabled", () => {
+  const context = createContext();
+  reset(context);
+
+  const prompt = run(
+    context,
+    `
+      state.sections.h = false;
+      buildPrompt();
+    `
+  );
+
+  assert.match(prompt, /Portfolio construction methodology \(MANDATORY\):/);
+  assert.match(prompt, /Assess the contribution of each asset class to overall portfolio risk/);
+  assert.doesNotMatch(prompt, /Portfolio construction rationale \(Efficient Frontier perspective\)/);
 });
 
 test("min and max ETF counts are bounded against each other", () => {
@@ -879,6 +928,7 @@ test("prompt preview splits prompts into top-level sections", () => {
   assert.deepEqual(Array.from(englishSections), [
     "Role",
     "Objective",
+    "Portfolio construction methodology (MANDATORY)",
     "Eligible asset classes",
     "Requirements and constraints",
     "Output format",
@@ -895,6 +945,7 @@ test("prompt preview splits prompts into top-level sections", () => {
   assert.deepEqual(Array.from(germanSections), [
     "Rolle",
     "Ziel",
+    "Portfolio-Konstruktionsmethodik (VERPFLICHTEND)",
     "Zulässige Anlageklassen",
     "Vorgaben und Restriktionen",
     "Ausgabeformat",
@@ -1049,7 +1100,7 @@ test("quick start app mode controls the opened builder mode", () => {
     `
   );
 
-  assert.deepEqual(Array.from(result[0]), ["basic", true, 7, true]);
+  assert.deepEqual(Array.from(result[0]), ["basic", true, 8, true]);
   assert.deepEqual(Array.from(result.slice(1)), ["pro", 60, 80]);
 });
 
@@ -1294,7 +1345,7 @@ test("basic mode auto-selects required defaults and locks equities", () => {
     `
   );
 
-  assert.deepEqual(Array.from(result[0]), ["basic", "growth", "growth", true, false, false, false, 7, true, true, true, true, 60, 80, 7, 11]);
+  assert.deepEqual(Array.from(result[0]), ["basic", "growth", "growth", true, false, false, false, 8, true, true, true, true, 60, 80, 7, 11]);
   assert.equal(result[1], true);
   assert.equal(result[2], "pro");
 });
@@ -1368,7 +1419,7 @@ test("reset keeps the builder in basic mode", () => {
     `
   );
 
-  assert.deepEqual(Array.from(result), ["basic", "growth", "growth", true, "High", ">=10 years", 60, 80, 7, true, false]);
+  assert.deepEqual(Array.from(result), ["basic", "growth", "growth", true, "High", ">=10 years", 60, 80, 8, true, false]);
 });
 
 test("basic mode render hides jump and auto logic while labeling summary pills", () => {
