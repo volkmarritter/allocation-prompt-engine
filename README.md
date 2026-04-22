@@ -17,6 +17,13 @@ The app is designed for Private Banking / Wealth Management use cases where inve
 - Supports copy-to-clipboard plus `.txt` and `.md` exports in Pro mode.
 - Runs as a static site without a backend, database, payment system, or build step.
 
+## Logic Documentation
+
+The detailed business logic, configuration-driven defaults, auto/manual rules, validation checks, and generated prompt structure are documented in:
+
+- `LOGIC_EN.md` - English logic documentation.
+- `LOGIC.md` - German logic documentation.
+
 ## Current Defaults
 
 - Default strategy: `Growth`
@@ -114,8 +121,8 @@ npm.cmd run test:e2e
 
 Current expected local results:
 
-- Unit tests: `54/54 passed`
-- E2E tests: `37 passed`, `1 skipped`
+- Unit tests: `68/68 passed`
+- E2E tests: `43 passed`, `1 skipped`
 
 The skipped E2E test is intentional for the desktop Playwright project because it is mobile-only.
 
