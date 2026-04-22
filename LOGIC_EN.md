@@ -2,7 +2,14 @@
 
 This file documents the app's business logic for strategy presets, selected parameters, automatic adjustments, and validation pop-ups.
 
-## Default State
+## Configurable Value Marker
+
+Sections or values marked with `[config]` are fully or partly read from `config.js` and can be adjusted there without changing the core logic in `app.js`.
+Sections without this marker describe fixed app logic or UI behavior.
+
+## Default State [config + App Defaults]
+
+The initial state is derived from `defaultBaseCurrency`, `defaultPresetId`, the referenced preset, `defaultExchangeByCurrency`, and `etfCountBase` in `config.js`. The remaining items are app defaults.
 
 - `Base currency`: `CHF`
 - `Risk appetite`: `High`
@@ -18,7 +25,7 @@ This file documents the app's business logic for strategy presets, selected para
 
 The reset button is labelled `Reset defaults: Growth CHF` or, in German, `Zurücksetzen: Wachstum CHF`.
 
-## Investment Strategy Presets
+## Investment Strategy Presets [config]
 
 The presets set risk appetite, investment horizon, equity allocation range, and asset classes; the ETF target count is then strictly derived in Auto mode from the configured base value.
 These values are maintained in `config.js` so they can be adjusted without editing the core app logic.
@@ -32,7 +39,7 @@ These values are maintained in `config.js` so they can be adjusted without editi
 
 The preset description explicitly shows the equity allocation range as `XX-XX% equity` or `XX-XX% Aktien`.
 
-## Configuration in `config.js`
+## Configuration in `config.js` [config]
 
 `config.js` contains the editable business configuration:
 
@@ -50,6 +57,8 @@ When publishing the app to WordPress/Plesk, upload `config.js` together with `in
 ## Risk Appetite and Equity Allocation Range
 
 If `Equities` is selected, the equity allocation range is set automatically by risk appetite:
+
+This Auto table is fixed app logic. The preset start values for risk appetite and equity allocation range are `[config]`.
 
 | Risk appetite | Equity allocation range |
 | --- | --- |
@@ -72,7 +81,7 @@ If the user changes the equity allocation range with the plus/minus controls:
 - Changing the risk appetite resets the equity allocation range to the relevant Auto range and switches the status back to `Auto`.
 - Clicking `Manual` also restores the relevant Auto range.
 
-## ETF Target Count
+## ETF Target Count [config + Auto Logic]
 
 Base value for the Auto calculation in `config.js`:
 
@@ -113,7 +122,7 @@ If `Balanced`, `Growth`, or `Aggressive` is selected afterwards:
 - `Aggressive` derives the ETF target count `7 to 11` from the base value.
 - ETF status remains `Auto` in each case.
 
-## Base Currency and Preferred Exchange
+## Base Currency and Preferred Exchange [config + Auto Logic]
 
 In Auto mode, the preferred exchange is derived from the base currency:
 
@@ -141,7 +150,7 @@ Home-bias logic depends on the base currency:
 | `GBP` | British home bias is addressed; Europe includes Switzerland within Europe. |
 | `USD` | The home-bias checkbox is hidden; no home-bias requirement is written into the prompt. |
 
-## Language and Range Display
+## Language and Range Display [App Logic]
 
 The UI and prompt language can be set to `English` or `German`.
 
@@ -164,7 +173,7 @@ If sections are omitted:
 - The remaining sections are re-lettered alphabetically.
 - If no output sections are selected, a pop-up appears.
 
-## Prompt Instructions
+## Prompt Instructions [App Logic]
 
 Optional prompt instructions:
 

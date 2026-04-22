@@ -2,7 +2,14 @@
 
 Diese Datei dokumentiert die fachliche Logik der App in Bezug auf gewählte Strategien, Parameter, automatische Anpassungen und Plausibilitätsprüfungen.
 
-## Default-Zustand
+## Markierung konfigurierbarer Werte
+
+Abschnitte oder Werte mit `[config]` werden ganz oder teilweise aus `config.js` gelesen und können dort angepasst werden, ohne die Kernlogik in `app.js` zu ändern.
+Abschnitte ohne diese Markierung beschreiben feste App-Logik oder UI-Verhalten.
+
+## Default-Zustand [config + App-Defaults]
+
+Der Initialzustand wird aus `defaultBaseCurrency`, `defaultPresetId`, dem referenzierten Preset, `defaultExchangeByCurrency` und `etfCountBase` in `config.js` abgeleitet. Die übrigen Punkte sind App-Defaults.
 
 - `Base currency`: `CHF`
 - `Risk appetite`: `High`
@@ -18,7 +25,7 @@ Diese Datei dokumentiert die fachliche Logik der App in Bezug auf gewählte Stra
 
 Der Reset-Button ist entsprechend beschriftet als `Reset defaults: Growth CHF` bzw. `Zurücksetzen: Wachstum CHF`.
 
-## Investment Strategy Presets
+## Investment Strategy Presets [config]
 
 Die Presets setzen Risikoappetit, Anlagehorizont, Aktienbandbreite und Anlageklassen; die ETF-Zielanzahl wird danach strikt im Auto-Modus aus dem konfigurierten Basiswert abgeleitet.
 Diese Werte werden in `config.js` gepflegt, damit sie ohne Eingriff in die App-Logik angepasst werden können.
@@ -32,7 +39,7 @@ Diese Werte werden in `config.js` gepflegt, damit sie ohne Eingriff in die App-L
 
 Die Preset-Beschreibung zeigt die Aktienbandbreite explizit als `XX-XX% equity` bzw. `XX-XX% Aktien`.
 
-## Konfiguration in `config.js`
+## Konfiguration in `config.js` [config]
 
 `config.js` enthält die fachlich editierbaren Werte:
 
@@ -50,6 +57,8 @@ Wenn die App auf WordPress/Plesk veröffentlicht wird, muss `config.js` zusammen
 ## Risk Appetite und Aktienbandbreite
 
 Wenn `Equities` ausgewählt ist, wird die Aktienbandbreite automatisch nach Risikoappetit gesetzt:
+
+Diese Auto-Tabelle ist feste App-Logik. Die in den Presets gesetzten Startwerte für Risikoappetit und Aktienbandbreite sind dagegen `[config]`.
 
 | Risikoappetit | Aktienbandbreite |
 | --- | --- |
@@ -72,7 +81,7 @@ Wenn der Nutzer die Aktienquote über Plus-/Minus-Buttons manuell ändert:
 - Ein Wechsel des Risikoappetits setzt die Aktienbandbreite wieder auf den passenden Auto-Wert und der Status wird wieder `Auto`.
 - Ein Klick auf `Manual` stellt ebenfalls wieder auf den passenden Auto-Wert zurück.
 
-## ETF-Zielanzahl
+## ETF-Zielanzahl [config + Auto-Logik]
 
 Basiswert für die Auto-Berechnung in `config.js`:
 
@@ -113,7 +122,7 @@ Wenn danach `Balanced`, `Growth` oder `Aggressive` gewählt wird:
 - `Aggressive` leitet aus dem Basiswert die ETF-Zielanzahl `7 bis 11` ab.
 - Der ETF-Status bleibt jeweils `Auto`.
 
-## Base Currency und Preferred Exchange
+## Base Currency und Preferred Exchange [config + Auto-Logik]
 
 Die Börse wird im Auto-Modus aus der Basiswährung abgeleitet:
 
@@ -141,7 +150,7 @@ Die Home-Bias-Logik hängt von der Basiswährung ab:
 | `GBP` | Britischer Home Bias wird adressiert; Europa enthält die Schweiz innerhalb Europas. |
 | `USD` | Home-Bias-Checkbox wird ausgeblendet; keine Home-Bias-Anforderung wird in den Prompt geschrieben. |
 
-## Sprache und Range-Anzeige
+## Sprache und Range-Anzeige [App-Logik]
 
 Die UI- und Prompt-Sprache kann zwischen `English` und `German` gewählt werden.
 
@@ -164,7 +173,7 @@ Wenn Abschnitte weggelassen werden:
 - Die verbleibenden Abschnitte werden alphabetisch neu nummeriert.
 - Wenn keine Output Sections ausgewählt sind, erscheint ein Popup.
 
-## Prompt Instructions
+## Prompt Instructions [App-Logik]
 
 Folgende Prompt-Instruktionen sind optional:
 
