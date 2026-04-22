@@ -203,6 +203,9 @@ test("English prompt includes current Table 2 and instruction requirements", () 
   assert.match(prompt, /Where relevant, perform a look-through/);
   assert.match(prompt, /If relevant, include a look-through asset allocation overview after Table 1/);
   assert.match(prompt, /Portfolio construction methodology \(MANDATORY\):/);
+  assert.match(prompt, /Execution mode:\nReasoning discipline \(MANDATORY\):/);
+  assert.match(prompt, /Internal validation \(MANDATORY before final answer\):/);
+  assert.match(prompt, /minimum position sizes respected/);
   assert.match(prompt, /mean-variance optimisation logic consistent with the efficient frontier/);
   assert.match(prompt, /Assess the contribution of each asset class to overall portfolio risk/);
   assert.match(prompt, /Compare the portfolio to a simple global benchmark/);
@@ -229,12 +232,32 @@ test("basic prompt uses a light portfolio construction approach", () => {
   );
 
   assert.match(prompt, /Portfolio construction approach:/);
+  assert.match(prompt, /Execution mode:\n- Focus on speed and clarity\./);
+  assert.match(prompt, /Do not perform extensive internal validation loops\./);
   assert.match(prompt, /sound portfolio design principles/);
   assert.match(prompt, /Use diversification to improve the overall risk-return profile/);
   assert.match(prompt, /Ensure the portfolio is well diversified across asset classes and risk drivers/);
   assert.match(prompt, /Portfolio rationale \(brief\)/);
   assert.match(prompt, /how diversification improves the portfolio's overall risk-return profile/);
   assert.doesNotMatch(prompt, /Portfolio construction methodology \(MANDATORY\)/);
+  assert.doesNotMatch(prompt, /Reasoning discipline \(MANDATORY\)/);
+});
+
+test("Pro prompt execution mode can switch from strict to fast", () => {
+  const context = createContext();
+  reset(context);
+
+  const prompt = run(
+    context,
+    `
+      state.executionMode = "fast";
+      buildPrompt();
+    `
+  );
+
+  assert.match(prompt, /Execution mode:\n- Focus on speed and clarity\./);
+  assert.match(prompt, /Apply a pragmatic, heuristic portfolio construction approach\./);
+  assert.doesNotMatch(prompt, /Internal validation \(MANDATORY before final answer\)/);
 });
 
 test("German prompt includes current Table 2 and instruction requirements", () => {
@@ -253,6 +276,9 @@ test("German prompt includes current Table 2 and instruction requirements", () =
   assert.match(prompt, /Füge nach Tabelle 1 eine kurze Übersicht "Prozentuale Allokation je Gruppe" ein/);
   assert.match(prompt, /Stelle sicher, dass die Gruppensummen mit der Zielallokation übereinstimmen und zusammen 100% ergeben/);
   assert.match(prompt, /Spalten: Anlageklasse \| Zielgewicht \| ETF-Name \| ISIN/);
+  assert.match(prompt, /Ausführungsmodus:\nBegründungsdisziplin \(VERPFLICHTEND\):/);
+  assert.match(prompt, /Interne Validierung \(VERPFLICHTEND vor der finalen Antwort\):/);
+  assert.match(prompt, /Mindestpositionsgrössen eingehalten/);
   assert.match(prompt, /Portfolio-Konstruktionsmethodik \(VERPFLICHTEND\):/);
   assert.match(prompt, /Mean-Variance-Optimierungslogik/);
   assert.match(prompt, /Beurteile den Beitrag jeder Anlageklasse zum Gesamtrisiko/);
@@ -928,6 +954,7 @@ test("prompt preview splits prompts into top-level sections", () => {
   assert.deepEqual(Array.from(englishSections), [
     "Role",
     "Objective",
+    "Execution mode",
     "Portfolio construction methodology (MANDATORY)",
     "Eligible asset classes",
     "Requirements and constraints",
@@ -945,6 +972,7 @@ test("prompt preview splits prompts into top-level sections", () => {
   assert.deepEqual(Array.from(germanSections), [
     "Rolle",
     "Ziel",
+    "Ausführungsmodus",
     "Portfolio-Konstruktionsmethodik (VERPFLICHTEND)",
     "Zulässige Anlageklassen",
     "Vorgaben und Restriktionen",

@@ -923,6 +923,10 @@ button {
   color: #3d6348;
 }
 
+.execution-mode-control {
+  justify-items: start;
+}
+
 .toggle {
   display: flex;
   gap: 12px;

@@ -123,6 +123,11 @@ const uiText = {
     includeLookThroughDescription: "Assess underlying ETF exposures, especially for broad market indices.",
     includeSyntheticEtfs: "Include synthetic ETF assessment",
     includeSyntheticEtfsDescription: "Consider synthetic ETFs where structural advantages, including US tax withholding efficiency, may matter.",
+    executionMode: "Execution mode",
+    fastExecution: "Fast",
+    strictExecution: "Strict",
+    fastExecutionDescription: "Pragmatic, concise portfolio construction.",
+    strictExecutionDescription: "Structured reasoning with internal validation.",
     generatedPrompt: "Generated prompt",
     readyToPaste: "Ready to paste",
     outputCopy: "The prompt updates instantly from the selected parameters.",
@@ -233,6 +238,11 @@ const uiText = {
     includeLookThroughDescription: "Beurteilung zugrunde liegender ETF-Exposures, besonders bei breiten Marktindizes.",
     includeSyntheticEtfs: "Synthetische ETFs einbeziehen",
     includeSyntheticEtfsDescription: "Synthetische ETFs prüfen, wenn strukturelle Vorteile inklusive US-Steuereffizienz relevant sein können.",
+    executionMode: "Ausführungsmodus",
+    fastExecution: "Schnell",
+    strictExecution: "Strikt",
+    fastExecutionDescription: "Pragmatische, knappe Portfolio-Konstruktion.",
+    strictExecutionDescription: "Strukturierte Herleitung mit interner Validierung.",
     generatedPrompt: "Generierter Prompt",
     readyToPaste: "Bereit zum Kopieren",
     outputCopy: "Der Prompt aktualisiert sich sofort anhand der gewählten Parameter.",
@@ -299,6 +309,7 @@ const defaults = {
   includeHedgingQuestion: true,
   includeLookThrough: true,
   includeSyntheticEtfs: true,
+  executionMode: "strict",
   assetClasses: Object.fromEntries(assetClassOptions.map((option) => [option.id, true])),
   sections: Object.fromEntries(outputSections.map((section) => [section.id, true])),
 };
@@ -849,6 +860,7 @@ function buildPrompt() {
     ? "Füge am Ende der Antwort einen Anlagehinweis nach anerkannten Best-Practice-Standards hinzu."
     : "Add an investment disclaimer at the end of the answer according to recognized best-practice standards.";
   const assetClassLines = renderAssetClassPromptLines(selectedAssetClasses, german);
+  const executionModeInstruction = getExecutionModeInstruction(german);
   const constructionMethodology = getPortfolioConstructionMethodology(german);
   const sectionLines = selectedSections.length
     ? selectedSections.map((section, index) => renderSectionInstruction(section, german, index)).join("\n\n")
@@ -898,6 +910,8 @@ Erstelle ein ${portfolioStyle} für einen Investor mit:
 - Anlagehorizont: ${translateHorizon(state.investmentHorizon, true)}
 ${equityAllocationLine}
 
+${executionModeInstruction}
+
 ${constructionMethodology}
 
 Zulässige Anlageklassen:
@@ -922,6 +936,8 @@ Create a ${portfolioStyle} for an investor with:
 - Risk appetite: ${translateRisk(state.riskAppetite, false)}
 - Investment horizon: ${translateHorizon(state.investmentHorizon, false)}
 ${equityAllocationLine}
+
+${executionModeInstruction}
 
 ${constructionMethodology}
 
@@ -996,6 +1012,82 @@ function translateHorizon(horizon, german) {
   if (!german) return horizon;
   const mapping = { ">=3 years": ">=3 Jahre", ">=5 years": ">=5 Jahre", ">=10 years": ">=10 Jahre" };
   return mapping[horizon] || horizon;
+}
+
+function getEffectiveExecutionMode() {
+  return isBasicMode() ? "fast" : (state.executionMode === "fast" ? "fast" : "strict");
+}
+
+function getExecutionModeInstruction(german) {
+  if (getEffectiveExecutionMode() === "fast") {
+    return german
+      ? `Ausführungsmodus:
+- Fokus auf Geschwindigkeit und Klarheit.
+- Wende einen pragmatischen, heuristischen Portfolio-Konstruktionsansatz an.
+- Halte die Begründung knapp und vermeide unnötige Komplexität.
+- Führe keine umfangreichen internen Validierungsschleifen durch.
+- Priorisiere ein klares, intuitives und umsetzbares Ergebnis.`
+      : `Execution mode:
+- Focus on speed and clarity.
+- Apply a pragmatic, heuristic portfolio construction approach.
+- Keep reasoning concise and avoid unnecessary complexity.
+- Do not perform extensive internal validation loops.
+- Prioritise a clean, intuitive, and implementable result.`;
+  }
+
+  return german
+    ? `Ausführungsmodus:
+Begründungsdisziplin (VERPFLICHTEND):
+
+- Folge allen Schritten der Portfolio-Konstruktion in der vorgegebenen Reihenfolge.
+- Überspringe keine Schritte und ziehe keine voreiligen Schlüsse.
+- Jede Allokationsentscheidung muss begründet werden durch:
+  - Diversifikationsbeitrag
+  - Auswirkung auf den Risikobeitrag
+  - Umsetzungseffizienz
+
+- Vermeide generische oder rein erzählerische Erklärungen.
+- Halte die Begründung strukturiert, explizit und entscheidungsorientiert.
+
+Interne Validierung (VERPFLICHTEND vor der finalen Antwort):
+
+- Prüfe:
+  - Gesamtallokation = 100%
+  - Konsistenz über alle Tabellen hinweg
+  - keine redundanten Exposures
+  - Mindestpositionsgrössen eingehalten
+  - Diversifikation ist substanziell und nicht nur oberflächlich
+
+- Stelle sicher, dass das Portfolio nicht vereinfacht werden kann, ohne die Diversifikationsqualität zu reduzieren.
+
+- Falls Inkonsistenzen oder Schwächen erkannt werden:
+  → korrigiere sie, bevor das finale Ergebnis präsentiert wird.`
+    : `Execution mode:
+Reasoning discipline (MANDATORY):
+
+- Follow all portfolio construction steps in order.
+- Do not skip steps or jump to conclusions.
+- Each allocation decision must be justified by:
+  - diversification benefit
+  - risk contribution impact
+  - implementation efficiency
+
+- Avoid generic or narrative explanations.
+- Keep reasoning structured, explicit, and decision-oriented.
+
+Internal validation (MANDATORY before final answer):
+
+- Verify:
+  - total allocation = 100%
+  - consistency across all tables
+  - no redundant exposures
+  - minimum position sizes respected
+  - diversification is meaningful (not superficial)
+
+- Ensure the portfolio cannot be simplified without reducing diversification quality.
+
+- If inconsistencies or weaknesses are detected:
+  → correct them before presenting the final result.`;
 }
 
 function formatEquityAllocationLine(minWeight, maxWeight, german) {
@@ -1091,7 +1183,7 @@ function renderSectionInstruction(section, german, index = outputSections.findIn
     case "h":
       return isBasicMode()
         ? german
-          ? `${prefix}) Portfolio-Rationale (kurz)\nGib eine kurze Erklärung, wie Diversifikation das gesamte Risiko-Rendite-Profil des Portfolios verbessert.`
+          ? `${prefix}) Portfolio-Konstruktionslogik (kurz)\nGib eine kurze Erklärung, wie Diversifikation das gesamte Risiko-Rendite-Profil des Portfolios verbessert.`
           : `${prefix}) Portfolio rationale (brief)\nProvide a short explanation of how diversification improves the portfolio's overall risk-return profile.`
         : german
           ? `${prefix}) Portfolio-Konstruktionslogik (Efficient-Frontier-Perspektive)\nGib eine strukturierte Erklärung zu qualitativen relativen Renditeerwartungen, Volatilitätsbeziehungen, Korrelationsstruktur, zentralen Diversifikationstreibern, der Verbesserung risikoadjustierter Renditen und den Trade-offs gegenüber einem rein theoretisch optimalen Portfolio.`
@@ -1255,7 +1347,7 @@ function render() {
               : `<div class="field-group option-section output-section"><span class="field-label">${escapeHtml(t.requiredOutputSections)}</span><div class="toggle-grid">${outputSections.map(renderSectionToggle).join("")}</div></div>`}
             ${basicMode
               ? renderCollapsedOptionSection("instruction-section", t.promptInstructions, t.allSelected)
-              : `<div class="field-group option-section instruction-section"><span class="field-label">${escapeHtml(t.promptInstructions)}</span><div class="toggle-grid">
+              : `<div class="field-group option-section instruction-section"><span class="field-label">${escapeHtml(t.promptInstructions)}</span>${renderExecutionModeSwitch(t)}<div class="toggle-grid">
               ${state.baseCurrency === "USD" ? "" : renderCheckboxCard("includeHomeBiasGuidance", state.includeHomeBiasGuidance, t.includeHomeBias, t.includeHomeBiasDescription)}
               ${renderCheckboxCard("includeHedgingQuestion", state.includeHedgingQuestion, t.includeHedging, t.includeHedgingDescription)}
               ${renderCheckboxCard("includeLookThrough", state.includeLookThrough, t.includeLookThrough, t.includeLookThroughDescription)}
@@ -1689,6 +1781,19 @@ function renderSectionToggle(section) {
   return renderCheckboxCard(`section:${section.id}`, state.sections[section.id], text.label, text.description);
 }
 
+function renderExecutionModeSwitch(t) {
+  const currentMode = state.executionMode === "fast" ? "fast" : "strict";
+  return `
+    <div class="execution-mode-control mode-switch-wrap">
+      <div class="mode-switch" role="group" aria-label="${escapeAttribute(t.executionMode)}">
+        <button class="mode-option ${currentMode === "fast" ? "is-active" : ""}" type="button" data-action="set-execution-mode" data-execution-mode="fast" aria-pressed="${currentMode === "fast" ? "true" : "false"}" title="${escapeAttribute(t.fastExecutionDescription)}">${escapeHtml(t.fastExecution)}</button>
+        <button class="mode-option ${currentMode === "strict" ? "is-active" : ""}" type="button" data-action="set-execution-mode" data-execution-mode="strict" aria-pressed="${currentMode === "strict" ? "true" : "false"}" title="${escapeAttribute(t.strictExecutionDescription)}">${escapeHtml(t.strictExecution)}</button>
+      </div>
+      <span class="mode-switch-label">${escapeHtml(t.executionMode)}</span>
+    </div>
+  `;
+}
+
 function renderCheckboxCard(name, checked, title, description, disabled = false) {
   return `<label class="toggle ${disabled ? "is-disabled" : ""}"><input type="checkbox" name="${escapeAttribute(name)}" ${checked ? "checked" : ""} ${disabled ? "disabled" : ""} /><div><strong>${escapeHtml(title)}</strong><span>${escapeHtml(description)}</span></div></label>`;
 }
@@ -1733,6 +1838,7 @@ function isPromptTopLevelHeading(line) {
   return [
     /^Role:$/,
     /^Objective:$/,
+    /^Execution mode:$/,
     /^Portfolio construction approach:$/,
     /^Portfolio construction methodology \(MANDATORY\):$/,
     /^Eligible asset classes:$/,
@@ -1740,6 +1846,7 @@ function isPromptTopLevelHeading(line) {
     /^Output format:$/,
     /^Rolle:$/,
     /^Ziel:$/,
+    /^Ausführungsmodus:$/,
     /^Portfolio-Konstruktionsansatz:$/,
     /^Portfolio-Konstruktionsmethodik \(VERPFLICHTEND\):$/,
     /^Zul.+ Anlageklassen:$/,
@@ -1781,6 +1888,8 @@ function handleInputChange(event) {
     state.sections[name.slice(8)] = checked;
   } else if (["includeHomeBiasGuidance", "includeHedgingQuestion", "includeLookThrough", "includeSyntheticEtfs"].includes(name)) {
     state[name] = checked;
+  } else if (name === "executionMode") {
+    state.executionMode = value === "fast" ? "fast" : "strict";
   } else if (["minEtfs", "maxEtfs"].includes(name)) {
     state.etfCountManuallyAdjusted = true;
     state[name] = getNextEtfCount(name, value);
@@ -1849,6 +1958,13 @@ function handleClick(event) {
     maybeShowRiskHorizonAlert();
     maybeShowEquityRiskAlert();
     maybeShowAdditionalLogicAlerts("promptMode");
+    return;
+  }
+  if (action === "set-execution-mode") {
+    state.executionMode = actionTarget.getAttribute("data-execution-mode") === "fast" ? "fast" : "strict";
+    activePresetId = null;
+    activeStatusInfoKey = "";
+    render();
     return;
   }
   if (action === "toggle-status-info") {

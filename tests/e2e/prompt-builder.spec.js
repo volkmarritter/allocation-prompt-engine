@@ -26,7 +26,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await openApp(page);
 
     await expect(page.locator('select[name="baseCurrency"]')).toHaveValue("CHF");
-    await expect(page.locator(".mode-switch-wrap")).toContainText("App mode");
+    await expect(page.locator(".panel-header > .mode-switch-wrap")).toContainText("App mode");
     await expect(page.locator('select[name="riskAppetite"]')).toHaveValue("High");
     await expect(page.locator('select[name="investmentHorizon"]')).toHaveValue(">=10 years");
     await expect(page.locator(".etf-count-group")).toBeVisible();
@@ -47,6 +47,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".preset-section").locator("xpath=following-sibling::*[1]")).toContainText("Risk appetite");
     await expect(page.locator(".quality-card")).toHaveCount(0);
     await expect(page.locator(".logic-summary")).toContainText("Auto logic");
+    await expect(page.locator(".execution-mode-control")).toContainText("Execution mode");
+    await expect(page.locator('button[data-action="set-execution-mode"][data-execution-mode="strict"]')).toHaveAttribute("aria-pressed", "true");
     await expect(page.locator(".strategy-context")).toContainText("Growth");
     await expect(page.locator(".strategy-context .strategy-segment")).toHaveCount(4);
     await expect(page.locator(".strategy-context .strategy-segment").nth(2)).toHaveText("7-11 ETFs,");
@@ -85,6 +87,9 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     expect(prompt).toContain("Columns: Group: Cash, Bonds, Equities, Commodities, Satellites | Asset class | Target weight");
     expect(prompt).toContain('After Table 1, add a short "Percentage allocation per group" overview');
     expect(prompt).toContain("PORTFOLIO CONSTRUCTION METHODOLOGY (MANDATORY)");
+    expect(prompt).toContain("EXECUTION MODE");
+    expect(prompt).toContain("Reasoning discipline (MANDATORY):");
+    expect(prompt).toContain("Internal validation (MANDATORY before final answer):");
     expect(prompt).toContain("mean-variance optimisation logic consistent with the efficient frontier");
     expect(prompt).toContain("Compare the portfolio to a simple global benchmark");
     expect(prompt).toContain("Portfolio construction rationale (Efficient Frontier perspective)");
@@ -100,7 +105,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".strategy-context")).toContainText("Growth");
     await page.locator('select[name="outputLanguage"]').selectOption("German");
 
-    await expect(page.locator(".mode-switch-wrap")).toContainText("App Mode");
+    await expect(page.locator(".panel-header > .mode-switch-wrap")).toContainText("App Mode");
     await expect(page.locator(".strategy-context")).toContainText("Wachstum");
     await expect(page.locator(".footer-link-button")).toHaveAttribute("href", "https://bicon.li");
     await expect(page.locator(".strategy-context")).not.toContainText("Custom setup");
@@ -114,6 +119,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     const prompt = await getPrompt(page);
     expect(prompt).toContain("Spalten: Gruppe: Cash, Anleihen, Aktien, Rohstoffe, Satelliten | Anlageklasse | Zielgewicht");
     expect(prompt).toContain('Füge nach Tabelle 1 eine kurze Übersicht "Prozentuale Allokation je Gruppe" ein');
+    expect(prompt).toContain("Begründungsdisziplin (VERPFLICHTEND):");
+    expect(prompt).toContain("Interne Validierung (VERPFLICHTEND vor der finalen Antwort):");
     expect(prompt).toContain("PORTFOLIO-KONSTRUKTIONSMETHODIK (VERPFLICHTEND)");
     expect(prompt).toContain("Mean-Variance-Optimierungslogik");
     expect(prompt).toContain("Spalten: Anlageklasse | Zielgewicht | ETF-Name | ISIN");
@@ -272,6 +279,23 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     await expect(page.locator(".basic-auto-summary")).toContainText("Basic mode keeps advanced parameters automatic");
     await expect(page.locator('select[name="riskAppetite"]')).toHaveCount(0);
     await expect(page.locator(".range-group")).toHaveCount(0);
+    await expect(page.locator(".execution-mode-control")).toHaveCount(0);
+    await expect(page.locator(".output-box")).toContainText("Execution mode");
+    await expect(page.locator(".output-box")).toContainText("Focus on speed and clarity.");
+    await expect(page.locator(".output-box")).not.toContainText("Internal validation (MANDATORY before final answer):");
+  });
+
+  test("Pro execution mode switches prompt discipline", async ({ page }) => {
+    await openApp(page);
+
+    await expect(page.locator('button[data-action="set-execution-mode"][data-execution-mode="strict"]')).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".output-box")).toContainText("Internal validation (MANDATORY before final answer):");
+
+    await page.locator('button[data-action="set-execution-mode"][data-execution-mode="fast"]').click();
+
+    await expect(page.locator('button[data-action="set-execution-mode"][data-execution-mode="fast"]')).toHaveAttribute("aria-pressed", "true");
+    await expect(page.locator(".output-box")).toContainText("Focus on speed and clarity.");
+    await expect(page.locator(".output-box")).not.toContainText("Internal validation (MANDATORY before final answer):");
   });
 
   test("basic mode collapses advanced controls and keeps required options selected", async ({ page }) => {

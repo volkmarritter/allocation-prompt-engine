@@ -12,8 +12,9 @@ This file documents the app's business logic for strategy presets, selected para
 - `Target ETF positions`: `7 to 11`
 - `Language`: `English`
 - All asset classes except `Listed Real Estate` are selected by default, in line with the `Growth` preset.
-- All output sections `A` to `G` are selected by default.
+- All output sections `A` to `H` are selected by default.
 - Prompt instructions for home bias, hedging, look-through, and synthetic ETFs are enabled by default.
+- Execution mode defaults to `Strict` in Pro; Basic always uses `Fast`.
 
 The reset button is labelled `Reset defaults: Growth CHF` or, in German, `Zurücksetzen: Wachstum CHF`.
 
@@ -156,7 +157,7 @@ If minimum and maximum are identical:
 
 ## Output Sections
 
-Output sections `A` to `G` can be enabled or disabled individually.
+Output sections `A` to `H` can be enabled or disabled individually.
 
 If sections are omitted:
 
@@ -171,6 +172,14 @@ Optional prompt instructions:
 - Currency hedging discussion
 - Look-through exposure assessment
 - Synthetic ETF assessment
+
+Execution mode controls the reasoning depth in the generated prompt:
+
+- `Fast`: focuses on speed, clarity, and pragmatic portfolio construction.
+- `Strict`: requires structured reasoning discipline, ordered decision steps, and internal validation before the final answer.
+
+In Basic mode, the prompt-instructions area is collapsed and execution mode is always written into the prompt as `Fast`.
+In Pro mode, execution mode can be switched between `Fast` and `Strict` in the prompt-instructions area; the default is `Strict`.
 
 The home-bias instruction is hidden for `USD`.
 

@@ -12,8 +12,9 @@ Diese Datei dokumentiert die fachliche Logik der App in Bezug auf gewählte Stra
 - `Target ETF positions`: `7 bis 11`
 - `Language`: `English`
 - Alle Anlageklassen ausser `Listed Real Estate` sind standardmässig ausgewählt, entsprechend dem `Growth`-Preset.
-- Alle Ausgabeabschnitte `A` bis `G` sind standardmässig ausgewählt.
+- Alle Ausgabeabschnitte `A` bis `H` sind standardmässig ausgewählt.
 - Prompt-Instruktionen für Home Bias, Hedging, Look-through und synthetische ETFs sind standardmässig aktiv.
+- Der Ausführungsmodus ist in Pro standardmässig `Strikt`; in Basic wird immer `Schnell` verwendet.
 
 Der Reset-Button ist entsprechend beschriftet als `Reset defaults: Growth CHF` bzw. `Zurücksetzen: Wachstum CHF`.
 
@@ -156,7 +157,7 @@ Wenn Minimum und Maximum identisch sind:
 
 ## Output Sections
 
-Die Ausgabeabschnitte `A` bis `G` können einzeln aktiviert/deaktiviert werden.
+Die Ausgabeabschnitte `A` bis `H` können einzeln aktiviert/deaktiviert werden.
 
 Wenn Abschnitte weggelassen werden:
 
@@ -171,6 +172,14 @@ Folgende Prompt-Instruktionen sind optional:
 - Währungsabsicherung
 - Look-through exposure assessment
 - Synthetic ETF assessment
+
+Der Ausführungsmodus steuert die Begründungstiefe im generierten Prompt:
+
+- `Schnell`: fokussiert auf Geschwindigkeit, Klarheit und pragmatische Portfolio-Konstruktion.
+- `Strikt`: verlangt strukturierte Begründungsdisziplin, Entscheidungsschritte in Reihenfolge und interne Validierung vor der finalen Antwort.
+
+In Basic Mode ist der Prompt-Instruktionsbereich geschlossen und der Ausführungsmodus wird immer als `Schnell` in den Prompt geschrieben.
+In Pro Mode ist der Ausführungsmodus im Prompt-Instruktionsbereich zwischen `Schnell` und `Strikt` umschaltbar; Default ist `Strikt`.
 
 Die Home-Bias-Instruktion wird bei `USD` ausgeblendet.
 
