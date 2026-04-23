@@ -653,7 +653,7 @@ button {
 }
 
 .exchange-grid {
-  grid-template-columns: minmax(260px, 0.72fr);
+  grid-template-columns: minmax(340px, 0.95fr);
 }
 
 .toggle-grid {
@@ -1684,6 +1684,7 @@ button {
   }
 
   .dual-grid,
+  .exchange-grid,
   .toggle-grid,
   .quick-start-grid,
   .preset-grid,

@@ -47,7 +47,8 @@ The preset description explicitly shows the equity allocation range as `XX-XX% e
 - `etfCountBase`: ETF target count when all asset classes are selected; currently `8 to 12`.
 - `label` and `deLabel`: visible strategy names; `id` can also be changed if `defaultPresetId` and references use the new id.
 - `icon`: preset icon style (`conservative`, `balanced`, `growth`, `aggressive`).
-- `exchanges`: exchanges available in the `Preferred exchange` selector.
+- `exchanges`: exchanges available in the `Preferred exchange` selector. Entries can be strings or config objects with `value`, `label`, `promptLabel`, and optional `dePromptLabel`; this supports the flexible `Any European/UK/Swiss exchange` option without tying prompt behavior to the visible label.
+- Long exchange labels are capped in the selector UI while the full text remains available as a title; `promptLabel` and `dePromptLabel` control the generated prompt text.
 - `defaultBaseCurrency`: base currency used for initial load and reset.
 - `defaultExchangeByCurrency`: default exchange per base currency.
 - `defaultPresetId`: preset used for initial load and reset.
@@ -130,7 +131,7 @@ In Auto mode, the preferred exchange is derived from the base currency:
 | --- | --- |
 | `CHF` | `SIX Swiss Exchange` |
 | `EUR` | `XETRA Deutsche Börse` |
-| `USD` | `LSE London Stock Exchange` |
+| `USD` | `Any European/UK/Swiss exchange` |
 | `GBP` | `LSE London Stock Exchange` |
 
 If the user manually changes `Preferred exchange`:

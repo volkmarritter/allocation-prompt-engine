@@ -32,14 +32,22 @@ const fallbackBaseCurrencyOptions = ["CHF", "EUR", "USD", "GBP"];
 const baseCurrencyOptions = Array.isArray(promptBuilderConfig.baseCurrencies) && promptBuilderConfig.baseCurrencies.length
   ? promptBuilderConfig.baseCurrencies
   : fallbackBaseCurrencyOptions;
-const fallbackExchangeOptions = ["SIX Swiss Exchange", "XETRA Deutsche Börse", "LSE London Stock Exchange"];
-const exchangeOptions = Array.isArray(promptBuilderConfig.exchanges) && promptBuilderConfig.exchanges.length
+const flexibleEuropeanExchangeOption = {
+  value: "ANY_EU_UK_CH",
+  label: "Any European/UK/Swiss exchange",
+  promptLabel: "any European, UK, or Swiss exchange",
+  dePromptLabel: "einem geeigneten europäischen, britischen oder Schweizer Börsenplatz",
+};
+const fallbackExchangeOptions = ["SIX Swiss Exchange", "XETRA Deutsche Börse", "LSE London Stock Exchange", flexibleEuropeanExchangeOption];
+const exchangeOptionItems = normalizeExchangeOptions(Array.isArray(promptBuilderConfig.exchanges) && promptBuilderConfig.exchanges.length
   ? promptBuilderConfig.exchanges
-  : fallbackExchangeOptions;
+  : fallbackExchangeOptions);
+const exchangeOptions = exchangeOptionItems.map((option) => option.value);
+const exchangeLabelMaxLength = 34;
 const defaultExchangeByCurrency = {
   CHF: "SIX Swiss Exchange",
   EUR: "XETRA Deutsche Börse",
-  USD: "LSE London Stock Exchange",
+  USD: "ANY_EU_UK_CH",
   GBP: "LSE London Stock Exchange",
   ...(promptBuilderConfig.defaultExchangeByCurrency || {}),
 };
@@ -545,7 +553,7 @@ function getPresetContextParts() {
   const label = preset ? (german ? preset.deLabel : preset.label) : t.customStrategy;
   const equitySuffix = german ? "Aktien" : "equity";
   const etfText = german ? "ETFs" : "ETFs";
-  return [`${label}:`, `${state.equityMin}-${state.equityMax}% ${equitySuffix}`, `${state.minEtfs}-${state.maxEtfs} ${etfText}`, state.exchange];
+  return [`${label}:`, `${state.equityMin}-${state.equityMax}% ${equitySuffix}`, `${state.minEtfs}-${state.maxEtfs} ${etfText}`, getExchangeDisplayLabel(state.exchange)];
 }
 
 function getAutoLogicItems() {
@@ -867,14 +875,15 @@ function buildPrompt() {
     : german
       ? "Kein Ausgabeabschnitt ausgewählt. Wähle mindestens einen Abschnitt für die Antwort aus."
       : "No output sections selected. Specify at least one section in the response.";
+  const exchangeRequirementTarget = getExchangePromptLabel(state.exchange, german);
   const numberedRequirements = [
+    german
+      ? "Übersteuere die angegebenen Restriktionen nicht. Falls eine Restriktion nicht erfüllbar ist, erkläre warum und nenne die nächstbeste praktikable Alternative."
+      : "Do not override the stated constraints. If a constraint cannot be met, explain why and propose the closest feasible alternative.",
     german ? "Verwende ausschliesslich ETFs zur Umsetzung." : "Use ETFs only for implementation.",
     german
-      ? "Überschreibe die angegebenen Restriktionen nicht. Falls eine Restriktion nicht erfüllbar ist, erkläre warum und nenne die nächstbeste praktikable Alternative."
-      : "Do not override the stated constraints. If a constraint cannot be met, explain why and propose the closest feasible alternative.",
-    german
-      ? `Bevorzuge ETFs, die an ${state.exchange} handelbar sind. Falls dies nicht möglich ist, nenne die nächstbeste Alternative und begründe die Ausnahme.`
-      : `Prefer ETFs tradable on ${state.exchange}. If this is not possible, name the next-best alternative and explain the exception.`,
+      ? `Bevorzuge ETFs, die an ${exchangeRequirementTarget} handelbar sind. Falls dies nicht möglich ist, nenne die nächstbeste Alternative und begründe die Ausnahme.`
+      : `Prefer ETFs tradable on ${exchangeRequirementTarget}. If this is not possible, name the next-best alternative and explain the exception.`,
     german
       ? "Bevorzuge liquide, kostengünstige und breit diversifizierte ETFs. Bevorzuge UCITS-konforme ETFs, sofern sie verfügbar und mit dem gewählten Börsenplatz vereinbar sind. Vermeide Nischenprodukte, sofern sie nicht klar begründet sind."
       : "Prefer liquid, low-cost, broad ETFs. Prefer UCITS-compliant ETFs where they are available and consistent with the selected exchange. Avoid niche products unless clearly justified.",
@@ -1271,7 +1280,7 @@ function render() {
                     ${renderAdjustmentStatus(state.exchangeManuallyAdjusted, "restore-exchange-auto")}
                   </div>
                 </div>
-                <select class="select" name="exchange">${renderOptions(exchangeOptions, state.exchange)}</select>
+                <select class="select" name="exchange">${renderOptions(exchangeOptions, state.exchange, exchangeOptionLabels, exchangeLabelMaxLength)}</select>
               </div>
             </div>
 
@@ -1410,10 +1419,49 @@ function renderFooter(t) {
   `;
 }
 
-function renderOptions(options, selected, labels = {}) {
+function renderOptions(options, selected, labels = {}, maxLabelLength = 0) {
   return options
-    .map((option) => `<option value="${escapeAttribute(option)}" ${option === selected ? "selected" : ""}>${escapeHtml(labels[option] || option)}</option>`)
+    .map((option) => {
+      const label = labels[option] || option;
+      const displayLabel = truncateLabel(label, maxLabelLength);
+      const title = displayLabel === label ? "" : ` title="${escapeAttribute(label)}"`;
+      return `<option value="${escapeAttribute(option)}" ${option === selected ? "selected" : ""}${title}>${escapeHtml(displayLabel)}</option>`;
+    })
     .join("");
+}
+
+function truncateLabel(label, maxLength = 0) {
+  if (!maxLength || label.length <= maxLength) return label;
+  return `${label.slice(0, Math.max(1, maxLength - 3)).trimEnd()}...`;
+}
+
+function normalizeExchangeOptions(options) {
+  return options.map((option) => {
+    if (typeof option === "string") {
+      return { value: option, label: option, promptLabel: option, dePromptLabel: option };
+    }
+    const value = option && typeof option.value === "string" ? option.value : "";
+    const label = option && typeof option.label === "string" ? option.label : value;
+    const promptLabel = option && typeof option.promptLabel === "string" ? option.promptLabel : label;
+    const dePromptLabel = option && typeof option.dePromptLabel === "string" ? option.dePromptLabel : promptLabel;
+    return { value, label, promptLabel, dePromptLabel };
+  }).filter((option) => option.value);
+}
+
+const exchangeOptionLabels = Object.fromEntries(exchangeOptionItems.map((option) => [option.value, option.label]));
+
+function getExchangeOption(value) {
+  return exchangeOptionItems.find((option) => option.value === value) || null;
+}
+
+function getExchangeDisplayLabel(value) {
+  return getExchangeOption(value)?.label || value;
+}
+
+function getExchangePromptLabel(value, german = false) {
+  const option = getExchangeOption(value);
+  if (!option) return value;
+  return german ? option.dePromptLabel : option.promptLabel;
 }
 
 function renderQuickStartPanel(introMode = false) {

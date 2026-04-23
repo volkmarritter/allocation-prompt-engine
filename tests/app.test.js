@@ -156,7 +156,7 @@ test("portfolio strategy and exchange defaults are loaded from config", () => {
   assert.deepEqual(Array.from(result), [
     4,
     true,
-    "SIX Swiss Exchange|XETRA Deutsche Börse|LSE London Stock Exchange",
+    "SIX Swiss Exchange|XETRA Deutsche Börse|LSE London Stock Exchange|ANY_EU_UK_CH",
     "CHF",
     "XETRA Deutsche Börse",
     "growth",
@@ -203,6 +203,8 @@ test("English prompt includes current Table 2 and instruction requirements", () 
   assert.match(prompt, /After Table 2, add a short regulatory and tax suitability note/);
   assert.match(prompt, /ETF selections are preliminary implementation examples only/);
   assert.match(prompt, /Final product eligibility and suitability must be checked/);
+  assert.match(prompt, /1\. Do not override the stated constraints/);
+  assert.match(prompt, /2\. Use ETFs only for implementation/);
   assert.match(prompt, /Do not override the stated constraints/);
   assert.match(prompt, /closest feasible alternative/);
   assert.match(prompt, /Prefer liquid, low-cost, broad ETFs/);
@@ -308,7 +310,9 @@ test("German prompt includes current Table 2 and instruction requirements", () =
   assert.match(prompt, /Füge nach Tabelle 2 einen kurzen Hinweis zur regulatorischen und steuerlichen Eignung ein/);
   assert.match(prompt, /ETF-Auswahlen sind nur vorläufige Umsetzungsbeispiele/);
   assert.match(prompt, /Finale Produkteignung und Zulässigkeit müssen vor Ausführung/);
-  assert.match(prompt, /Überschreibe die angegebenen Restriktionen nicht/);
+  assert.match(prompt, /1\. Übersteuere die angegebenen Restriktionen nicht/);
+  assert.match(prompt, /2\. Verwende ausschliesslich ETFs zur Umsetzung/);
+  assert.match(prompt, /Übersteuere die angegebenen Restriktionen nicht/);
   assert.match(prompt, /nächstbeste praktikable Alternative/);
   assert.match(prompt, /Bevorzuge liquide, kostengünstige und breit diversifizierte ETFs/);
   assert.match(prompt, /Bevorzuge UCITS-konforme ETFs, sofern sie verfügbar und mit dem gewählten Börsenplatz vereinbar sind/);
@@ -385,7 +389,7 @@ test("English and German prompts keep aligned strict structure and formatting", 
   ]);
 
   const alignedPairs = [
-    [/Do not override the stated constraints/, /Überschreibe die angegebenen Restriktionen nicht/],
+    [/Do not override the stated constraints/, /Übersteuere die angegebenen Restriktionen nicht/],
     [/closest feasible alternative/, /nächstbeste praktikable Alternative/],
     [/After Table 2, add a short regulatory and tax suitability note/, /Füge nach Tabelle 2 einen kurzen Hinweis zur regulatorischen und steuerlichen Eignung ein/],
     [/ETF selections are preliminary implementation examples only/, /ETF-Auswahlen sind nur vorläufige Umsetzungsbeispiele/],
@@ -832,7 +836,7 @@ test("base currency sets the preferred exchange for every currency change", () =
     `
   );
 
-  assert.deepEqual(Array.from(result), ["XETRA Deutsche Börse", "LSE London Stock Exchange", "SIX Swiss Exchange", "LSE London Stock Exchange"]);
+  assert.deepEqual(Array.from(result), ["XETRA Deutsche Börse", "LSE London Stock Exchange", "SIX Swiss Exchange", "ANY_EU_UK_CH"]);
 });
 
 test("preferred exchange stays fixed while manual and restores to currency default", () => {
@@ -856,6 +860,37 @@ test("preferred exchange stays fixed while manual and restores to currency defau
   assert.deepEqual(Array.from(result[0]), ["LSE London Stock Exchange", true]);
   assert.deepEqual(Array.from(result[1]), ["LSE London Stock Exchange", true]);
   assert.deepEqual(Array.from(result[2]), ["XETRA Deutsche Börse", false]);
+});
+
+test("flexible European exchange option renders a natural prompt instruction", () => {
+  const context = createContext();
+  reset(context);
+
+  const prompt = run(
+    context,
+    `
+      state.exchange = "ANY_EU_UK_CH";
+      buildPrompt();
+    `
+  );
+
+  assert.match(prompt, /Prefer ETFs tradable on any European, UK, or Swiss exchange/);
+  assert.doesNotMatch(prompt, /Prefer ETFs tradable on Any European\/UK\/Swiss exchange/);
+});
+
+test("exchange labels are capped in the selector while keeping the full title", () => {
+  const context = createContext();
+  reset(context);
+
+  const html = run(
+    context,
+    `
+      renderOptions(["LONG_EXCHANGE"], "LONG_EXCHANGE", { LONG_EXCHANGE: "A very long exchange label that should not overflow the field" }, 24);
+    `
+  );
+
+  assert.match(html, /A very long exchange\.\.\./);
+  assert.match(html, /title="A very long exchange label that should not overflow the field"/);
 });
 
 test("selected output sections are re-lettered alphabetically", () => {

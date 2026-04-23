@@ -38,7 +38,7 @@ Default exchange by currency:
 | --- | --- |
 | CHF | SIX Swiss Exchange |
 | EUR | XETRA Deutsche Boerse |
-| USD | LSE London Stock Exchange |
+| USD | Any European/UK/Swiss exchange |
 | GBP | LSE London Stock Exchange |
 
 Strategy presets:
@@ -121,7 +121,7 @@ npm.cmd run test:e2e
 
 Current expected local results:
 
-- Unit tests: `68/68 passed`
+- Unit tests: `70/70 passed`
 - E2E tests: `43 passed`, `1 skipped`
 
 The skipped E2E test is intentional for the desktop Playwright project because it is mobile-only.
@@ -174,6 +174,8 @@ Edit `config.js` to adjust:
 - Base currency list and order.
 - Default base currency.
 - Available exchanges in the preferred exchange selector.
+- Flexible exchange option for any suitable European, UK, or Swiss exchange via a config object with `value`, `label`, `promptLabel`, and optional `dePromptLabel`.
+- Long exchange labels are shortened in the selector UI; keep `promptLabel` explicit for the full generated prompt wording.
 - Default exchange per base currency.
 - ETF count base.
 - Default strategy preset.

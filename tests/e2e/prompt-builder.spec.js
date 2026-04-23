@@ -131,7 +131,7 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     expect(prompt).toContain("springe nicht direkt zur finalen Allokation");
     expect(prompt).toContain("Interne Validierung (VERPFLICHTEND vor der finalen Antwort):");
     expect(prompt).toContain("Umsetzungsrobustheit wesentlich zu reduzieren");
-    expect(prompt).toContain("Überschreibe die angegebenen Restriktionen nicht");
+    expect(prompt).toContain("Übersteuere die angegebenen Restriktionen nicht");
     expect(prompt).toContain("Bevorzuge liquide, kostengünstige und breit diversifizierte ETFs");
     expect(prompt).toContain("Bevorzuge UCITS-konforme ETFs, sofern sie verfügbar und mit dem gewählten Börsenplatz vereinbar sind");
     expect(prompt).toContain("Verwende so wenige ETFs wie praktikabel innerhalb der Zielbandbreite");
@@ -441,7 +441,8 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
     const prompt = await getPrompt(page);
     expect(prompt).not.toContain("Address Swiss home bias");
     expect(prompt).toContain("- Base currency: USD");
-    expect(prompt).toContain("Prefer ETFs tradable on LSE London Stock Exchange");
+    await expect(page.locator('select[name="exchange"]')).toHaveValue("ANY_EU_UK_CH");
+    expect(prompt).toContain("Prefer ETFs tradable on any European, UK, or Swiss exchange");
   });
 
   test("updates preferred exchange in the prompt", async ({ page }) => {
@@ -453,6 +454,9 @@ test.describe("Portfolio Prompt Builder browser flow", () => {
 
     await page.locator('select[name="exchange"]').selectOption("LSE London Stock Exchange");
     await expect(page.locator(".output-box")).toContainText("Prefer ETFs tradable on LSE London Stock Exchange");
+
+    await page.locator('select[name="exchange"]').selectOption({ label: "Any European/UK/Swiss exchange" });
+    await expect(page.locator(".output-box")).toContainText("Prefer ETFs tradable on any European, UK, or Swiss exchange");
   });
 
   test("reset restores defaults after parameter changes", async ({ page }) => {

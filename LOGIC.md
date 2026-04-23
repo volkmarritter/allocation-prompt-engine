@@ -47,7 +47,8 @@ Die Preset-Beschreibung zeigt die Aktienbandbreite explizit als `XX-XX% equity` 
 - `etfCountBase`: ETF-Zielanzahl, wenn alle Anlageklassen ausgewählt sind; aktuell `8 bis 12`.
 - `label` und `deLabel`: sichtbare Strategienamen; `id` kann ebenfalls angepasst werden, wenn `defaultPresetId` und Referenzen auf die neue ID zeigen.
 - `icon`: Icon-Stil des Presets (`conservative`, `balanced`, `growth`, `aggressive`).
-- `exchanges`: die im Feld `Preferred exchange` auswählbaren Börsenplätze.
+- `exchanges`: die im Feld `Preferred exchange` auswählbaren Börsenplätze. Einträge können Strings oder Config-Objekte mit `value`, `label`, `promptLabel` und optional `dePromptLabel` sein; dadurch bleibt die flexible Option `Any European/UK/Swiss exchange` unabhängig vom sichtbaren Label steuerbar.
+- Lange Exchange-Labels werden im Selector gekürzt, bleiben aber als vollständiger Title verfügbar; `promptLabel` und `dePromptLabel` steuern den generierten Prompt-Text.
 - `defaultBaseCurrency`: Basiswährung für Initialzustand und Reset.
 - `defaultExchangeByCurrency`: Default-Börsenplatz pro Basiswährung.
 - `defaultPresetId`: Preset für Initialzustand und Reset.
@@ -130,7 +131,7 @@ Die Börse wird im Auto-Modus aus der Basiswährung abgeleitet:
 | --- | --- |
 | `CHF` | `SIX Swiss Exchange` |
 | `EUR` | `XETRA Deutsche Börse` |
-| `USD` | `LSE London Stock Exchange` |
+| `USD` | `Any European/UK/Swiss exchange` |
 | `GBP` | `LSE London Stock Exchange` |
 
 Wenn der Nutzer `Preferred exchange` manuell ändert:
@@ -196,7 +197,7 @@ Die Synthetic-ETF-Instruktion erwähnt strukturelle Vorteile, insbesondere Markt
 
 Die generierten Requirements enthalten zusätzlich sprachunabhängig:
 
-- Restriktionen dürfen nicht überschrieben werden; nicht erfüllbare Restriktionen müssen erklärt und mit der nächstbesten praktikablen Alternative beantwortet werden.
+- Restriktionen dürfen nicht übersteuert werden; nicht erfüllbare Restriktionen müssen erklärt und mit der nächstbesten praktikablen Alternative beantwortet werden.
 - ETF-Auswahl priorisiert liquide, kostengünstige und breit diversifizierte ETFs. UCITS-konforme ETFs werden bevorzugt, sofern sie verfügbar und mit dem gewählten Börsenplatz vereinbar sind.
 - Die ETF-Zielanzahl wird als praktikable Zielbandbreite formuliert, ohne Diversifikation oder Umsetzungsrobustheit zu opfern.
 - Taktische Marktprognosen, Market-Timing und kurzfristige Renditeprognosen werden ausgeschlossen.
